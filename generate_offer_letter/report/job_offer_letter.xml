@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="action_offer_letter" model="ir.actions.report">
+        <field name="name">Offer Letter</field>
+        <field name="model">hr.job.offer</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">generate_offer_letter.offer_letter</field>
+        <field name="report_file">generate_offer_letter.offer_letter</field>
+        <field name="print_report_name">'Offer Letter - %s' % (object.candidate_id.partner_name)</field>
+        <field name="binding_model_id" ref="model_hr_job_offer"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_offer_letter">
+        <t t-call="web.external_layout">
+            <t t-set="company" t-value="doc.company_id"/>
+            <div class="page">
+                <p class="text-right">
+                    <strong>Date:</strong>
+                    <t t-esc="doc.offer_date"/>
+                </p>
+
+                <br/>
+
+                <p>
+                    <strong>To</strong><br/>
+                    <t t-esc="doc.candidate_id.partner_name"/><br/>
+                    <t t-esc="doc.candidate_address"/>
+                </p>
+
+                <br/>
+
+                <p>Dear Mr/Mrs <t t-esc="doc.candidate_id.partner_name"/>,</p>
+
+                <p><strong>Subject: Job Offer</strong></p>
+
+                <p>
+                    With reference to your application and subsequent interviews,
+                    <strong><t t-esc="company.name"/></strong> is pleased to offer you
+                    a job as <strong><t t-esc="doc.job_title.name"/></strong>
+                    at <t t-esc="doc.location"/>. We trust that your knowledge, skills and
+                    experience will become our most valuable assets. Your Date of Join will be on 
+                    <strong><t t-esc="doc.joining_date"/></strong> or earlier with the following terms and conditions.
+                </p>
+                <br/>
+                <ul>
+                    <li>The job will initiate with a probation period of six months.</li>
+                    <li>Detail of other benefits along with detailed Job Description will be provided upon appointment.</li>
+                    <li>Your monthly Cost to Company is Rs. <strong><t t-esc="doc.gross_salary"/></strong> refer Appendix A.</li>
+                    <li>You will be entitled to earned leave as per company rules and as applicable to your category of employees.</li>
+                    <li>Your services can be terminated from the Company at any time without notice within the first six months during probationary period. After probationary period your service can be terminated with one month notice or one month pay in lieu thereof.</li>
+                    <li>The detailed breakdown of your Salary is in Appendix A.</li>
+                </ul>
+
+                <div style="page-break-before: always;">
+                    <h3>Appendix A</h3>
+                    <table class="table table-bordered table-sm">
+                        <tr>
+                            <td><span>Name:</span></td>
+                            <td><t t-esc="doc.candidate_id.partner_name"/></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><span>Designation:</span></td>
+                            <td><t t-esc="doc.job_title.name"/></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><span>Department:</span></td>
+                            <td><t t-esc="doc.department.name"/></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><span>Location:</span></td>
+                            <td><t t-esc="doc.location"/></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><span>S.No.</span></td>
+                            <td><span>Heads of Compensation</span></td>
+                            <td><span>Per Month</span></td>
+                            <td><span>Per Annum</span></td>
+                            <td><span>Remarks</span></td>
+                        </tr>
+                        <tr>    
+                            <td>A</td>
+                            <td>Fixed Salary</td>
+                            <td>Rs.</td>
+                            <td>Rs.</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <strong>Monthly payment</strong>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Basic Salary</td>
+                            <td><t t-esc="doc.basic_salary"/></td>
+                            <td><t t-esc="doc.basic_salary * 12"/></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>HRA</td>
+                            <td><t t-esc="doc.hra"/></td>
+                            <td><t t-esc="doc.hra * 12"/></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Special Allowance</td>
+                            <td><t t-esc="doc.special_allowance"/></td>
+                            <td><t t-esc="doc.special_allowance * 12"/></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Statutory Bonus 8.33%</td>
+                            <td><t t-esc="doc.bonus"/></td>
+                            <td><t t-esc="doc.bonus * 12"/></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>A</td>
+                            <td><strong>Total Gross</strong></td>
+                            <td><strong>Rs. <t t-esc="doc.gross_salary"/></strong></td>
+                            <td><strong>Rs. <t t-esc="doc.gross_salary * 12"/></strong></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><strong>Other Benefits</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Provident Fund - Employer's Contribution</td>
+                            <td>Rs. <t t-esc="doc.basic_salary * 0.12"/></td>
+                            <td>Rs. <t t-esc="doc.basic_salary * 0.12 * 12"/></td>
+                            <td>As per Government rules</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Gratuity</td>
+                            <td>Rs. <t t-esc="doc.basic_salary * 0.0481"/></td>
+                            <td>Rs. <t t-esc="doc.basic_salary * 0.0481 * 12"/></td>
+                            <td>As per Government rules</td>
+                        </tr>
+                        <tr>
+                            <td>B</td>
+                            <td><strong>Total Other Benefits</strong></td>
+                            <td><strong>Rs. <t t-esc="(doc.basic_salary * 0.12) + (doc.basic_salary * 0.0481)"/></strong></td>
+                            <td><strong>Rs. <t t-esc="(doc.basic_salary * 0.12 * 12) + (doc.basic_salary * 0.0481 * 12)"/></strong></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><strong>Sub Total(A+B)</strong></td>
+                            <td><strong>Rs. <t t-esc="doc.gross_salary + (doc.basic_salary * 0.12) + (doc.basic_salary * 0.0481)"/></strong></td>
+                            <td><strong>Rs. <t t-esc="(doc.gross_salary * 12) + (doc.basic_salary * 0.12 * 12) + (doc.basic_salary * 0.0481 * 12)"/></strong></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Additional Benefits</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Mediclaim Policy</td>
+                            <td></td>
+                            <td></td>
+                            <td>As per company policy</td>
+                        </tr>   
+                        <tr>
+                            <td></td>
+                            <td>Group Personal Accident Policy</td>
+                            <td></td>
+                            <td></td>
+                            <td>Group Personal Accident Policy</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Workmen Compensation Policy</td>
+                            <td></td>
+                            <td></td>
+                            <td>As per company policy</td>
+                        </tr>
+                        <tr>
+                            <td>C</td>
+                            <td><strong>Total Additional Benefits</strong></td> 
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><strong> Cost to Company (A+B+C)</strong></td>
+                            <td><strong>Rs. <t t-esc="doc.gross_salary + (doc.basic_salary * 0.12) + (doc.basic_salary * 0.0481)"/></strong></td>
+                            <td><strong>Rs. <t t-esc="(doc.gross_salary * 12) + (doc.basic_salary * 0.12 * 12) + (doc.basic_salary * 0.0481 * 12)"/></strong></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                    <br/>
+                    <div>
+                        <strong>PF &amp; ESI as applicable per Government Rules</strong><br/>
+                        <strong>Accident Insurance</strong><br/>
+                        <strong>Gratuity Scheme as per Government Rules</strong>
+                    </div>
+                </div>
+
+                <div style="page-break-before: always;">
+                    <table class="table table-bordered table-sm text-align-center">
+                        <tr>
+                            <td>Total Gross Salary</td>
+                            <td>Rs. <t t-esc="doc.gross_salary"/></td>  
+                        </tr>
+                        <tr>
+                            <td>PF Deduction</td>
+                            <td>Rs. <t t-esc="(doc.basic_salary * 0.12) + (doc.basic_salary * 0.0481)"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>ESIC Deduction</strong></td>
+                            <td><strong>Rs. <t t-esc="doc.gross_salary + (doc.basic_salary * 0.12) + (doc.basic_salary * 0.0481)"/></strong></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><strong>Rs. <t t-esc="doc.gross_salary"/></strong></td>    
+                        </tr>
+                    </table>
+                    <br/>
+                    <p>
+                        <strong class="text-center">* As per government rules and regulations</strong>
+                    </p>
+                    <br/>
+                    <strong class="text-left"> Acceptance</strong><br/>
+                    <p>
+                        Signing of this Offer Letter is a token of your acceptance of the terms and conditions offered. 
+                        This offer letter will be deemed effective on your signing and executing the same. 
+                        We look forward to a fruitful association between you and the company.
+                    </p>
+                    <br/>
+                    <div class="row">
+                        <div class="col-6 text-left">
+                            <span>____________________________</span><br/>
+                            <span>Employee Signature</span><br/>
+                        </div>
+                        <div class="col-6 text-right">
+                            <span>____________________________</span><br/>
+                            <span>Date</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="offer_letter">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="generate_offer_letter.report_offer_letter"/>
+            </t>
+        </t>
+    </template>
+
+</odoo>

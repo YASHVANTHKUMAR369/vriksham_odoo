@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="ir_seq_hr_bonus" model="ir.sequence">
+        <field name="name">Bonus</field>
+        <field name="code">bonus.request.seq</field>
+        <field name="prefix">B</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="number_next_actual">1</field>
+        <field name="implementation">standard</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="ir_seq_hr_incentive" model="ir.sequence">
+        <field name="name">Incentive</field>
+        <field name="code">incentive.request.seq</field>
+        <field name="prefix">INC</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="number_next_actual">1</field>
+        <field name="implementation">standard</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

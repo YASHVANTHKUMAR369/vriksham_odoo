@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_payslip_xlsx" model="ir.actions.report">
+        <field name="name">Payslip XLSX</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">payroll_report.payroll_xlsx_report</field>
+        <field name="binding_model_id" ref="hr_payroll_community.model_hr_payslip"/>
+        <field name="binding_type">action</field>
+    </record>
+</odoo>

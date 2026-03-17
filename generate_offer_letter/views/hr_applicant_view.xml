@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_applicant_form_offer_letter" model="ir.ui.view">
+        <field name="name">hr.applicant.form.offer.letter</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='create_employee_from_applicant']" position="before">
+                <button string="Generate Offer Letter" class="btn btn-secondary"
+                            type="action" name="%(job_offer_letter_wizard_action)d"
+                            context="{'default_candidate_id': id,
+                            'default_job_title': job_id,
+                            'default_department': department_id}" invisible="application_status != 'hired'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

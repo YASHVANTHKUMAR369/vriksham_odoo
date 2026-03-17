@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+
+
+        <record id="M_ALW" model="hr.salary.rule.category">
+            <field name="name">Allowance</field>
+            <field name="code">M_ALW</field>
+        </record>
+        <record id="OTHER_ALW" model="hr.salary.rule.category">
+            <field name="name">Other Allowance</field>
+            <field name="code">OTHER_ALW</field>
+        </record>
+
+
+        <record id="mail_template_resignation_feedback_invite" model="mail.template">
+            <field name="name">Resignation Form : Invite</field>
+            <field name="model_id" ref="survey.model_survey_user_input"/>
+            <field name="subject">Participate to Resignation Feedback Form survey</field>
+            <field name="email_from">{{ user.email_formatted }}</field>
+            <field name="email_to" eval="False"/>
+            <field name="use_default_to" eval="True"/>
+            <field name="description">Sent to participant when you share a survey</field>
+            <field name="body_html" type="html">
+
+                <div style="margin: 0px; padding: 0px; font-size: 13px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        Dear
+                        <t t-out="object.partner_id.name or 'participant'">participant</t>
+                        <br/>
+                        <br/>
+                        <t t-if="object.survey_id.certification">
+                            You have been invited to take a new certification.
+                        </t>
+                        <t t-else="">
+                            As you complete your journey with us, we truly value your feedback.We kindly request you to
+                            take a few minutes to complete the exit feedback form.
+                        </t>
+                        <div style="margin: 16px 0px 16px 0px;">
+                            <a t-att-href="(object.get_start_url())"
+                               t-attf-style="background-color: {{user.company_id.email_secondary_color or '#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: {{user.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px; font-size:13px;">
+                                Participate in Feedback Survey
+                            </a>
+                        </div>
+                        <t t-if="object.deadline">
+                            Please answer the survey for <t t-out="format_date(object.deadline) or ''">05/05/2021</t>.
+                            <br/>
+                            <br/>
+                        </t>
+                        <t t-if="object.survey_id.certification">
+                            We wish you good luck!
+                        </t>
+                        <t t-else="">
+                            Thank you in advance for your participation.
+                        </t>
+                    </p>
+                </div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

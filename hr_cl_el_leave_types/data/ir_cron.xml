@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Monthly Casual Leave Accrual -->
+    <record id="ir_cron_cl_monthly" model="ir.cron">
+        <field name="name">Monthly CL Accrual</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_cl_monthly()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">months</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Year End Earned Leave Accrual -->
+    <record id="ir_cron_el_year_end" model="ir.cron">
+        <field name="name">Year End EL Accrual</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_el_year_end()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

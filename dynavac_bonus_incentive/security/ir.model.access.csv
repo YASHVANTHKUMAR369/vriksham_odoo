@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_bonus_request_user,access_bonus_request_user,model_bonus_request,,1,1,1,1
+access_incentive_request_user,access_incentive_request_user,model_incentive_request,,1,1,1,1

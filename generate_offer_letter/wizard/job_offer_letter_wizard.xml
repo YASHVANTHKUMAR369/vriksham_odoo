@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="job_offer_letter_wizard_view" model="ir.ui.view">
+        <field name="name">job.offer.letter.wizard.form</field>
+        <field name="model">hr.job.offer</field>
+        <field name="arch" type="xml">
+            <form string="Generate Offer Letter">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="offer_date"/>
+                            <field name="candidate_id"/>
+                            <field name="candidate_address"/>
+                        </group>
+                        <group>
+                            <field name="job_title"/>
+                            <field name="department"/>
+                            <field name="location"/>
+                            <field name="joining_date"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="probation_months"/>
+                            <field name="employee_type"/>
+                            <field name="gross_salary"/>
+                            <field name="basic_salary"/>
+                            <field name="hra"/>
+                            <field name="conveyance_allowance"/>
+                            <field name="bonus"/>
+                            <field name="special_allowance"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <!-- <button string="Generate" type="object" name="generate_offer_letter" class="btn-primary"/> -->
+                    <button
+                            string="Generate"
+                            name="generate_offer_letter.action_offer_letter"
+                            type="action"
+                            data-hotkey="i"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="job_offer_letter_wizard_action" model="ir.actions.act_window">
+        <field name="name">Generate Offer Letter</field>
+        <field name="res_model">hr.job.offer</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

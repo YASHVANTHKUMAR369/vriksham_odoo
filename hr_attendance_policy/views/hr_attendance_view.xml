@@ -1,0 +1,32 @@
+<odoo>
+    <record id="hr_attendance_policy_form" model="ir.ui.view">
+        <field name="name">hr.attendance.policy.form</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/header" position="inside">
+                <button name="action_send_for_approval"
+                        type="object"
+                        string="Send for Approval" 
+                        invisible="state != 'draft'"
+                        class="btn-primary"/>
+
+                <button name="action_approve"
+                        type="object"
+                        string="Approve"
+                        invisible="state != 'waiting'"
+                        class="btn-success"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,waiting,approved"/>
+            </xpath>
+            <xpath expr="//form/sheet" position="inside">
+                <group>
+                    <field name="attendance_type"/>
+                    <field name="state" readonly="1"/>
+                    <field name="is_late"/>
+                    <field name="late_minutes"/>
+                    <field name="late_duration"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+            id="menu_el_cl_leave_main"
+            name="CL/EL Leaves"
+            parent="hr.menu_hr_root"
+            sequence="80"/>
+    <menuitem
+            id="menu_cl_el_leave_request"
+            name="EL/CL Leave Request"
+            action="action_leave_request"
+            parent="menu_el_cl_leave_main"
+            sequence="1"/>
+</odoo>

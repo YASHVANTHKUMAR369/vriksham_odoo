@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_expense_approval_history,access_hr_expense_approval_history,model_hr_expense_approval_history,,1,1,1,1
+access_hr_expense_approval_step,access_hr_expense_approval_step,model_hr_expense_approval_step,base.group_system,1,1,1,1

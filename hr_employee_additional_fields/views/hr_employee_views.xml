@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_view_employee_form_inherited" model="ir.ui.view">
+        <field name="name">hr.employee.form.view</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='personal_information']/group/group[1]/field[@name='private_email']" position="before">
+                <field name="adhaar_number"/>
+                <field name="emp_bank_name"/>
+                <field name="ifsc_code"/>
+                <field name="pan_number"/>
+                <field name="pf_uan_id"/>
+                <field name="pf_member_id"/>
+                <field name="esi_number"/>
+                <field name="gm_card_number"/>
+            </xpath>
+            <!-- <xpath expr="//field[@name='department_id']" position="after">
+                <field name="emp_grade"/>
+            </xpath> -->
+        </field>
+    </record>
+</odoo>

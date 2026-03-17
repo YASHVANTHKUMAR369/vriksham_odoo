@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem id="menu_biometric_log_root"
+        web_icon="sms,static/description/icon.png" name="Biometric Attendance"
+              sequence="10"/>
+    <menuitem id="menu_biometric_log" name="Biometric Logs" parent="menu_biometric_log_root"
+              action="action_biometric_log" sequence="10"/>
+
+</odoo>

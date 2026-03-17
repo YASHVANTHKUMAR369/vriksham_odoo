@@ -1,0 +1,1 @@
+from . import hr_employee_document_inherit, hr_employee_inherit, hr_resignation_inherit, hr_payslip_inherit,hr_version_inherit, hr_leave_inherit

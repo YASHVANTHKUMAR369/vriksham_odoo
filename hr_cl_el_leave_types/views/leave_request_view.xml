@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_leave_request_form" model="ir.ui.view">
+        <field name="name">leave.request.form</field>
+        <field name="model">hr.employee.leave.config</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Casual Leave (CL)">
+                            <group>
+                                <group>
+                                    <field name="cl_balance"/>
+                                    <field name="cl_yearly_days"/>
+                                    <field name="cl_monthly_credit"/>
+                                </group>
+                                <group>
+                                    <field name="cl_after_probation"/>
+                                    <field name="cl_allowed_notice"/>
+                                    <field name="cl_lapse_year_end"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Earned Leave (EL)">
+                            <group>
+                                <group>
+                                    <field name="el_balance"/>
+                                    <field name="el_yearly_days"/>
+                                    <field name="el_usable_after_months"/>
+                                </group>
+                                <group>
+                                    <field name="el_credit_year_end"/>
+                                    <field name="el_max_accumulation"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_leave_request_list" model="ir.ui.view">
+        <field name="name">leave.request.list</field>
+        <field name="model">hr.employee.leave.config</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="employee_id"/>
+                <field name="cl_balance"/>
+                <field name="el_balance"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+    <record id="action_leave_request" model="ir.actions.act_window">
+        <field name="name">Leave Requests</field>
+        <field name="res_model">hr.employee.leave.config</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

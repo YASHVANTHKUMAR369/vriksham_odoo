@@ -1,0 +1,26 @@
+{
+    'name': 'Dynavac Hrms Changes',
+    'version': '19.0.1.0.0',
+    'depends': ['base', 'hr','oh_employee_documents_expiry','hr_resignation', 'survey', 'hr_holidays', 'hr_holidays_attendance', 'hr_payroll_community'],
+    'data': [
+        'data/mail_template.xml',
+        'data/ir_cron_data.xml',
+        'data/survey/survey.survey.csv',
+        'data/survey/survey.question.csv',
+        'data/survey/survey.question.answer.csv',
+        'data/payroll_structure/hr.salary.rule.csv',
+        'data/payroll_structure/hr.payroll.structure.csv',
+        # 'data/resource_calendar/resource.calendar.csv',
+
+        'views/hr_employee_document_view_inherit.xml',
+        'views/hr_employee_view_inherit.xml',
+        'views/hr_resignation_view_inherit.xml',
+        'views/hr_payslip_view_inherit.xml',
+        # 'views/hr_version_view_inherit.xml',
+    ],
+    'author': 'santhiya',
+    'installable': True,
+    'auto_install': False,
+    'application': True,
+    'license': 'LGPL-3',
+}

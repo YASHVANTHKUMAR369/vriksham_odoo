@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_employee_document_received" model="ir.ui.view">
+        <field name="name">employee.document.received.view</field>
+        <field name="model">hr.employee.document</field>
+        <field name="inherit_id" ref="oh_employee_documents_expiry.hr_employee_document_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='notification_type']" position="after">
+                <field name="received"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

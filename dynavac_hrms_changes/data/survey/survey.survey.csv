@@ -1,0 +1,2 @@
+id,title,survey_type,questions_layout,access_mode,is_attempts_limited,attempts_limit
+survey_dynavac_01,Employee Feedback Survey,assessment,page_per_section,token,True,1

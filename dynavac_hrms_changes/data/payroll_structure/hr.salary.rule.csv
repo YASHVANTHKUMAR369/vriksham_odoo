@@ -1,0 +1,65 @@
+id,name,category_id/id,code,sequence,active,appears_on_payslip,condition_select,condition_python,amount_select,amount_python_compute,company_id/id
+hr_salary_rule_01,Basic Salary,hr_payroll_community.BASIC,BASIC,1,1,1,none,result = True,code,"result = 0
+if contract.employee_type == ""employee"":
+    result = contract.wage * 0.50
+if contract.employee_type in [""worker"",""contractor""]:
+    result = contract.wage * 0.70",base.main_company
+hr_salary_rule_02,House Rent Allowence,dynavac_hrms_changes.M_ALW,HRA,2,1,1,none,result = True,code,"result = 0
+if contract.employee_type == ""contractor"":
+    result = contract.wage * 0.30
+if contract.employee_type in [""worker"",""employee""]:
+    result = contract.wage * 0.20",base.main_company
+hr_salary_rule_03,Conveyance Allowance,dynavac_hrms_changes.M_ALW,CONV,3,1,1,none,result = True,code,"result = 0
+if contract.employee_type == ""worker"":
+    result = contract.wage * 0.10",base.main_company
+hr_salary_rule_04,Stat.Bonus,dynavac_hrms_changes.M_ALW,BON,4,1,1,none,result = True,code,"result = 0
+if contract.employee_type == ""employee"":
+    result =categories.BASIC * 0.0833 if categories.BASIC < 21000 else 0
+",base.main_company
+hr_salary_rule_05,Special Allowance,hr_payroll_community.ALW,SPEC,5,1,1,none,result = True,code,result = contract.wage - categories.BASIC- categories.M_ALW,base.main_company
+hr_salary_rule_06,Provident Fund,hr_payroll_community.DED,PF,6,1,1,none,result = True,code,"result = 0
+if contract.employee_type == ""employee"":
+    result =1800 if categories.BASIC < 15000 else categories.BASIC * 0.12
+",base.main_company
+hr_salary_rule_07,Employees' State Insurance,hr_payroll_community.DED,ESI,7,1,1,none,result = True,code,result = contract.wage * 0.0075 if contract.wage <= 21000 else 0,base.main_company
+hr_salary_rule_08,Tax Deducted at Source,hr_payroll_community.DED,TDS,8,1,1,none,result = True,code,result = contract.tds_amount,base.main_company
+hr_salary_rule_09,Salary Advance,hr_payroll_community.DED,ADVANCE,9,1,1,none,result = True,code,"result = sum(employee.env['salary.advance'].search([('date', '>=', payslip.date_from), ('date', '<=', payslip.date_to), ('employee_id', 'in', [employee.id])]).mapped('advance'))",base.main_company
+hr_salary_rule_10,Loan Amount,hr_payroll_community.DED,LOAN,10,1,1,none,result = True,code,result = sum(payslip.loan_ids.mapped('amount')) if payslip.loan_ids else 0,base.main_company
+hr_salary_rule_10_1,Loss of Pay,hr_payroll_community.DED,LOP,11,1,1,none,result = True,code,"val = payslip.env['hr.payslip'].browse(payslip.id).compute_days_summary()
+result = val['lop_day'] * val ['per_day_salary']",base.main_company
+hr_salary_rule_10_2,Labour Welfare Fund,hr_payroll_community.DED,LWF,12,1,1,none,result = True,code,result = 20 if payslip.date_from.month == 12 else 0,base.main_company
+hr_salary_rule_11,Gross amount,hr_payroll_community.GROSS,GROSS,13,1,1,none,result = True,code,result =  categories.BASIC + categories.M_ALW + categories.ALW,base.main_company
+hr_salary_rule_11_1,Variable Pay,dynavac_hrms_changes.OTHER_ALW,VP,14,1,1,none,result = True,code,result =  payslip.variable_pay,base.main_company
+hr_salary_rule_12,Net Salary,hr_payroll_community.NET,NET,15,1,1,none,result = True,code,result =  categories.GROSS - categories.DED+ categories.OTHER_ALW,base.main_company
+hr_salary_rule_13,Basic Salary,hr_payroll_community.BASIC,BASIC,16,1,1,none,result = True,code,"result = 0
+if contract.employee_type == ""employee"":
+    result = contract.wage * 0.50
+if contract.employee_type in [""worker"",""contractor""]:
+    result = contract.wage * 0.70",__export__.res_company_2_3a93d1f4
+hr_salary_rule_14,House Rent Allowence,dynavac_hrms_changes.M_ALW,HRA,17,1,1,none,result = True,code,"result = 0
+if contract.employee_type == ""contractor"":
+    result = contract.wage * 0.30
+if contract.employee_type in [""worker"",""employee""]:
+    result = contract.wage * 0.20",__export__.res_company_2_3a93d1f4
+hr_salary_rule_15,Conveyance Allowance,dynavac_hrms_changes.M_ALW,CONV,18,1,1,none,result = True,code,"result = 0
+if contract.employee_type == ""worker"":
+    result = contract.wage * 0.10",__export__.res_company_2_3a93d1f4
+hr_salary_rule_16,Stat.Bonus,dynavac_hrms_changes.M_ALW,BON,19,1,1,none,result = True,code,"result = 0
+if contract.employee_type == ""employee"":
+    result =categories.BASIC * 0.0833 if categories.BASIC < 21000 else 0
+",__export__.res_company_2_3a93d1f4
+hr_salary_rule_17,Special Allowance,hr_payroll_community.ALW,SPEC,20,1,1,none,result = True,code,result = contract.wage - categories.BASIC- categories.M_ALW,__export__.res_company_2_3a93d1f4
+hr_salary_rule_18,Provident Fund,hr_payroll_community.DED,PF,21,1,1,none,result = True,code,"result = 0
+if contract.employee_type == ""employee"":
+    result =1800 if categories.BASIC < 15000 else categories.BASIC * 0.12
+",__export__.res_company_2_3a93d1f4
+hr_salary_rule_19,Employees' State Insurance,hr_payroll_community.DED,ESI,22,1,1,none,result = True,code,result = contract.wage * 0.0075 if contract.wage <= 21000 else 0,__export__.res_company_2_3a93d1f4
+hr_salary_rule_20,Tax Deducted at Source,hr_payroll_community.DED,TDS,23,1,1,none,result = True,code,result = contract.tds_amount,__export__.res_company_2_3a93d1f4
+hr_salary_rule_21,Salary Advance,hr_payroll_community.DED,ADVANCE,24,1,1,none,result = True,code,"result = sum(employee.env['salary.advance'].search([('date', '>=', payslip.date_from), ('date', '<=', payslip.date_to), ('employee_id', 'in', [employee.id])]).mapped('advance'))",__export__.res_company_2_3a93d1f4
+hr_salary_rule_22,Loan Amount,hr_payroll_community.DED,LOAN,25,1,1,none,result = True,code,result = sum(payslip.loan_ids.mapped('amount'))  if payslip.loan_ids else 0,__export__.res_company_2_3a93d1f4
+hr_salary_rule_22_1,Loss of Pay,hr_payroll_community.DED,LOP,26,1,1,none,result = True,code,"val = payslip.env['hr.payslip'].browse(payslip.id).compute_days_summary()
+result = val['lop_day'] * val ['per_day_salary']",__export__.res_company_2_3a93d1f4
+hr_salary_rule_22_2,Labour Welfare Fund,hr_payroll_community.DED,LWF,27,1,1,none,result = True,code,result = 20 if payslip.date_from.month == 12 else 0,__export__.res_company_2_3a93d1f4
+hr_salary_rule_23,Gross amount,hr_payroll_community.GROSS,GROSS,28,1,1,none,result = True,code,result =  categories.BASIC + categories.M_ALW + categories.ALW,__export__.res_company_2_3a93d1f4
+hr_salary_rule_23_1,Variable Pay,dynavac_hrms_changes.OTHER_ALW,VP,29,1,1,none,result = True,code,result =  payslip.variable_pay,__export__.res_company_2_3a93d1f4
+hr_salary_rule_24,Net Salary,hr_payroll_community.NET,NET,30,1,1,none,result = True,code,result =  categories.GROSS - categories.DED + categories.OTHER_ALW,__export__.res_company_2_3a93d1f4

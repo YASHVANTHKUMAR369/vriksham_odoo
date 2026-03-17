@@ -1,0 +1,8 @@
+<odoo>
+    <record id="seq_hr_offer" model="ir.sequence">
+        <field name="name">Offer Reference</field>
+        <field name="code">hr.offer</field>
+        <field name="prefix">OFFER/%(year)s/</field>
+        <field name="padding">4</field>
+    </record>
+</odoo>
