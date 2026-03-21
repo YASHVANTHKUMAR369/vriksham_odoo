@@ -42,154 +42,158 @@ class HrJobOffer(models.TransientModel):
     @api.depends('gross_salary')
     def _compute_amount(self):
         for rec in self:
-            # Fixed Components
-            ctc_project_allowance = 24000
-            ctc_provident_fund = 21600
-            ctc_health_benefit = 10000
+            if rec.gross_salary:
+                # Fixed Components
+                ctc_project_allowance = 24000
+                ctc_provident_fund = 21600
+                ctc_health_benefit = 10000
 
-            # Variable Pay
-            ctc_variable_pay = rec.gross_salary * 0.10
+                # Variable Pay
+                ctc_variable_pay = rec.gross_salary * 0.10
 
-            # Basic & HRA
-            if rec.gross_salary < 400000:
-                ctc_basic_salary = rec.gross_salary * 0.50
-                ctc_hra = rec.gross_salary * 0.25
+                # Basic & HRA
+                if rec.gross_salary < 400000:
+                    ctc_basic_salary = rec.gross_salary * 0.50
+                    ctc_hra = rec.gross_salary * 0.25
+                else:
+                    ctc_basic_salary = rec.gross_salary * 0.55
+                    ctc_hra = rec.gross_salary * 0.15
+
+                # Additional Allowance
+                ctc_additional_allowance = (
+                        rec.gross_salary
+                        - ctc_basic_salary
+                        - ctc_hra
+                        - ctc_project_allowance
+                        - ctc_provident_fund
+                        - ctc_health_benefit
+                        - ctc_variable_pay
+                )
+
+                # Monthly values
+                def m(val):
+                    return val / 12
+
+                rec.salary_calculation = f"""
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-sm">
+                            <thead class="table-success text-center">
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Yearly (INR)</th>
+                                    <th>Monthly (INR)</th>
+                                    <th>%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Basic Salary</td>
+                                    <td class="text-end">{ctc_basic_salary:,.2f}</td>
+                                    <td class="text-end">{m(ctc_basic_salary):,.2f}</td>
+                                    <td class="text-center">{(ctc_basic_salary / rec.gross_salary) * 100:.2f}%</td>
+                                </tr>
+                                <tr>
+                                    <td>HRA</td>
+                                    <td class="text-end">{ctc_hra:,.2f}</td>
+                                    <td class="text-end">{m(ctc_hra):,.2f}</td>
+                                    <td class="text-center">{(ctc_hra / rec.gross_salary) * 100:.2f}%</td>
+                                </tr>
+                                <tr>
+                                    <td>Project Allowance</td>
+                                    <td class="text-end">{ctc_project_allowance:,.2f}</td>
+                                    <td class="text-end">{m(ctc_project_allowance):,.2f}</td>
+                                    <td class="text-center"><span class="badge bg-secondary">Fixed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Additional Allowance</td>
+                                    <td class="text-end">{ctc_additional_allowance:,.2f}</td>
+                                    <td class="text-end">{m(ctc_additional_allowance):,.2f}</td>
+                                    <td class="text-center"><span class="badge bg-warning text-dark">Varies</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Provident Fund</td>
+                                    <td class="text-end">{ctc_provident_fund:,.2f}</td>
+                                    <td class="text-end">{m(ctc_provident_fund):,.2f}</td>
+                                    <td class="text-center"><span class="badge bg-secondary">Fixed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Health Benefit</td>
+                                    <td class="text-end">{ctc_health_benefit:,.2f}</td>
+                                    <td class="text-end">{m(ctc_health_benefit):,.2f}</td>
+                                    <td class="text-center"><span class="badge bg-secondary">Fixed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Variable Pay</td>
+                                    <td class="text-end">{ctc_variable_pay:,.2f}</td>
+                                    <td class="text-end">{m(ctc_variable_pay):,.2f}</td>
+                                    <td class="text-center"><span class="badge bg-info text-dark">10%</span></td>
+                                </tr>
+                                <tr>
+                                    <th>Total CTC</th>
+                                    <th class="text-end">{rec.gross_salary:,.2f}</th>
+                                    <th class="text-end">{(rec.gross_salary / 12):,.2f}</th>
+                                    <th class="text-center">100%</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    """
+
+                rec.salary_calculation_report = f"""
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-sm">
+                            <thead class="table-success text-center">
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Yearly (INR)</th>
+                                    <th>Monthly (INR)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Basic Salary</td>
+                                    <td class="text-end">{ctc_basic_salary:,.2f}</td>
+                                    <td class="text-end">{m(ctc_basic_salary):,.2f}</td>
+                                </tr>
+                                <tr>
+                                    <td>HRA</td>
+                                    <td class="text-end">{ctc_hra:,.2f}</td>
+                                    <td class="text-end">{m(ctc_hra):,.2f}</td>
+                                </tr>
+                                <tr>
+                                    <td>Project Allowance</td>
+                                    <td class="text-end">{ctc_project_allowance:,.2f}</td>
+                                    <td class="text-end">{m(ctc_project_allowance):,.2f}</td>
+                                </tr>
+                                <tr>
+                                    <td>Additional Allowance</td>
+                                    <td class="text-end">{ctc_additional_allowance:,.2f}</td>
+                                    <td class="text-end">{m(ctc_additional_allowance):,.2f}</td>
+                                </tr>
+                                <tr>
+                                    <td>Provident Fund</td>
+                                    <td class="text-end">{ctc_provident_fund:,.2f}</td>
+                                    <td class="text-end">{m(ctc_provident_fund):,.2f}</td>
+                                </tr>
+                                <tr>
+                                    <td>Health Benefit</td>
+                                    <td class="text-end">{ctc_health_benefit:,.2f}</td>
+                                    <td class="text-end">{m(ctc_health_benefit):,.2f}</td>
+                                </tr>
+                                <tr>
+                                    <td>Variable Pay</td>
+                                    <td class="text-end">{ctc_variable_pay:,.2f}</td>
+                                    <td class="text-end">{m(ctc_variable_pay):,.2f}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total CTC</th>
+                                    <th class="text-end">{rec.gross_salary:,.2f}</th>
+                                    <th class="text-end">{(rec.gross_salary / 12):,.2f}</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    """
             else:
-                ctc_basic_salary = rec.gross_salary * 0.55
-                ctc_hra = rec.gross_salary * 0.15
-
-            # Additional Allowance
-            ctc_additional_allowance = (
-                    rec.gross_salary
-                    - ctc_basic_salary
-                    - ctc_hra
-                    - ctc_project_allowance
-                    - ctc_provident_fund
-                    - ctc_health_benefit
-                    - ctc_variable_pay
-            )
-
-            # Monthly values
-            def m(val):
-                return val / 12
-
-            rec.salary_calculation = f"""
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-sm">
-                        <thead class="table-success text-center">
-                            <tr>
-                                <th>Component</th>
-                                <th>Yearly (INR)</th>
-                                <th>Monthly (INR)</th>
-                                <th>%</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Basic Salary</td>
-                                <td class="text-end">{ctc_basic_salary:,.2f}</td>
-                                <td class="text-end">{m(ctc_basic_salary):,.2f}</td>
-                                <td class="text-center">{(ctc_basic_salary / rec.gross_salary) * 100:.2f}%</td>
-                            </tr>
-                            <tr>
-                                <td>HRA</td>
-                                <td class="text-end">{ctc_hra:,.2f}</td>
-                                <td class="text-end">{m(ctc_hra):,.2f}</td>
-                                <td class="text-center">{(ctc_hra / rec.gross_salary) * 100:.2f}%</td>
-                            </tr>
-                            <tr>
-                                <td>Project Allowance</td>
-                                <td class="text-end">{ctc_project_allowance:,.2f}</td>
-                                <td class="text-end">{m(ctc_project_allowance):,.2f}</td>
-                                <td class="text-center"><span class="badge bg-secondary">Fixed</span></td>
-                            </tr>
-                            <tr>
-                                <td>Additional Allowance</td>
-                                <td class="text-end">{ctc_additional_allowance:,.2f}</td>
-                                <td class="text-end">{m(ctc_additional_allowance):,.2f}</td>
-                                <td class="text-center"><span class="badge bg-warning text-dark">Varies</span></td>
-                            </tr>
-                            <tr>
-                                <td>Provident Fund</td>
-                                <td class="text-end">{ctc_provident_fund:,.2f}</td>
-                                <td class="text-end">{m(ctc_provident_fund):,.2f}</td>
-                                <td class="text-center"><span class="badge bg-secondary">Fixed</span></td>
-                            </tr>
-                            <tr>
-                                <td>Health Benefit</td>
-                                <td class="text-end">{ctc_health_benefit:,.2f}</td>
-                                <td class="text-end">{m(ctc_health_benefit):,.2f}</td>
-                                <td class="text-center"><span class="badge bg-secondary">Fixed</span></td>
-                            </tr>
-                            <tr>
-                                <td>Variable Pay</td>
-                                <td class="text-end">{ctc_variable_pay:,.2f}</td>
-                                <td class="text-end">{m(ctc_variable_pay):,.2f}</td>
-                                <td class="text-center"><span class="badge bg-info text-dark">10%</span></td>
-                            </tr>
-                            <tr>
-                                <th>Total CTC</th>
-                                <th class="text-end">{rec.gross_salary:,.2f}</th>
-                                <th class="text-end">{(rec.gross_salary / 12):,.2f}</th>
-                                <th class="text-center">100%</th>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                """
-
-            rec.salary_calculation_report = f"""
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-sm">
-                        <thead class="table-success text-center">
-                            <tr>
-                                <th>Component</th>
-                                <th>Yearly (INR)</th>
-                                <th>Monthly (INR)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Basic Salary</td>
-                                <td class="text-end">{ctc_basic_salary:,.2f}</td>
-                                <td class="text-end">{m(ctc_basic_salary):,.2f}</td>
-                            </tr>
-                            <tr>
-                                <td>HRA</td>
-                                <td class="text-end">{ctc_hra:,.2f}</td>
-                                <td class="text-end">{m(ctc_hra):,.2f}</td>
-                            </tr>
-                            <tr>
-                                <td>Project Allowance</td>
-                                <td class="text-end">{ctc_project_allowance:,.2f}</td>
-                                <td class="text-end">{m(ctc_project_allowance):,.2f}</td>
-                            </tr>
-                            <tr>
-                                <td>Additional Allowance</td>
-                                <td class="text-end">{ctc_additional_allowance:,.2f}</td>
-                                <td class="text-end">{m(ctc_additional_allowance):,.2f}</td>
-                            </tr>
-                            <tr>
-                                <td>Provident Fund</td>
-                                <td class="text-end">{ctc_provident_fund:,.2f}</td>
-                                <td class="text-end">{m(ctc_provident_fund):,.2f}</td>
-                            </tr>
-                            <tr>
-                                <td>Health Benefit</td>
-                                <td class="text-end">{ctc_health_benefit:,.2f}</td>
-                                <td class="text-end">{m(ctc_health_benefit):,.2f}</td>
-                            </tr>
-                            <tr>
-                                <td>Variable Pay</td>
-                                <td class="text-end">{ctc_variable_pay:,.2f}</td>
-                                <td class="text-end">{m(ctc_variable_pay):,.2f}</td>
-                            </tr>
-                            <tr>
-                                <th>Total CTC</th>
-                                <th class="text-end">{rec.gross_salary:,.2f}</th>
-                                <th class="text-end">{(rec.gross_salary / 12):,.2f}</th>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                """
+                rec.salary_calculation = False
+                rec.salary_calculation_report = False
