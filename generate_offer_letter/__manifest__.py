@@ -10,7 +10,7 @@
         "wizard/job_offer_letter_wizard.xml",
         "views/hr_applicant_view.xml",
     ],
-    'author': 'icore',
+    'author': 'yash',
     'license': 'LGPL-3',
     "installable": True,
 }

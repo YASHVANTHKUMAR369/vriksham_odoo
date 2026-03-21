@@ -10,6 +10,7 @@
                             type="action" name="%(job_offer_letter_wizard_action)d"
                             context="{'default_candidate_id': id,
                             'default_job_title': job_id,
+                            'default_gross_salary': salary_proposed,
                             'default_department': department_id}" invisible="application_status != 'hired'"/>
             </xpath>
         </field>
