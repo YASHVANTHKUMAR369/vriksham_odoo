@@ -1,0 +1,1 @@
+from . import hr_employee_inherit, hr_payslip_inherit,hr_version_inherit, hr_applicant_inherit, salary_calculation, salary_calculation_line

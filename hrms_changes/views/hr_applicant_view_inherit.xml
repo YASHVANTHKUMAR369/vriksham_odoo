@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="hr_applicant_for_view_inherit" model="ir.ui.view">
+        <field name="name">hr.applicant.view.inherit</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_closed']" position="after">
+                <field name="join_date"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page name="Salary Calculation">
+                    <field name="salary_calculation_html"/>
+                </page>
+            </xpath>
+            <xpath expr="//field[@name='linkedin_profile']" position="after">
+                <field name="salary_calculation_id" invisible="application_status != 'hired'"
+                       required="application_status == 'hired'"/>
+                <label for="street" string="Address"/>
+                <div class="o_address_format">
+                    <field name="street" placeholder="Street..." class="o_address_street"/>
+                    <field name="street2" placeholder="Street 2..." class="o_address_street"/>
+                    <field name="city" placeholder="City" class="o_address_city"/>
+                    <field name="state_id" class="o_address_state" placeholder="State"
+                           options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"
+                           context="{'default_country_id': country_id}"
+                           domain="[('id', 'in', allowed_country_state_ids)]"/>
+                    <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                    <field name="country_id" placeholder="Country" class="o_address_country"
+                           options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

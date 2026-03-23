@@ -1,0 +1,24 @@
+id,survey_id/id,title,question_type,sequence,constr_mandatory,comments_allowed,is_page
+survey_dynavac_main_01,survey_dynavac_01,Section 1: General Information,,1,,,1
+question_dynavac_01,survey_dynavac_01,What influenced your decision to leave the company?,multiple_choice,2,1,1,0
+question_dynavac_02,survey_dynavac_01,How would you rate your overall experience working with the company?,simple_choice,3,1,0,0
+question_dynavac_03,survey_dynavac_01,What aspects of your job did you find most satisfying?,simple_choice,4,1,1,0
+question_dynavac_04,survey_dynavac_01,What aspects of your job did you find least satisfying?,simple_choice,5,1,1,0
+survey_dynavac_main_02,survey_dynavac_01,Section 2: Company Culture and Work Environment,,6,,,1
+question_dynavac_05,survey_dynavac_01,How would you describe the company culture?,simple_choice,7,1,1,0
+question_dynavac_06,survey_dynavac_01,Were there any specific incidents or issues that influenced your perception of the company culture?,simple_choice,8,1,0,0
+survey_dynavac_main_03,survey_dynavac_01,Section 3: Supervision and Management ,,9,,,1
+question_dynavac_07,survey_dynavac_01,How would you rate your relationship with your immediate supervisor?,simple_choice,10,1,0,0
+question_dynavac_08,survey_dynavac_01,What could your supervisor have done differently to improve your work experience?,text_box,11,1,0,0
+question_dynavac_09,survey_dynavac_01,How would you rate the effectiveness of communication from management?,simple_choice,12,1,0,0
+question_dynavac_10,survey_dynavac_01,Were there any areas where you felt management could have communicated better?,text_box,13,1,0,0
+survey_dynavac_main_04,survey_dynavac_01,Section 4: Professional Development and Training,,14,,,1
+question_dynavac_11,survey_dynavac_01,Did you feel adequately supported in terms of professional development and training?,simple_choice,15,1,0,0
+question_dynavac_12,survey_dynavac_01,What suggestions do you have for improving professional development opportunities within the company?,text_box,16,1,0,0
+survey_dynavac_main_05,survey_dynavac_01,Section 5:,,17,,,1
+question_dynavac_13,survey_dynavac_01,Please Assess Supervision in your Department,matrix,18,1,1,0
+survey_dynavac_main_06,survey_dynavac_01,Section 5.1:,,19,,,1
+question_dynavac_14,survey_dynavac_01,Please Assess your Working Conditions,matrix,20,1,0,0
+survey_dynavac_main_07,survey_dynavac_01,Section 6: Final Comments ,,21,,,1
+question_dynavac_15,survey_dynavac_01,Is there anything else you would like to share about your experience working with the company?,text_box,22,1,0,0
+question_dynavac_16,survey_dynavac_01,Do you have any recommendations for how the company can improve its employee experience?,text_box,23,1,0,0

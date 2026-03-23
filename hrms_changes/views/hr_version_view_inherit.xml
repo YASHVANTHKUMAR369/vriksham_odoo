@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+
+    <record id="hr_contract_template_form_view_inherit" model="ir.ui.view">
+        <field name="name">hr.version.form.view.inherit</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='wage']" position="after">
+                <field name="tds_amount"/>
+            </xpath>
+            <xpath expr="//field[@name='hr_responsible_id']" position="after">
+                <div class="o_row" name="contract_dates">
+                    <field name="contract_date_start" string="Start Date" placeholder="Not Employed"
+                           class="o_hr_narrow_field me-3" readonly="1"/>
+                    <span invisible="not contract_date_start">to</span>
+                    <field name="contract_date_end" string="End Date" placeholder="Indefinite"
+                           class="o_hr_narrow_field ms-3" invisible="not contract_date_start" readonly="1"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

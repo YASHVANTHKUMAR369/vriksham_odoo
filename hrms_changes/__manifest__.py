@@ -1,0 +1,21 @@
+{
+    'name': 'Hrms Changes',
+    'version': '19.0.1.0.0',
+    'depends': ['base', 'hr', 'hr_maintenance', 'hr_holidays', 'hr_holidays_attendance', 'hr_payroll_community', 'hr_skills', 'hr_recruitment'],
+    'data': [
+        'security/ir.model.access.csv',
+
+        'views/hr_employee_view_inherit.xml',
+        'views/hr_applicant_view_inherit.xml',
+        'views/hr_payslip_view_inherit.xml',
+        'views/hr_version_view_inherit.xml',
+        'views/salary_calculation_views.xml',
+        'views/salary_calculation_line_views.xml',
+        'report/offer_letter.xml',
+    ],
+    'author': 'yash',
+    'installable': True,
+    'auto_install': False,
+    'application': True,
+    'license': 'LGPL-3',
+}

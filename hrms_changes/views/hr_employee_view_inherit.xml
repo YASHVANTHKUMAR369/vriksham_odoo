@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="hr_kanban_view_employees_inherit" model="ir.ui.view">
+        <field name="name">hr.employee.kanban.contract.info</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.hr_kanban_view_employees"/>
+        <field name="arch" type="xml">
+            <xpath expr="//t[@t-name='card']" position="inside">
+                <field name="first_joining_date" invisible="1"/>
+                <field name="last_working_date" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//div[field[@name='contract_date_end']]" position="after">
+                <div t-if="record.first_joining_date.raw_value" groups="hr.group_hr_manager"
+                     t-att-class="{'text-danger': record.last_working_date.raw_value &lt; luxon.DateTime.now().toISO()}">
+
+                    <i class="fa fa-fw me-2 fa-user text-primary" title="Contract"/>
+                    <span>Overall :</span>
+                    <field class="px-1" name="first_joining_date"/>
+                    <span t-if="record.last_working_date.raw_value">-</span>
+                    <field class="px-1" t-if="record.last_working_date.raw_value" name="last_working_date"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="view_employee_form_inherit" model="ir.ui.view">
+        <field name="name">employee.document.view</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='department_id']" position="before">
+                <field name="struct_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

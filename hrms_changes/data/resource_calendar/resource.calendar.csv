@@ -1,0 +1,6 @@
+id,name,schedule_type,company_id/id
+resource_calendar_01,DYNAVAC MORNING SHIFT,fully_fixed,""
+resource_calendar_02,DYNAVAC NOON SHIFT,fully_fixed,""
+resource_calendar_03,DYNAVAC NI SHIFT 1,fully_fixed,""
+resource_calendar_04,DYNAVAC NI SHIFT 2,fully_fixed,""
+resource_calendar_05,DYNAVAC NI SHIFT 3,fully_fixed,""

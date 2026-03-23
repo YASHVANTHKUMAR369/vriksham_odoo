@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="salary_calculation_line_form_view" model="ir.ui.view">
+        <field name="name">salary.calculation.line.view.form</field>
+        <field name="model">salary.calculation.line</field>
+        <field name="priority" eval="8"/>
+        <field name="arch" type="xml">
+            <form string="Salary Calculation Line">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" required="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="salary_calculation_id" invisible="1"/>
+                            <field name="category_type" required="1"/>
+                            <field name="balance_amount" required="1"/>
+                            <field name="calculation_type" invisible="balance_amount ==True"/>
+                            <field name="percentage" invisible="balance_amount ==True or calculation_type != 'percentage'"/>
+                            <field name="amount" invisible="balance_amount ==True or calculation_type != 'amount'"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+</odoo>

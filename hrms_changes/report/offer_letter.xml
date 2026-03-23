@@ -1,0 +1,977 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="action_offer_letter_full" model="ir.actions.report">
+        <field name="name">Offer Letter ( Full )</field>
+        <field name="model">hr.applicant</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hrms_changes.report_offer_letter_full</field>
+        <field name="report_file">hrms_changes.report_offer_letter_full</field>
+        <field name="print_report_name">'Offer Letter - %s' % (object.partner_name)</field>
+        <field name="binding_model_id" ref="model_hr_applicant"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="action_offer_letter_basic" model="ir.actions.report">
+        <field name="name">Offer Letter ( Basic )</field>
+        <field name="model">hr.applicant</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hrms_changes.report_offer_letter_basic</field>
+        <field name="report_file">hrms_changes.report_offer_letter_basic</field>
+        <field name="print_report_name">'Offer Letter - %s' % (object.partner_name)</field>
+        <field name="binding_model_id" ref="model_hr_applicant"/>
+        <field name="binding_type">report</field>
+    </record>
+    <template id="report_offer_letter_full">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-size:13px; line-height:1.6;">
+
+                        <!-- Header -->
+                        <p>
+                            <strong>[Private &amp; Confidential]</strong>
+                        </p>
+
+                        <p style="text-align:right;">
+                            <strong>Date:
+                                <t class="mt-1" t-esc="o.emp_hire_date"/>
+                            </strong>
+                        </p>
+                        <!-- Address -->
+                        <p>
+                            <strong>
+                                Ref.No: I210055
+                                <br/>
+                                Mr.
+                                <t t-esc="o.emp_name"/>
+                                <br/>
+                                <t t-esc="o.emp_street"/>
+                                <br/>
+                                <t t-esc="o.emp_street2"/>
+                                <t class="mt-1" t-esc="o.emp_city"/>
+                                <br/>
+
+                                <t t-esc="o.emp_state_id"/>
+                                -
+                                <t t-esc="o.emp_zip"/>
+                                <br/>
+                                <t t-esc="o.emp_country_id"/>
+                            </strong>
+                        </p>
+
+                        <h2 style="text-align:center;">Appointment Letter</h2>
+
+                        <p>Dear<strong class="mt-1" t-esc="o.emp_name"/>,
+                        </p>
+
+                        <p>
+                            We refer to your candidature and to our discussions. We are pleased to offer you an
+                            appointment
+                            in our organization. Welcome onboard as a VSTian!
+                        </p>
+
+                        <p>
+                            Your designation will be<strong class="mt-1" t-esc="o.emp_job"/>. Your base location will be
+                            <strong class="mt-1" t-esc="o.emp_location"/>
+                            unless notified otherwise.
+                        </p>
+
+                        <!-- 1 -->
+                        <h5>1. Appointment</h5>
+                        <p>
+                            Your date of appointment is effective from the date of joining
+                            <strong class="mt-1"
+                                    t-esc="o.join_date"/>
+                            . Please carefully
+                            review this offer of
+                            employment before agreeing to its terms by signing it. The offer outlines important
+                            benefits,
+                            terms, and conditions
+                            related to your employment with Vriksham Soft Tech. Kindly send your acceptance of this
+                            offer
+                            via return email.
+                            Your joining date may be extended based on your written request, subject to the sole
+                            discretion
+                            of the Company. The
+                            Company reserves the right to extend your date of joining due to changes in business
+                            requirements, at its sole
+                            discretion. This offer will expire if the Company does not receive your written acceptance
+                            of
+                            this offer letter or if
+                            you fail to join the company on the agreed-upon date. Please indicate your acceptance of
+                            this
+                            offer by signing below
+                            and returning it to HR by email within 5 days.
+                        </p>
+
+                        <!-- 2 -->
+                        <h5>2. Compensation</h5>
+                        <div style="margin-left:20px">
+                            <p>
+                                (a) Your fixed base pay (FBP), on an annualized basis, will be INR
+                                <strong class="mt-1" t-esc="o.emp_annualized_basis"/>
+                                will be paid
+                                in
+                                accordance with
+                                the Company’s regular payroll process and procedures during your employment. This amount
+                                will be
+                                subject to all applicable withholdings. Additionally, you are eligible to receive
+                                variable
+                                pay
+                                of INR
+                                <strong class="mt-1" t-esc="o.emp_variable_pay"/>
+                                upon 100% achievement of your target goals, which will be pro-rated based on your start
+                                date.
+                            </p>
+                            <p>
+                                (b) The breakdown of your fixed base pays into basic salary, allowances, benefits, and
+                                perquisites (collectively
+                                referred to as “compensation” or “salary”) is provided in Annexure I to this letter. You
+                                will be
+                                governed by
+                                the policies, rules, and procedures of the Company regarding such compensation. The
+                                Company
+                                reserves
+                                the right to modify the structure, amount, eligibility, and terms of such compensation
+                                at
+                                its
+                                discretion.
+                            </p>
+                            <p>
+                                (c) Your compensation will be subject to periodic review in accordance with Company
+                                policy.
+                            </p>
+                            <p>
+                                (d) Changes to your compensation are discretionary and will be based on effective
+                                performance,
+                                results during
+                                the period, and other relevant criteria. You understand that information regarding your
+                                compensation is
+                                strictly confidential, and therefore, we kindly request you to maintain confidentiality.
+                            </p>
+                            <p>
+                                (e) Your compensation will be subject to deductions for all governmental and local
+                                taxes,
+                                contributions, etc., in
+                                accordance with applicable laws, including taxes on the value of perquisites.
+                            </p>
+                        </div>
+                        <div style="page-break-before: always;"/>
+                        <!-- 3 -->
+                        <h5>3. Probation</h5>
+                        <div style="margin-left:20px">
+                            <p>
+                                You will undergo a probationary period of six months starting from the date of your
+                                appointment, which
+                                the Company reserves the right to extend at its sole discretion. Confirmation of your
+                                services at the end of
+                                the probationary period will be provided by the Company in writing.
+                            </p>
+                        </div>
+
+                        <!-- 4 -->
+                        <h5>4. Working Hours</h5>
+                        <div style="margin-left:20px">
+                            <p>(a) Your standard working days are Monday to Friday. You may be scheduled to work shifts
+                                in
+                                accordance
+                                with the Company’s shift policy and customer requirements.
+                            </p>
+                            <p>(b) The Company retains the right to request that you work beyond your normal working
+                                hours,
+                                as needed, to
+                                fulfill your duties.
+                            </p>
+                            <p>(c) These entitlements shall cease upon the termination of your employment with VST. They
+                                may
+                                also cease if
+                                you need to take a long-term personal leave of absence. Please consult with your HR team
+                                for
+                                further
+                                details
+                            </p>
+                        </div>
+
+                        <!-- 5 -->
+                        <h5>5. Responsibilities</h5>
+                        <div style="margin-left:20px">
+                            <p>(a) Considering your position and role within the company, it is imperative that you
+                                perform
+                                all responsibilities
+                                effectively, diligently, and to the best of your ability. You are expected to devote
+                                your
+                                entire working time,
+                                abilities, and efforts to these responsibilities, ensuring satisfactory results.
+                            </p>
+                            <p>(b) Throughout your employment, you are prohibited from engaging in any activities or
+                                investments that
+                                conflict with the interests of the Company. Additionally, you must refrain from
+                                activities
+                                that distract you
+                                from performing your responsibilities properly and efficiently or interfere with your
+                                ability to exercise
+                                independent judgment in the best interests of the Company.
+                            </p>
+                            <p>(c) It is essential that you adhere to the Company’s policies, which are an integral part
+                                of
+                                your employment
+                                terms. Therefore, you are required to understand the scope and purpose of these policies
+                                and
+                                to comply
+                                with them accordingly. These policies are subject to periodic updates and modifications,
+                                and
+                                new policies
+                                may be introduced as needed. The Company will inform you of any changes, and you will be
+                                expected to
+                                adhere to them.
+                            </p>
+                        </div>
+
+                        <!-- 6 -->
+                        <h5>6. Work Authorization</h5>
+
+                        <div style="margin-left:20px">
+                            <p>(a) If you require an employment visa to work in India, this appointment will not take
+                                effect
+                                until you have
+                                obtained the necessary employment visa. If granted, your employment will be subject to
+                                the
+                                terms outlined
+                                in the visa issued by the Indian Government.
+                            </p>
+                            <p>(b) If your employment visa is not extended within the validity period of the initial
+                                visa,
+                                your employment will
+                                automatically terminate on the last day of the initial visa period without further
+                                notice.
+                                You agree to
+                                promptly inform the Company if your employment visa extension is not granted.
+                            </p>
+                        </div>
+
+                        <!-- 7 -->
+                        <h5>7. Confidential information, Nondisclosure Agreement, Conflict of Interest and
+                            Non-competition
+                            Agreement
+                        </h5>
+
+                        <div style="margin-left:20px">
+                            <p>
+                                (a) VST expects that, during and after the term of your employment, you will not
+                                disclose to
+                                third parties,
+                                utilize for your own benefit, or otherwise make use of any of VST trade secrets or other
+                                confidential or
+                                proprietary information concerning VST, except to the extent necessary to carry out your
+                                obligations to
+                                VST.
+                            </p>
+                            <p>
+                                (b) Please sign and return the enclosed Confidential Information, Non-Disclosure,
+                                Conflict
+                                of Interest, and
+                                Non-Competition Agreement. This agreement contains, among others, your promise not to
+                                recruit any
+                                employees of VST or its clients and contractors for a period of one year following the
+                                termination of your
+                                employment relationship with VST. Additionally, you agree not to compete with VST for a
+                                period of six
+                                months following the termination of your employment relationship with VST.
+                            </p>
+
+                            <div style="page-break-before: always;"/>
+                            <p>
+                                (c) By signing this letter, you represent that your acceptance of this offer and your
+                                employment with VST does
+                                not and will not violate or otherwise conflict with any other agreement to which you may
+                                be
+                                a party.
+                            </p>
+                            <p>
+                                (d) You also agree not to undertake employment, whether full-time or part-time, as the
+                                Director/Partner/Member/Employee of any other organization/entity engaged in any form of
+                                business
+                                activity without the consent of VST.
+                            </p>
+                        </div>
+
+                        <!-- 8 -->
+                        <h5>8. Intellectual Property</h5>
+
+                        <div style="margin-left:20px">
+                            <p>
+                                (a) You agree to promptly surrender, disclose, and assign upon demand to VST or its
+                                successors, designers, or
+                                assigns, any inventions, creations, computer programs, training materials, or other
+                                works
+                                that you may
+                                develop or assist in developing during your employment with VST.
+                            </p>
+                            <p>
+                                (b) You acknowledge that such inventions, creations, computer programs, training
+                                materials,
+                                or other works,
+                                and all rights pertaining to them, are works for hire and the sole property of VST.
+                            </p>
+                            <p>
+                                (c) You further agree to grant and relinquish all rights or interests you may have in
+                                such
+                                creations, inventions,
+                                or works.
+                            </p>
+                            <p>
+                                (d) Moreover, you authorize VST, on your behalf, to sign any necessary papers and to
+                                take
+                                any actions deemed
+                                necessary or desirable by VST to secure rights relating to such inventions, creations,
+                                computer programs,
+                                training materials, or works, including but not limited to patents and copyrights in
+                                India
+                                or any foreign
+                                countries.
+                            </p>
+                            <p>
+                                (e) Additionally, you agree to perform, during or after your employment, any further
+                                acts
+                                that are reasonable
+                                and necessary or desirable to transfer, perfect, or defend the Company's or its
+                                designee's
+                                ownership of the
+                                Employee Works, as reasonably requested by the Company.
+                            </p>
+                        </div>
+
+                        <!-- 9 -->
+                        <h5>9. Non-Solicitation</h5>
+
+                        <div style="margin-left:20px">
+                            <p>
+                                (a) You agree that for a period of one year following the cessation of your employment
+                                with
+                                the Company, you
+                                will not solicit, induce, or attempt to induce any employee of the Company, directly or
+                                indirectly, to
+                                terminate their employment with the Company and become self-employed or employed
+                                elsewhere.
+                            </p>
+                            <p>
+                                (b) You acknowledge that this restriction is necessary and reasonable for protecting the
+                                Company’s business
+                                interests.
+                            </p>
+                        </div>
+
+                        <!-- 10 -->
+                        <h5>10. Return of Company Property</h5>
+                        <div style="margin-left:20px">
+                            <p>
+                                (a) All notes, records, books, documents, equipment, laptops, or parts of PCs belonging
+                                to
+                                the Company,
+                                whether created by you or provided to you during your employment, and containing
+                                confidential
+                                information (as defined herein), shall always remain the property of the Company.
+                            </p>
+                            <p>
+                                (b) These items must be promptly returned to the Company upon your cessation of
+                                employment
+                                or at any other
+                                time upon the Company's request.
+                            </p>
+                            <p>
+                                (c) Additionally, you agree to return any credit cards, identification cards, laptops,
+                                or
+                                other Company property
+                                or equipment immediately upon termination of your employment.
+                            </p>
+                        </div>
+
+                        <!-- 11 -->
+                        <h5>11. Right of Set-Off</h5>
+                        <div style="margin-left:20px">
+                            <p>
+                                If you incur any debt to the Company or if any money is owed to the Company by you
+                                (including
+                                overpayments made to you) for any reason, including but not limited to unpaid card
+                                expenses,
+                                phone bills,
+                                or misuse or misappropriation of the Company’s assets, the Company reserves the right to
+                                set
+                                off such
+                                outstanding amount from any amount due and payable to you.
+                            </p>
+                        </div>
+
+                        <div style="page-break-before: always;"/>
+                        <!-- 12 -->
+                        <h5>12. Notice of Change</h5>
+                        <div style="margin-left:20px">
+                            <p>
+                                Any updates to your personal information, such as residential address, marital status,
+                                number of children,
+                                and educational qualifications, must be provided to the Company in writing within 7
+                                days.
+                                Any notices
+                                intended for you will be considered properly delivered if given to you personally or
+                                sent by
+                                post to your last
+                                recorded address in the Company’s records.
+                            </p>
+                        </div>
+
+                        <!-- 13 -->
+                        <h5>13. Sensitive Personal Data or Information</h5>
+                        <div style="margin-left:20px">
+                            <p>
+                                (a) You are informed that the Company collects your personal data for payroll, career
+                                management processes,
+                                administrative staff management, and work organization purposes.
+                            </p>
+                            <p>
+                                (b) For further details regarding the processing of personal data by the Company, refer
+                                to
+                                the provided
+                                information.
+                            </p>
+                            <p>
+                                (c) You acknowledge that, in the course of your employment with the Company, you may
+                                access
+                                certain
+                                information, including personal data as defined by applicable laws. This may include
+                                details
+                                such as name,
+                                address, email address, identity number, or any other information that could directly or
+                                indirectly identify
+                                an employee, client, service provider, or any other individual whose personal data is
+                                collected by the
+                                Company.
+                            </p>
+                            <p>
+                                (d) You agree to process personal data that you have access to during your employment
+                                strictly in accordance
+                                with the Company’s directives and solely for the purpose of fulfilling your work duties.
+                            </p>
+                            <p>
+                                (e) You commit to maintaining the confidentiality and security of any data you always
+                                access
+                                and processing
+                                the data in compliance with applicable laws and the Security Policies adopted by the
+                                Company.
+                            </p>
+                            <p>
+                                (f) You undertake not to utilize personal data for any purpose other than what is
+                                necessary
+                                to fulfill your
+                                responsibilities as an employee of the Company.
+                            </p>
+                        </div>
+
+                        <!-- PAGE BREAK -->
+
+                        <!-- 14 -->
+                        <h5>14. Exclusivity / Prior Commitment</h5>
+
+                        <div style="margin-left:20px">
+                            <p>
+                                (a) You agree to work exclusively for the Company within the context of the defined
+                                responsibilities and
+                                refrain from accepting or engaging in any other paid or unpaid employment or consulting,
+                                even
+                                temporarily.
+                            </p>
+                            <p>
+                                (b) You represent and warrant to the Company that:
+                            </p>
+
+                            <div style="margin-left:20px">
+                                <p>
+                                    (a) You are not subject to any covenants, agreements, or restrictions, including
+                                    those
+                                    arising from prior
+                                    employments or independent contractor relationships, which would be breached by
+                                    executing this
+                                    Agreement or performing your duties herein.
+                                </p>
+                                <p>
+                                    (b) You will not bring onto the Company’s premises, use, or incorporate any
+                                    unpublished
+                                    documents or
+                                    property belonging to past employers without their written consent.
+                                </p>
+                                <p>
+                                    (c) There is no court order or other authority disqualifying you for appointment
+                                    under
+                                    this agreement.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 15 -->
+                        <h5>15. Jurisdiction</h5>
+                        <div style="margin-left:20px">
+                            <p>
+                                (a) The jurisdiction regarding your current employment will exclusively lie with the
+                                courts
+                                in New Delhi,
+                                which you undertake not to contest.
+                            </p>
+                            <p>
+                                (b) The appointment will be governed by and interpreted in accordance with the laws of
+                                India.
+                            </p>
+                            <p>
+                                (c) This Agreement, including the referenced policies and other documents, constitutes
+                                the
+                                entire agreement
+                                between you and the Company regarding the subject matter herein. It cannot be modified,
+                                except as
+                                expressly stated herein, without an amendment signed by both parties.
+                            </p>
+
+                            <div style="page-break-before: always;"/>
+                            <p>
+                                (d) If a court declares any provision void, that provision will be severed from this
+                                Agreement, and the
+                                remaining provisions shall remain fully enforceable.
+                            </p>
+                        </div>
+
+                        <!-- 16 -->
+                        <h5>16. Termination of Employment</h5>
+
+                        <p>
+                            You are entitled to receive from the Company and required to give the Company the following
+                            period of notice, in
+                            writing, to terminate your employment without cause, such notice, in each case, to expire as
+                            stated below:
+                        </p>
+                        <div style="margin-left:20px">
+                            <p>
+                                (i) During the probation period, either party may terminate this contract by giving
+                                Thirty
+                                days’ notice in
+                                writing or payment in lieu of salary (net of provident fund contribution and gratuity).
+                                However, the
+                                Company reserves the right not to accept payment in lieu of notice and at its sole
+                                discretion and
+                                enforce the notice period.
+                            </p>
+                            <p>
+                                (ii) After your probation period, either party may terminate this contract by giving
+                                Ninety
+                                days’ notice in
+                                writing or payment in lieu of salary (net of provident fund contribution and gratuity).
+                                However, the
+                                Company reserves the right not to accept payment in lieu of notice and at its sole
+                                discretion and
+                                enforce the notice period.
+                            </p>
+                            <div style="margin-left:20px">
+                                <p>
+                                    (a) In any event (unless mutually agreed in writing), your employment will
+                                    automatically
+                                    end upon
+                                    reaching the Company’s retirement age. The retirement age for a full-time employee
+                                    is 58
+                                    years.
+                                </p>
+                                <p>
+                                    (b) Your employment is liable to be terminated immediately by the Company without
+                                    prior
+                                    notice if any
+                                    information provided by you in your employment verification form or in connection
+                                    with
+                                    your appointment
+                                    is found to be false, or if any material particulars are suppressed.
+                                </p>
+                                <p>
+                                    (c) Furthermore, the Company reserves the right to terminate your services without
+                                    notice or salary in lieu
+                                    thereof for misconduct, negligence of duty, disloyalty, dishonesty, indiscipline,
+                                    disobedience, irregular
+                                    attendance, prolonged absence from duty due to ill-health, infirmity, accident, or
+                                    inefficiency compared to
+                                    other employees.
+                                </p>
+                                <p>
+                                    (d) The Company may also terminate your employment immediately and without notice if
+                                    you
+                                    (i) commit a
+                                    crime involving moral turpitude, theft, fraud, or deceit; (ii) engage in conduct
+                                    that
+                                    adversely affects the
+                                    Company’s reputation; or (iii) exhibit conduct unbecoming of your position.
+                                </p>
+                                <p>
+                                    (e) If you are absent without leave or remain absent beyond the granted or extended
+                                    leave period, you shall
+                                    be considered to have voluntarily terminated your employment without notice unless
+                                    you:
+                                </p>
+                                <p>
+                                    (f) Return to work within 3 days of the start of such absence; and
+                                </p>
+                                <p>
+                                    (g) Provide a written explanation satisfactory to your manager regarding the
+                                    absence.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 17 -->
+                        <h5>17. Verification</h5>
+                        <div style="margin-left:20px">
+                            <p>
+                                (a) This offer is contingent upon obtaining no adverse information during reference
+                                checks
+                                with your
+                                previous employer(s), background check, and validation of the experience and educational
+                                qualifications you have submitted.
+                            </p>
+                        </div>
+
+                        <!-- 18 -->
+                        <h5>18. General</h5>
+                        <p>
+                            You agree that the provisions of this letter are severable. If any portion thereof is
+                            declared
+                            unenforceable, it shall not
+                            affect the enforceability of all other provisions herein. The intent of the parties is that
+                            if
+                            any part of this letter
+                            contains provisions deemed unreasonable, a court shall determine the terms of such agreement
+                            or
+                            enforce the terms
+                            deemed reasonable.
+                        </p>
+                        <div style="page-break-before: always;"/>
+                        <p>
+                            By accepting this offer of employment, you affirm that you have not signed any agreements
+                            with
+                            prior employers, or
+                            otherwise, that would restrict your ability to: (a) work for a competitor; (b) solicit
+                            customers; (c) recruit employees;
+                            or (d) perform the responsibilities of the position outlined in this offer letter. If you
+                            discover any such agreements,
+                            you must notify us immediately. You also affirm that you have not taken nor are in
+                            possession of
+                            any confidential
+                            and/or proprietary information belonging to prior employers.
+                        </p>
+
+                        <p>
+                            You will be required to sign certain mandatory agreements, including but not limited to the
+                            Confidentiality
+                            Agreement, Intellectual Property Rights Agreement, and the Code of Business Ethics. Your
+                            employment will be
+                            governed by all rules and regulations, as amended from time to time. Additionally, the
+                            Company
+                            has various human
+                            resources and administration policies and procedures, which may be subject to change at any
+                            time
+                            at the Company's
+                            discretion. While these policies are not part of your contract of employment, you are
+                            required
+                            to comply with all
+                            applicable policies.
+                        </p>
+                        <p>
+                            We are pleased to welcome you to our Company and look forward to a mutually beneficial
+                            association.
+                        </p>
+
+                        <br/>
+                        <br/>
+
+                        <p>With best wishes, Yours truly,</p>
+
+                        <br/>
+                        <br/>
+
+                        <p>
+                            <strong>For
+                                <strong class="mt-1" t-esc="o.emp_location"/>
+                            </strong>
+                        </p>
+                        <p>
+                            <strong class="mt-1" t-esc="o.emp_location"/>
+                            <br/>HR Head
+                        </p>
+
+                        <br/>
+                        <br/>
+
+                        <p>
+                            I have carefully read and understood the terms and conditions mentioned above. I accept all
+                            the
+                            terms and conditions
+                            of this offer of employment. I shall commence employment with effect from
+                        </p>
+
+                        <p>
+                            Date:
+                            <br/>
+                            <br/>
+                            Place:
+                            <br/>
+
+                        </p>
+
+                        <p>
+                            <div class="row">
+                                <div class="col-6">
+
+                                    Name:
+                                </div>
+                                <div class="col-6">
+
+                                    Signature:
+                                </div>
+                            </div>
+                        </p>
+
+                        <!-- PAGE BREAK -->
+                        <div style="page-break-before: always;"/>
+
+                        <!-- ANNEXURE -->
+                        <div class="text-center">
+                            <h5>Annexure I</h5>
+                        </div>
+                        <h5>Compensation Structure</h5>
+                        <t t-esc="o.emp_calculation_table"/>
+
+                        <br/>
+
+                        <p>
+                            At the time of joining, you are requested to bring the following documents in original,
+                            along
+                            with one
+                            copy each:
+                        </p>
+                        <div style="margin-left:20px">
+                            <p>
+                                1) Certificates supporting your educational qualifications along with mark sheets:
+                            </p>
+                            <div style="margin-left:20px">
+                                <p>
+                                    (b) Std X Certificate and mark sheet
+                                </p>
+                                <p>
+                                    (c) Std XII Certificate and mark sheet
+                                </p>
+                                <p>
+                                    (d) Degree Certificate and Semester-wise / Year-wise mark sheets
+                                </p>
+                                <p>
+                                    (e) Master’s Degree Certificate and Semester-wise / Year-wise mark sheets
+                                </p>
+                                <p>
+                                    (f) Diploma /PG Diploma Certificate and Transcripts
+                                </p>
+                                <p>
+                                    (g) Any other Certificates with supporting documents, if any
+                                </p>
+                                <p>
+                                    (h) Your latest salary slip / Salary Certificate
+                                </p>
+                            </div>
+                            <p>
+                                2) Your relieving letter / Service Certificate from the last three employers
+                            </p>
+                            <p>
+                                3) Acknowledged copy of our offer of appointment
+                            </p>
+                            <p>
+                                4) 4-passport sized color photographs with white background
+                            </p>
+
+                            <div style="page-break-before: always;"/>
+                            <p>
+                                5) Valid pages of the Passport
+                            </p>
+                            <p>
+                                6) Valid government ID proof for your current / permanent address
+                            </p>
+                            <p>
+                                7) PAN Card
+                            </p>
+                            <p>
+                                8) Please ensure to bring all the Certificates supporting your educational
+                                qualifications
+                                along with
+                                mark sheets in original for verification purposes only.
+                            </p>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+
+    <template id="report_offer_letter_basic">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <!-- Title -->
+                        <h2 style="text-align:center;">
+                            <b>OFFER LETTER</b>
+                        </h2>
+
+                        <br/>
+
+                        <!-- Reference -->
+                        <p style="text-align:right;">
+                            <strong>Date:
+                                <t class="mt-1" t-esc="o.emp_hire_date"/>
+                            </strong>
+                        </p>
+                        <!-- Address -->
+                        <p>
+                            <strong>
+                                Ref.No: I210055
+                                <br/>
+                                Mr.
+                                <t t-esc="o.emp_name"/>
+                                <br/>
+                                <t t-esc="o.emp_street"/>
+                                <br/>
+                                <t t-esc="o.emp_street2"/>
+                                <t class="mt-1" t-esc="o.emp_city"/>
+                                <br/>
+
+                                <t t-esc="o.emp_state_id"/>
+                                -
+                                <t t-esc="o.emp_zip"/>
+                                <br/>
+                                <t t-esc="o.emp_country_id"/>
+                            </strong>
+                        </p>
+
+                        <br/>
+
+                        <!-- Content -->
+                        <p><strong t-esc="o.emp_name"/>,
+                        </p>
+
+                        <p>
+                            We refer to your candidature and to our discussions. We are pleased to offer you an
+                            appointment with
+                            our organization. Welcome onboard as a VSTian!
+                        </p>
+
+                        <p>
+                            Your designation will be<srong class="ms-1" t-esc="o.emp_job"/>. Your base
+                            location
+                            will be
+                            <strong class="ms-1">Tiruvannamalai</strong>
+                            unless notified
+                            otherwise.
+                        </p>
+
+                        <p>
+                            Your CTC will be
+                            <strong class="ms-1" t-esc="o.emp_gross_amount"/>
+                            <strong class="ms-1">/- Per Annum</strong>, the detailed Compensation package offered
+                            to you are given in
+                            Annexure A.
+                        </p>
+
+                        <p>
+                            The documentation necessary at the time of your joining is listed in Annexure B.
+                        </p>
+
+                        <p>
+                            Your joining date is
+                            <strong class="ms-1"
+                                    t-esc="o.emp_join_date"/>
+                            .
+                            Please convey your acceptance of this offer within 3 days of
+                            receiving this offer.
+                        </p>
+
+                        <p>
+                            You will be on 30 days of notice as per the company policy.
+                        </p>
+
+                        <p>
+                            We welcome you to
+                            <p t-esc="o.emp_company"/>
+                            and looking forward to a long and mutually rewarding
+                            association with you.
+                        </p>
+
+                        <br/>
+                        <br/>
+
+                        <p>For<strong class="ms-1" t-esc="o.emp_company"/>,
+                        </p>
+
+                        <br/>
+                        <br/>
+
+                        <p>
+                            <b>
+                                <strong>Vinodhini D</strong>
+                            </b>
+                            <br/>
+                            <strong>HR HEAD</strong>
+                        </p>
+
+                        <!-- Annexure A -->
+                        <div style="page-break-before: always;"/>
+
+                        <h3 class="text-center">
+                            <b>Annexure - A</b>
+                        </h3>
+                        <h4>Compensation Structure</h4>
+                        <t t-esc="o.emp_calculation_table"/>
+
+                        <!-- Annexure B -->
+                        <h3 class="text-center">
+                            <b>Annexure - B</b>
+                        </h3>
+
+                        <p>
+                            At the time of joining, you are requested to bring the following documents in original,
+                            along with
+                            one copy each.
+                        </p>
+
+                        <ul>
+                            <li>Certificates supporting your educational qualifications along with mark sheets</li>
+                        </ul>
+                        <ol style="margin-left: 50px;">
+                            <li>Std X Certificate and mark sheet</li>
+                            <li>Std XII Certificate and mark sheet</li>
+                            <li>Degree Certificate and Semester-wise / Year-wise mark sheets</li>
+                            <li>Master’s Degree Certificate and Semester-wise / Year-wise mark sheets</li>
+                            <li>Diploma / PG Diploma Certificate and Transcripts</li>
+                            <li>Any other Certificates with supporting documents, if any</li>
+                        </ol>
+
+                        <ul>
+                            <li>Your latest salary slip / Salary Certificate</li>
+                            <li>Your relieving letter / Service Certificate from the last three employers</li>
+                            <li>Acknowledged copy of our offer of appointment</li>
+                            <li>4 passport sized colour photographs with white background</li>
+                            <li>Valid pages of the Passport</li>
+                            <li>Valid government ID proof for your current / permanent address</li>
+                            <li>PAN Card</li>
+                        </ul>
+
+                        <p>
+                            Please bring all the Certificates supporting your educational qualifications along with mark
+                            sheets
+                            in original for verification only.
+                        </p>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

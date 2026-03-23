@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="salary_calculation_list_view" model="ir.ui.view">
+        <field name="name">salary.calculation.list.view</field>
+        <field name="model">salary.calculation</field>
+        <field name="priority" eval="8"/>
+        <field name="arch" type="xml">
+            <list string="Salary Calculation">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="salary_calculation_form_view" model="ir.ui.view">
+        <field name="name">salary.calculation.view.form</field>
+        <field name="model">salary.calculation</field>
+        <field name="priority" eval="8"/>
+        <field name="arch" type="xml">
+            <form string="Salary Calculation">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" required="1"/>
+                        </h1>
+                    </div>
+                    <notebook>
+                        <page string="Calculation Line">
+                            <field name="calculation_line_ids" string="Calculation Line">
+                                <list string="Calculation Line">
+                                    <field name="name"/>
+                                    <field name="calculation_type"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <!--Action for the 'hr.resignation' model.-->
+    <record id="salary_calculation_action" model="ir.actions.act_window">
+        <field name="name">Salary Calculation</field>
+        <field name="res_model">salary.calculation</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">Create the First Calculation
+            </p>
+        </field>
+    </record>
+
+
+    <menuitem id="salary_calculation_action_menu"
+              name="Salary Calculation"
+              action="salary_calculation_action"
+              groups="hr.group_hr_user"
+              sequence="4"/>
+</odoo>
