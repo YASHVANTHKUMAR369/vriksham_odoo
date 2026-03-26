@@ -34,6 +34,17 @@
 
             <xpath expr="//field[@name='department_id']" position="before">
                 <field name="struct_id"/>
+                <field name="departure_reason_id"/>
+            </xpath>
+            <xpath expr="//field[@name='employee_type']" position="before">
+                <field name="tds_amount"/>
+                <field name="salary_calculation_id"/>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page name="Salary Calculation">
+                    <field name="salary_calculation_html"/>
+                </page>
             </xpath>
         </field>
     </record>

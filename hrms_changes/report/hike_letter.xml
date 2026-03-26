@@ -1,0 +1,197 @@
+<odoo>
+
+    <!-- Report Action -->
+    <record id="action_hike_letter" model="ir.actions.report">
+        <field name="name">Hike Letter</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hrms_changes.report_employee_hike_letter</field>
+        <field name="report_file">hrms_changes.report_employee_hike_letter</field>
+        <field name="print_report_name">'Hike Letter - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_hr_employee"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Template -->
+    <template id="report_employee_hike_letter">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+
+                <!-- ================= PAGE 1 ================= -->
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: Arial; font-size: 14px; line-height: 1.6;">
+
+                        <p>[Private &amp; Confidential]</p>
+
+                        <br/>
+
+                        <!-- Header -->
+                        <p>
+                            <strong t-esc="o.name"/>,
+                            <span style="float:right;">
+                                <t t-esc="o.create_date.strftime('%B %d, %Y')"/>
+                            </span>
+                        </p>
+
+                        <p>
+                            <t t-esc="o.identification_id"/>
+                        </p>
+
+                        <br/>
+
+                        <!-- Title -->
+                        <p style="text-align:center; font-weight:bold;">
+                            ANNUAL INCREMENT LETTER 24-25
+                        </p>
+
+                        <br/>
+
+                        <p>Dear<t t-esc="o.name"/>,
+                        </p>
+
+                        <br/>
+
+                        <!-- Body -->
+                        <p style="text-align: justify;">
+                            We are pleased to inform you that, in recognition of your unwavering
+                            commitment and valuable contributions to
+                            <strong t-esc="o.company_id.name"/>
+                            during the financial year FY’25, your annual Cost to Company (CTC)
+                            has been revised. Effective
+                            <strong>
+                                <!--                                <t t-esc="o.version_id.contract_start_date.strftime('%B %d, %Y') if o.version_id.contract_start_date else '-'"/>-->
+                            </strong>,
+                            your revised CTC will be
+                            <strong>
+                                Rs.
+                                <t t-esc="o.version_id.wage * 12"/>
+                            </strong>
+                            .
+                        </p>
+
+                        <p style="text-align: justify;">
+                            This increment reflects the organization's acknowledgment of your exceptional performance,
+                            competencies,
+                            and dedication to excellence. Your continued contribution has played a pivotal role in the
+                            success and growth
+                            of VST, and we are confident that you will maintain the same level of excellence in the
+                            future.
+                        </p>
+
+                        <p style="text-align: justify;">
+                            Please find attached the Annexure containing the detailed breakdown of your revised
+                            remuneration structure.
+                            Kindly note that this information is strictly confidential and must not be shared or
+                            discussed with any other
+                            employees under any circumstances.
+                        </p>
+
+                        <p style="text-align: justify;">
+                            Looking ahead, the appraisal process for the upcoming financial year (FY’26) will be based
+                            on ongoing
+                            evaluations of your alignment with organizational objectives, performance in assigned
+                            projects, and the
+                            successful attainment of your goals.
+                        </p>
+
+                        <p style="text-align: justify;">
+                            We take this opportunity to extend our heartfelt appreciation for your efforts and wish you
+                            continued success
+                            in your professional journey with us. As always, the Human Resources department remains
+                            committed to
+                            supporting your growth and enhancing your employee experience. Should you have any questions
+                            or require
+                            further clarification, please do not hesitate to contact the HR Team.
+                        </p>
+
+                        <br/>
+                        <br/>
+                        <br/>
+
+                        <!-- Signature -->
+                        <p>
+                            With best wishes, Yours truly,
+                        </p>
+
+                        <br/>
+                        <br/>
+                        <br/>
+
+                        <p>
+                            <strong>Vinodhini D
+                                <br/>
+                                HR Head
+                                <br/>
+                                <t t-esc="o.company_id.name"/>
+                            </strong>
+                        </p>
+
+                    </div>
+                </t>
+
+                <!-- ================= PAGE 2 ================= -->
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: Arial; font-size: 14px;">
+
+                        <h3>Annexure</h3>
+
+                        <br/>
+
+                        <!-- Employee Info -->
+                        <p>Name:
+                            <strong t-esc="o.name"/>
+                        </p>
+                        <p>Designation:
+                            <strong t-esc="o.version_id.job_title"/>
+                        </p>
+                        <p>Department:
+                            <strong t-esc="o.version_id.department_id.name"/>
+                        </p>
+                        <p>Location:
+                            <strong t-esc="o.version_id.work_location_id.name"/>
+                        </p>
+
+                        <br/>
+
+                        <!-- Salary Table -->
+
+
+                        <br/>
+                        <br/>
+
+                        <!-- Declaration -->
+                        <p>
+                            <strong>Declaration by Employee:</strong>
+                        </p>
+
+                        <p style="text-align: justify;">
+                            I,<t t-esc="o.name"/>, hereby acknowledge and accept the revised terms of my remuneration as
+                            stated in this letter,
+                            effective April 01, 2025. I confirm that I have reviewed the details of the revised Cost to
+                            Company (CTC) as
+                            outlined in the Annexure and agree to comply with the confidentiality clause stated herein.
+                        </p>
+                        <p>
+                            I understand that all other terms and conditions of my employment shall remain as per the
+                            existing Company
+                            Policy, subject to amendments from time to time.
+                        </p>
+
+                        <br/>
+                        <br/>
+
+                        <p>
+                            Signature: _______________________
+                            <br/>
+                            <br/>
+                            Date: ___________________________
+                        </p>
+
+                    </div>
+                </t>
+
+            </t>
+        </t>
+    </template>
+
+</odoo>

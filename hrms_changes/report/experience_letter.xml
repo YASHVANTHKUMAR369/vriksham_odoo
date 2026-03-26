@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="action_experience_letter_full" model="ir.actions.report">
+        <field name="name">Experience Letter</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hrms_changes.report_employee_experience_letter</field>
+        <field name="report_file">hrms_changes.report_employee_experience_letter</field>
+        <field name="print_report_name">'Experience Letter - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_hr_employee"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_employee_experience_letter">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+
+                    <div class="page" style="font-family: Arial; font-size: 14px;">
+
+                        <!-- Date -->
+                        <p>
+                            <strong t-esc="o.create_date.strftime('%d-%b-%Y') if o.create_date else '-'"/>
+                        </p>
+
+                        <br/>
+
+                        <!-- Employee Details -->
+                        <p>
+                            <strong>
+                                <t class="mt-1" t-esc="o.name"/>
+                            </strong>
+                            <br/>
+                            <strong>EID:
+                                <t t-esc="o.identification_id"/>
+                            </strong>
+                        </p>
+
+                        <br/>
+
+                        <p>
+                            Re: Experience Letter
+                        </p>
+
+                        <br/>
+
+                        <!-- Body -->
+                        <p>
+                            Dear
+                            <strong class="mt-2" t-esc="o.name"/>,
+                        </p>
+
+                        <br/>
+
+                        <p>
+                            This is to confirm that
+                            <t class="mt-1" t-esc="o.name"/>
+                            was employed with
+                            <strong>
+                                <t t-esc="o.company_id.name"/>
+                            </strong>
+                            for the period
+                            <strong class="mt-1"
+                                    t-esc="o.first_joining_date.strftime('%d-%b-%Y') if o.first_joining_date else '-'"/>
+                            to
+                            <strong class="mt-1"
+                                    t-esc="o.last_working_date.strftime('%d-%b-%Y') if o.last_working_date else 'Present'"/>
+
+                            <br/>
+                            At the time of resignation,
+                            he/she was designated as
+                            <strong>
+                                <t t-esc="o.job_title"/>
+                            </strong>
+                            .
+                        </p>
+
+                        <br/>
+
+                        <p>
+                            This letter is issued as proof of work experience.
+                        </p>
+
+                        <br/>
+
+                        <p>
+                            We wish you success in your future endeavors and hope that your
+                            career path is filled with success and growth. Should you need
+                            any assistance or reference in the future, please do not hesitate
+                            to reach out to us.
+                        </p>
+
+                        <br/>
+                        <br/>
+                        <br/>
+
+                        <!-- Signature -->
+                        <p>
+                            <strong>Sincerely,</strong>
+                            <br/>
+                            <br/>
+                            <br/>
+
+                            <strong>Vinodhini D</strong>
+                            <br/>
+                            <strong>HR Head</strong>
+                        </p>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

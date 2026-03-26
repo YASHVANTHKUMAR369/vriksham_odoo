@@ -1,0 +1,140 @@
+<odoo>
+
+    <!-- Report Action -->
+    <record id="action_relieving_letter" model="ir.actions.report">
+        <field name="name">Relieving Letter</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hrms_changes.report_employee_relieving_letter</field>
+        <field name="report_file">hrms_changes.report_employee_relieving_letter</field>
+        <field name="print_report_name">'Relieving Letter - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_hr_employee"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Template -->
+    <template id="report_employee_relieving_letter">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+
+                    <div class="page" style="font-family: Arial; font-size: 14px; line-height: 1.6;">
+
+                        <!-- Date -->
+                        <p>
+                            <t t-esc="o.create_date.strftime('%B %d, %Y') if o.create_date else ''"/>
+                        </p>
+
+                        <br/>
+
+                        <!-- Employee ID -->
+                        <p>
+                            <strong>
+                                EID:
+                                <t t-esc="o.identification_id or '-'"/>
+                            </strong>
+                        </p>
+
+                        <br/>
+
+                        <!-- Subject -->
+                        <p>
+                            <strong>Re: Relieving Letter</strong>
+                        </p>
+
+                        <br/>
+
+                        <!-- Greeting -->
+                        <p>
+                            Dear<strong class="mt-1" t-esc="o.name"/>,
+                        </p>
+
+                        <br/>
+
+                        <!-- Body -->
+                        <p style="text-align: justify;">
+                            This is with reference to your resignation letter dated
+                            <strong class="mt-1"
+                                    t-esc="o.departure_date.strftime('%B %d, %Y') if o.departure_date else '-'"/>.
+                            You are relieved of your duties with
+                            <strong class="mt-1" t-esc="o.company_id.name"/>
+                            with effect from the close of business hours of
+                            <strong class="mt-1"
+                                    t-esc="o.last_working_date.strftime('%B %d, %Y') if o.last_working_date else '-'"/>.
+                            This letter confirms the following details of your employment with us:
+                        </p>
+
+                        <br/>
+
+                        <!-- Details Section -->
+                        <p>
+                            <strong>
+                                Date of Joining:
+                                <t class="mt-1"
+                                   t-esc="o.first_joining_date.strftime('%B %d, %Y') if o.first_joining_date else '-'"/>
+                            </strong>
+                        </p>
+
+                        <p>
+                            <strong>
+                                Profile Job:
+                                <t class="mt-1" t-esc="o.job_title"/>
+                            </strong>
+                        </p>
+
+                        <p>
+                            <strong>
+                                Reason for Exit:
+                                <t class="mt-1" t-esc="o.departure_reason_id.name or 'Resignation'"/>
+                            </strong>
+                        </p>
+
+                        <br/>
+
+                        <!-- Statements -->
+                        <p style="text-align: justify;">
+                            You agree that no amounts are due and owing to you by
+                            <strong class="mt-1" t-esc="o.company_id.name"/>.
+                        </p>
+
+                        <p style="text-align: justify;">
+                            You confirm that you have returned to
+                            <strong class="mt-1" t-esc="o.company_id.name"/>
+                            all materials in your possession, custody or control and provided
+                            to you or created in the course of your employment.
+                        </p>
+
+                        <br/>
+
+                        <p>
+                            We wish you success in your future endeavors.
+                        </p>
+
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+
+                        <!-- Signature -->
+                        <p>
+                            Sincerely,
+                        </p>
+
+                        <br/>
+                        <br/>
+                        <br/>
+
+                        <p>
+                            <strong>Vinodhini D</strong>
+                            <br/>
+                            HR Head
+                        </p>
+
+                    </div>
+
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
