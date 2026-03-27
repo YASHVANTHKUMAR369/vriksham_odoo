@@ -8,7 +8,7 @@
         <field name="report_name">hrms_changes.report_employee_hike_letter</field>
         <field name="report_file">hrms_changes.report_employee_hike_letter</field>
         <field name="print_report_name">'Hike Letter - %s' % (object.name)</field>
-        <field name="binding_model_id" ref="model_hr_employee"/>
+        <field name="binding_model_id" ref=""/>
         <field name="binding_type">report</field>
     </record>
 
@@ -21,32 +21,34 @@
                 <t t-call="web.external_layout">
                     <div class="page" style="font-family: Arial; font-size: 14px; line-height: 1.6;">
 
-                        <p>[Private &amp; Confidential]</p>
+                        <strong>[Private &amp; Confidential]</strong>
 
                         <br/>
 
                         <!-- Header -->
-                        <p>
-                            <strong t-esc="o.name"/>,
-                            <span style="float:right;">
-                                <t t-esc="o.create_date.strftime('%B %d, %Y')"/>
-                            </span>
-                        </p>
-
-                        <p>
-                            <t t-esc="o.identification_id"/>
-                        </p>
+                        <div class="row" style="margin-top:50px">
+                            <div class="col-3">
+                                <strong t-esc="o.name"/>
+                                <br/>
+                                <strong t-esc="o.identification_id"/>
+                            </div>
+                            <div class="col-9 text-end">
+                                <strong t-esc="o.version_id.hike_date.strftime('%B %d, %Y') if o.version_id.hike_date else '-'"/>
+                            </div>
+                        </div>
 
                         <br/>
 
                         <!-- Title -->
                         <p style="text-align:center; font-weight:bold;">
-                            ANNUAL INCREMENT LETTER 24-25
+                            ANNUAL INCREMENT LETTER
+                            <t t-esc="o.version_id.get_financial_year"/>
                         </p>
 
                         <br/>
 
-                        <p>Dear<t t-esc="o.name"/>,
+                        <p>Dear
+                            <t class="ms-1" t-esc="o.name"/>,
                         </p>
 
                         <br/>
@@ -56,11 +58,14 @@
                             We are pleased to inform you that, in recognition of your unwavering
                             commitment and valuable contributions to
                             <strong t-esc="o.company_id.name"/>
-                            during the financial year FY’25, your annual Cost to Company (CTC)
+                            during the financial year<t t-esc="o.version_id.get_fy_short"/>, your annual Cost to Company
+                            (CTC)
                             has been revised. Effective
                             <strong>
-                                <!--                                <t t-esc="o.version_id.contract_start_date.strftime('%B %d, %Y') if o.version_id.contract_start_date else '-'"/>-->
-                            </strong>,
+                                <t class="ms-1"
+                                   t-esc="o.version_id.contract_date_start.strftime('%B %d, %Y') if o.version_id.contract_date_start else '-'"/>
+                            </strong>
+                            ,
                             your revised CTC will be
                             <strong>
                                 Rs.
@@ -87,7 +92,8 @@
                         </p>
 
                         <p style="text-align: justify;">
-                            Looking ahead, the appraisal process for the upcoming financial year (FY’26) will be based
+                            Looking ahead, the appraisal process for the upcoming financial year (<t
+                                t-esc="o.version_id.get_upcoming_fy"/>) will be based
                             on ongoing
                             evaluations of your alignment with organizational objectives, performance in assigned
                             projects, and the
@@ -127,47 +133,57 @@
                         </p>
 
                     </div>
-                </t>
+                    <div>
 
-                <!-- ================= PAGE 2 ================= -->
-                <t t-call="web.external_layout">
-                    <div class="page" style="font-family: Arial; font-size: 14px;">
-
-                        <h3>Annexure</h3>
+                        <h6 class="text-center">
+                            <b>Annexure</b>
+                        </h6>
 
                         <br/>
 
                         <!-- Employee Info -->
-                        <p>Name:
-                            <strong t-esc="o.name"/>
+                        <p>
+                            <strong>Name:</strong>
+                            <t class="ms-3" t-esc="o.name"/>
                         </p>
-                        <p>Designation:
-                            <strong t-esc="o.version_id.job_title"/>
+                        <p>
+
+                            <strong>Designation:</strong>
+                            <t class="ms-3" t-esc="o.version_id.job_title"/>
                         </p>
-                        <p>Department:
-                            <strong t-esc="o.version_id.department_id.name"/>
+                        <p>
+                            <strong>Department:</strong>
+                            <t class="ms-3" t-esc="o.version_id.department_id.name"/>
                         </p>
-                        <p>Location:
-                            <strong t-esc="o.version_id.work_location_id.name"/>
+                        <p>
+                            <strong>Location:</strong>
+                            <t class="ms-3" t-esc="o.version_id.work_location_id.name"/>
                         </p>
 
                         <br/>
 
                         <!-- Salary Table -->
 
+                        <t t-esc="o.version_id.salary_calculation_html"/>
 
                         <br/>
                         <br/>
 
                         <!-- Declaration -->
-                        <p>
+                        <h5 class="text-center">
                             <strong>Declaration by Employee:</strong>
-                        </p>
+                        </h5>
 
-                        <p style="text-align: justify;">
-                            I,<t t-esc="o.name"/>, hereby acknowledge and accept the revised terms of my remuneration as
+                        <p>
+                            I,
+                            <t class="ms-1" t-esc="o.name"/>, hereby acknowledge and accept the revised terms of my
+                            remuneration as
                             stated in this letter,
-                            effective April 01, 2025. I confirm that I have reviewed the details of the revised Cost to
+                            effective
+                            <t class="ms-2"
+                               t-esc="o.version_id.contract_date_start.strftime('%B %d, %Y') if o.version_id.contract_date_start else '-'"/>
+                            . I
+                            confirm that I have reviewed the details of the revised Cost to
                             Company (CTC) as
                             outlined in the Annexure and agree to comply with the confidentiality clause stated herein.
                         </p>
@@ -179,13 +195,14 @@
 
                         <br/>
                         <br/>
-
-                        <p>
-                            Signature: _______________________
-                            <br/>
-                            <br/>
-                            Date: ___________________________
-                        </p>
+                        <div class="row">
+                            <div class="col-6">
+                                Signature: _______________________
+                            </div>
+                            <div class="col-6 text-end">
+                                Date: ___________________________
+                            </div>
+                        </div>
 
                     </div>
                 </t>

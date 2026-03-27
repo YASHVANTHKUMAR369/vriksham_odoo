@@ -1,5 +1,8 @@
 from odoo import models, fields, api, _
 
+# from .exceptions import UserError, AccessError, AccessDenied
+#
+# from odoo.tools import clean_context
 
 class HrApplicant(models.Model):
     _inherit = 'hr.applicant'
@@ -18,6 +21,7 @@ class HrApplicant(models.Model):
                                          groups="hr.group_hr_user", tracking=True)
     salary_calculation_id = fields.Many2one("salary.calculation", string="Salary Calculation", groups="hr.group_hr_user")
     join_date = fields.Date(string="Join Date", tracking=True)
+    work_location_id = fields.Many2one('hr.work.location')
     salary_calculation_html = fields.Html(string="Salary Calculation", compute='_compute_salary_calculation_html')
     @api.depends('salary_calculation_id')
     def _compute_salary_calculation_html(self):
@@ -73,7 +77,7 @@ class HrApplicant(models.Model):
 
     @property
     def emp_location(self):
-        return self.job_id.display_name
+        return self.work_location_id.display_name
 
     @property
     def emp_hire_date(self):
@@ -100,6 +104,9 @@ class HrApplicant(models.Model):
     @property
     def emp_company(self):
         return self.company_id.display_name if self.company_id else None
+    @property
+    def emp_hr_name(self):
+        return "Vinodhini D"
 
     def generate_salary_html(self, data, is_monthly=False):
         if self.salary_proposed > 0:
@@ -136,7 +143,7 @@ class HrApplicant(models.Model):
 
             # Generate HTML
             html = """
-            <table style="width:100%; border-collapse: collapse; font-size:14px;">
+            <table style="width:100%; border-collapse: collapse; font-size:12px;">
                 <thead>
                     <tr style="background-color:#e9ecef;">
                         <th style="border:1px solid #000; padding:8px; text-align:left;">Component</th>
@@ -182,3 +189,35 @@ class HrApplicant(models.Model):
             return html
         else:
             return False
+
+    # def create_employee_from_applicant(self):
+    #     """ Create an employee from applicant """
+    #     self.ensure_one()
+    #     self._check_interviewer_access()
+    #
+    #     if not self.partner_id:
+    #         if not self.partner_name:
+    #             raise UserError(_('Please provide an applicant name.'))
+    #         self.partner_id = self.env['res.partner'].create({
+    #             'is_company': False,
+    #             'name': self.partner_name,
+    #             'email': self.email_from,
+    #         })
+    #
+    #     action = self.env['ir.actions.act_window']._for_xml_id('hr.open_view_employee_list')
+    #     employee = self.env['hr.employee'].with_context(clean_context(self.env.context)).create(self._get_employee_create_vals())
+    #     action['res_id'] = employee.id
+    #     employee_attachments = self.env['ir.attachment'].search([('res_model', '=','hr.employee'), ('res_id', '=', employee.id)])
+    #     unique_attachments = self.attachment_ids.filtered(
+    #         lambda attachment: attachment.datas not in employee_attachments.mapped('datas')
+    #     )
+    #     unique_attachments.copy({'res_model': 'hr.employee', 'res_id': employee.id})
+    #     employee.write({
+    #         'job_id': self.job_id.id,
+    #         'job_title': self.job_id.name,
+    #         'department_id': self.department_id.id,
+    #         'work_email': self.department_id.company_id.email or self.email_from, # To have a valid email address by default
+    #         'work_phone': self.department_id.company_id.phone,
+    #     })
+    #     return action
+    #

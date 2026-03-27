@@ -8,6 +8,7 @@
         <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='wage']" position="after">
+                <field name="hike_date"/>
                 <field name="tds_amount"/>
                 <field name="salary_calculation_id"/>
                 <field name="salary_calculation_html"/>

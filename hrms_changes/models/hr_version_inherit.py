@@ -5,18 +5,19 @@ class HrVersion(models.Model):
     _inherit = 'hr.version'
 
     tds_amount = fields.Float(string="TDS Amount")
+    hike_date = fields.Date(string="Hike Date", tracking=True)
     salary_calculation_id = fields.Many2one("salary.calculation", string="Salary Calculation", groups="hr.group_hr_user")
 
     salary_calculation_html = fields.Html(string="Salary Calculation", compute='_compute_salary_calculation_html')
 
-    @api.depends('salary_calculation_id')
+    @api.depends('salary_calculation_id' , 'wage')
     def _compute_salary_calculation_html(self):
         for rec in self:
             output = rec.generate_salary_html(rec.salary_calculation, True)
             rec.salary_calculation_html = output if output else None
 
-    def generate_salary_html(self, data, is_monthly=False):
-        if self.wage > 0:
+    def generate_salary_html(self, data, is_monthly=True):
+        if self.wage > 0 or not self.salary_calculation_id:
             rows = []
 
             def process_component(component):
@@ -24,12 +25,12 @@ class HrVersion(models.Model):
                 for rec in component.values():
                     name = rec['name']
                     amount = rec['amount']
-                    if is_monthly:
-                        yearly = amount * 12
-                        monthly = amount
-                    else:
-                        yearly = amount
-                        monthly = amount /12
+                    # if is_monthly:
+                    #     yearly = amount * 12
+                    #     monthly = amount
+                    # else:
+                    yearly = amount
+                    monthly = amount /12
 
 
 
@@ -101,3 +102,43 @@ class HrVersion(models.Model):
     @property
     def salary_calculation(self):
         return self.salary_calculation_id.get_calculation_line_ids(self.wage, True)
+    @property
+    def get_upcoming_fy(self):
+        dt = self.contract_date_start
+        if not dt:
+            return f"FY - ’"
+
+        if dt.month >= 4:
+            # Current FY already started → next FY = +2
+            year = (dt.year + 2) % 100
+        else:
+            # Still in previous FY → next FY = +1
+            year = (dt.year + 1) % 100
+
+        return f"FY’{year:02d}"
+    @property
+    def get_fy_short(self):
+        dt = self.contract_date_start
+        if not dt:
+            return f"FY - ’"
+
+        if dt.month >= 4:  # April start
+            year = (dt.year + 1) % 100
+        else:
+            year = dt.year % 100
+
+        return f"FY’{year:02d}"
+
+    @property
+    def get_financial_year(self):
+        today = self.contract_date_start
+        if not today:
+            return False
+        if today.month >= 4:  # Financial year starts in April
+            start_year = today.year % 100
+            end_year = (today.year + 1) % 100
+        else:
+            start_year = (today.year - 1) % 100
+            end_year = today.year % 100
+
+        return f"{start_year:02d}-{end_year:02d}"

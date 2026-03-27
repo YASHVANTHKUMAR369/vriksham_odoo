@@ -19,6 +19,7 @@ class HrEmployee(models.Model):
         compute="_compute_contract_dates",
         store=True
     )
+    hire_date = fields.Date(string="Hire Date", tracking=True)
 
     def _default_phone_country_prefix(self):
         phone_code = self.env.company.country_id.phone_code
@@ -113,30 +114,34 @@ class HrEmployee(models.Model):
             if max_record:
                 emp.last_working_date = max_record.contract_date_end if max_record.contract_date_end else False
 
-    # @api.model_create_multi
-    # def create(self, vals_list):
-    #     document = self.env['document.type'].search([])
-    #     for val in vals_list:
-    #         for doc in document:
-    #             val['documents_ids'].append((0, 0, {
-    #                 'name': f"{val['name']}'s {doc.name} Document",
-    #                 'document_type_id': doc.id,
-    #             }))
-    #     return super().create(vals_list)
+    is_first_version = fields.Boolean(compute="_compute_version_flags")
+    is_last_version = fields.Boolean(compute="_compute_version_flags")
 
-    # def create_documents(self):
-    #     document = self.env['document.type'].search([])
-    #     emp_document = self.env['hr.employee.document']
-    #     for emp in self.search([]):
-    #         for doc in document:
-    #             emo_doc_record = emp_document.search(
-    #                 [('employee_ref_id', '=', emp.id), ('document_type_id', '=', doc.id)], limit=1)
-    #             if not emo_doc_record:
-    #                 emp_document.create({
-    #                     'name': f"{emp.name}'s {doc.name} Document",
-    #                     'document_type_id': doc.id,
-    #                     'employee_ref_id': emp.id,
-    #                 })
+    @api.depends('version_ids', 'contract_date_start', 'contract_date_end', 'version_id')
+    def _compute_version_flags(self):
+        for rec in self:
+            versions = rec.env['hr.version'].search(
+                [('employee_id', '=', rec.employee_id.id)],
+                order='id asc'
+            )
+            print("versions[:1]:", versions[:1])
+            print("versions[-1:]:", versions[-1:])
+            rec.is_first_version = rec.version_id.id == versions[:1].id
+            rec.is_last_version = rec.version_id.id == versions[-1:].id
+
+    def action_print_offer_full_report(self):
+        return self.env.ref('hrms_changes.action_offer_letter_full').report_action(self.applicant_ids.filtered(lambda x: x.application_status != 'hired'))
+
+
+    def action_print_offer_basic_report(self):
+        return self.env.ref('hrms_changes.action_offer_letter_basic').report_action(self.applicant_ids.filtered(lambda x: x.application_status != 'hired'))
+
+    def action_print_experience_report(self):
+        return self.env.ref('hrms_changes.action_experience_letter_full').report_action(self)
+    def action_print_hike_report(self):
+        return self.env.ref('hrms_changes.action_hike_letter').report_action(self)
+    def action_print_relieving_report(self):
+        return self.env.ref('hrms_changes.action_relieving_letter').report_action(self)
 
 
 

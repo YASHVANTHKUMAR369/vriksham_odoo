@@ -8,7 +8,7 @@
         <field name="report_name">hrms_changes.report_employee_experience_letter</field>
         <field name="report_file">hrms_changes.report_employee_experience_letter</field>
         <field name="print_report_name">'Experience Letter - %s' % (object.name)</field>
-        <field name="binding_model_id" ref="model_hr_employee"/>
+        <field name="binding_model_id" ref=""/>
         <field name="binding_type">report</field>
     </record>
 
@@ -21,7 +21,7 @@
 
                         <!-- Date -->
                         <p>
-                            <strong t-esc="o.create_date.strftime('%d-%b-%Y') if o.create_date else '-'"/>
+                            <strong t-esc="o.hire_date.strftime('%B %d, %Y') if o.hire_date else '-'"/>
                         </p>
 
                         <br/>
@@ -96,16 +96,14 @@
                         <br/>
 
                         <!-- Signature -->
-                        <p>
+                        <div style="margin-top:100px">
                             <strong>Sincerely,</strong>
-                            <br/>
-                            <br/>
-                            <br/>
-
+                        </div>
+                        <div style="margin-top:100px">
                             <strong>Vinodhini D</strong>
                             <br/>
                             <strong>HR Head</strong>
-                        </p>
+                        </div>
 
                     </div>
                 </t>

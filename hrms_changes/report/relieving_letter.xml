@@ -8,7 +8,7 @@
         <field name="report_name">hrms_changes.report_employee_relieving_letter</field>
         <field name="report_file">hrms_changes.report_employee_relieving_letter</field>
         <field name="print_report_name">'Relieving Letter - %s' % (object.name)</field>
-        <field name="binding_model_id" ref="model_hr_employee"/>
+        <field name="binding_model_id" ref=""/>
         <field name="binding_type">report</field>
     </record>
 
@@ -22,8 +22,9 @@
 
                         <!-- Date -->
                         <p>
-                            <t t-esc="o.create_date.strftime('%B %d, %Y') if o.create_date else ''"/>
+                            <strong t-esc="o.hire_date.strftime('%B %d, %Y') if o.hire_date else '-'"/>
                         </p>
+
 
                         <br/>
 
@@ -33,20 +34,15 @@
                                 EID:
                                 <t t-esc="o.identification_id or '-'"/>
                             </strong>
+                            <br/>
+                            <span>Re: Relieving Letter</span>
                         </p>
 
-                        <br/>
-
-                        <!-- Subject -->
-                        <p>
-                            <strong>Re: Relieving Letter</strong>
-                        </p>
-
-                        <br/>
 
                         <!-- Greeting -->
                         <p>
-                            Dear<strong class="mt-1" t-esc="o.name"/>,
+                            <strong>Dear</strong>
+                            <strong class="ms-1" t-esc="o.name"/>,
                         </p>
 
                         <br/>
@@ -54,12 +50,12 @@
                         <!-- Body -->
                         <p style="text-align: justify;">
                             This is with reference to your resignation letter dated
-                            <strong class="mt-1"
+                            <strong class="ms-1"
                                     t-esc="o.departure_date.strftime('%B %d, %Y') if o.departure_date else '-'"/>.
                             You are relieved of your duties with
-                            <strong class="mt-1" t-esc="o.company_id.name"/>
+                            <span class="ms-1" t-esc="o.company_id.name"/>
                             with effect from the close of business hours of
-                            <strong class="mt-1"
+                            <strong class="ms-1"
                                     t-esc="o.last_working_date.strftime('%B %d, %Y') if o.last_working_date else '-'"/>.
                             This letter confirms the following details of your employment with us:
                         </p>
@@ -67,39 +63,51 @@
                         <br/>
 
                         <!-- Details Section -->
-                        <p>
-                            <strong>
-                                Date of Joining:
-                                <t class="mt-1"
-                                   t-esc="o.first_joining_date.strftime('%B %d, %Y') if o.first_joining_date else '-'"/>
-                            </strong>
-                        </p>
+                        <div class="row">
+                            <div class="col-3">
+                                <strong>
+                                    Date of Joining:
+                                </strong>
+                            </div>
+                            <div class="col-9">
+                                <strong
+                                        t-esc="o.first_joining_date.strftime('%B %d, %Y') if o.first_joining_date else '-'"/>
+                            </div>
+                        </div>
 
-                        <p>
-                            <strong>
+                        <div class="row">
+                            <div class="col-3">
+                                <strong>
                                 Profile Job:
-                                <t class="mt-1" t-esc="o.job_title"/>
-                            </strong>
-                        </p>
+                                </strong>
+                            </div>
+                            <div class="col-9">
+                                <strong t-esc="o.job_title"/>
+                            </div>
+                        </div>
 
-                        <p>
-                            <strong>
+                        <div class="row">
+                            <div class="col-3">
+                                <strong>
                                 Reason for Exit:
-                                <t class="mt-1" t-esc="o.departure_reason_id.name or 'Resignation'"/>
-                            </strong>
-                        </p>
+                                </strong>
+                            </div>
+                            <div class="col-9">
+                                <strong t-esc="o.departure_reason_id.name or 'Resignation'"/>
+                            </div>
+                        </div>
 
                         <br/>
 
                         <!-- Statements -->
                         <p style="text-align: justify;">
                             You agree that no amounts are due and owing to you by
-                            <strong class="mt-1" t-esc="o.company_id.name"/>.
+                            <span class="ms-1" t-esc="o.company_id.name"/>.
                         </p>
 
                         <p style="text-align: justify;">
                             You confirm that you have returned to
-                            <strong class="mt-1" t-esc="o.company_id.name"/>
+                            <span class="ms-1" t-esc="o.company_id.name"/>
                             all materials in your possession, custody or control and provided
                             to you or created in the course of your employment.
                         </p>
@@ -116,19 +124,19 @@
                         <br/>
 
                         <!-- Signature -->
-                        <p>
+                        <strong>
                             Sincerely,
-                        </p>
+                        </strong>
 
                         <br/>
                         <br/>
                         <br/>
 
-                        <p>
-                            <strong>Vinodhini D</strong>
+                        <strong>
+                            Vinodhini D
                             <br/>
                             HR Head
-                        </p>
+                        </strong>
 
                     </div>
 

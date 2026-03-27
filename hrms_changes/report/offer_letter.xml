@@ -25,7 +25,7 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
-                    <div class="page" style="font-size:13px; line-height:1.6;">
+                    <div class="page" style="font-size:13px;">
 
                         <!-- Header -->
                         <p>
@@ -58,10 +58,10 @@
                                 <t t-esc="o.emp_country_id"/>
                             </strong>
                         </p>
-
-                        <h2 style="text-align:center;">Appointment Letter</h2>
-
-                        <p>Dear<strong class="mt-1" t-esc="o.emp_name"/>,
+                        <div class="text-center">
+                            <h6>Appointment Letter</h6>
+                        </div>
+                        <p>Dear<strong class="ms-1" t-esc="o.emp_name"/>,
                         </p>
 
                         <p>
@@ -71,13 +71,13 @@
                         </p>
 
                         <p>
-                            Your designation will be<strong class="mt-1" t-esc="o.emp_job"/>. Your base location will be
-                            <strong class="mt-1" t-esc="o.emp_location"/>
+                            Your designation will be<strong class="ms-1" t-esc="o.emp_job"/>. Your base location will be
+                            <strong class="ms-1" t-esc="o.emp_location"/>
                             unless notified otherwise.
                         </p>
 
                         <!-- 1 -->
-                        <h5>1. Appointment</h5>
+                        <h6>1. Appointment</h6>
                         <p>
                             Your date of appointment is effective from the date of joining
                             <strong class="mt-1"
@@ -105,7 +105,7 @@
                         </p>
 
                         <!-- 2 -->
-                        <h5>2. Compensation</h5>
+                        <h6>2. Compensation</h6>
                         <div style="margin-left:20px">
                             <p>
                                 (a) Your fixed base pay (FBP), on an annualized basis, will be INR
@@ -158,7 +158,7 @@
                         </div>
                         <div style="page-break-before: always;"/>
                         <!-- 3 -->
-                        <h5>3. Probation</h5>
+                        <h6>3. Probation</h6>
                         <div style="margin-left:20px">
                             <p>
                                 You will undergo a probationary period of six months starting from the date of your
@@ -170,7 +170,7 @@
                         </div>
 
                         <!-- 4 -->
-                        <h5>4. Working Hours</h5>
+                        <h6>4. Working Hours</h6>
                         <div style="margin-left:20px">
                             <p>(a) Your standard working days are Monday to Friday. You may be scheduled to work shifts
                                 in
@@ -193,7 +193,7 @@
                         </div>
 
                         <!-- 5 -->
-                        <h5>5. Responsibilities</h5>
+                        <h6>5. Responsibilities</h6>
                         <div style="margin-left:20px">
                             <p>(a) Considering your position and role within the company, it is imperative that you
                                 perform
@@ -228,7 +228,7 @@
                         </div>
 
                         <!-- 6 -->
-                        <h5>6. Work Authorization</h5>
+                        <h6>6. Work Authorization</h6>
 
                         <div style="margin-left:20px">
                             <p>(a) If you require an employment visa to work in India, this appointment will not take
@@ -250,10 +250,10 @@
                         </div>
 
                         <!-- 7 -->
-                        <h5>7. Confidential information, Nondisclosure Agreement, Conflict of Interest and
+                        <h6>7. Confidential information, Nondisclosure Agreement, Conflict of Interest and
                             Non-competition
                             Agreement
-                        </h5>
+                        </h6>
 
                         <div style="margin-left:20px">
                             <p>
@@ -296,7 +296,7 @@
                         </div>
 
                         <!-- 8 -->
-                        <h5>8. Intellectual Property</h5>
+                        <h6>8. Intellectual Property</h6>
 
                         <div style="margin-left:20px">
                             <p>
@@ -342,7 +342,7 @@
                         </div>
 
                         <!-- 9 -->
-                        <h5>9. Non-Solicitation</h5>
+                        <h6>9. Non-Solicitation</h6>
 
                         <div style="margin-left:20px">
                             <p>
@@ -362,7 +362,7 @@
                         </div>
 
                         <!-- 10 -->
-                        <h5>10. Return of Company Property</h5>
+                        <h6>10. Return of Company Property</h6>
                         <div style="margin-left:20px">
                             <p>
                                 (a) All notes, records, books, documents, equipment, laptops, or parts of PCs belonging
@@ -387,7 +387,7 @@
                         </div>
 
                         <!-- 11 -->
-                        <h5>11. Right of Set-Off</h5>
+                        <h6>11. Right of Set-Off</h6>
                         <div style="margin-left:20px">
                             <p>
                                 If you incur any debt to the Company or if any money is owed to the Company by you
@@ -404,7 +404,7 @@
 
                         <div style="page-break-before: always;"/>
                         <!-- 12 -->
-                        <h5>12. Notice of Change</h5>
+                        <h6>12. Notice of Change</h6>
                         <div style="margin-left:20px">
                             <p>
                                 Any updates to your personal information, such as residential address, marital status,
@@ -420,7 +420,7 @@
                         </div>
 
                         <!-- 13 -->
-                        <h5>13. Sensitive Personal Data or Information</h5>
+                        <h6>13. Sensitive Personal Data or Information</h6>
                         <div style="margin-left:20px">
                             <p>
                                 (a) You are informed that the Company collects your personal data for payroll, career
@@ -469,7 +469,7 @@
                         <!-- PAGE BREAK -->
 
                         <!-- 14 -->
-                        <h5>14. Exclusivity / Prior Commitment</h5>
+                        <h6>14. Exclusivity / Prior Commitment</h6>
 
                         <div style="margin-left:20px">
                             <p>
@@ -507,7 +507,7 @@
                         </div>
 
                         <!-- 15 -->
-                        <h5>15. Jurisdiction</h5>
+                        <h6>15. Jurisdiction</h6>
                         <div style="margin-left:20px">
                             <p>
                                 (a) The jurisdiction regarding your current employment will exclusively lie with the
@@ -537,7 +537,7 @@
                         </div>
 
                         <!-- 16 -->
-                        <h5>16. Termination of Employment</h5>
+                        <h6>16. Termination of Employment</h6>
 
                         <p>
                             You are entitled to receive from the Company and required to give the Company the following
@@ -619,7 +619,7 @@
                         </div>
 
                         <!-- 17 -->
-                        <h5>17. Verification</h5>
+                        <h6>17. Verification</h6>
                         <div style="margin-left:20px">
                             <p>
                                 (a) This offer is contingent upon obtaining no adverse information during reference
@@ -631,7 +631,7 @@
                         </div>
 
                         <!-- 18 -->
-                        <h5>18. General</h5>
+                        <h6>18. General</h6>
                         <p>
                             You agree that the provisions of this letter are severable. If any portion thereof is
                             declared
@@ -690,12 +690,14 @@
 
                         <p>
                             <strong>For
-                                <strong class="mt-1" t-esc="o.emp_location"/>
+                                <strong class="ms-1" t-esc="o.emp_company"/>
                             </strong>
                         </p>
                         <p>
-                            <strong class="mt-1" t-esc="o.emp_location"/>
-                            <br/>HR Head
+                            <strong>
+                                <strong t-esc="o.emp_hr_name"/>
+                                <br/>HR Head
+                            </strong>
                         </p>
 
                         <br/>
@@ -735,9 +737,9 @@
 
                         <!-- ANNEXURE -->
                         <div class="text-center">
-                            <h5>Annexure I</h5>
+                            <h6>Annexure I</h6>
                         </div>
-                        <h5>Compensation Structure</h5>
+                        <h6>Compensation Structure</h6>
                         <t t-esc="o.emp_calculation_table"/>
 
                         <br/>
@@ -755,24 +757,18 @@
                             <div style="margin-left:20px">
                                 <p>
                                     (b) Std X Certificate and mark sheet
-                                </p>
-                                <p>
+                                    <br/>
                                     (c) Std XII Certificate and mark sheet
-                                </p>
-                                <p>
+                                    <br/>
                                     (d) Degree Certificate and Semester-wise / Year-wise mark sheets
-                                </p>
-                                <p>
+                                    <br/>
                                     (e) Master’s Degree Certificate and Semester-wise / Year-wise mark sheets
-                                </p>
-                                <p>
+                                    <br/>
                                     (f) Diploma /PG Diploma Certificate and Transcripts
-                                </p>
-                                <p>
+                                    <br/>
                                     (g) Any other Certificates with supporting documents, if any
-                                </p>
-                                <p>
-                                    (h) Your latest salary slip / Salary Certificate
+                                    <br/>
+                                    (g) Any other Certificates with supporting documents, if any
                                 </p>
                             </div>
                             <p>
@@ -784,8 +780,6 @@
                             <p>
                                 4) 4-passport sized color photographs with white background
                             </p>
-
-                            <div style="page-break-before: always;"/>
                             <p>
                                 5) Valid pages of the Passport
                             </p>
@@ -817,44 +811,54 @@
                     <div class="page">
 
                         <!-- Title -->
-                        <h2 style="text-align:center;">
+                        <h3 class="text-center">
                             <b>OFFER LETTER</b>
-                        </h2>
+                        </h3>
 
                         <br/>
 
                         <!-- Reference -->
-                        <p style="text-align:right;">
-                            <strong>Date:
-                                <t class="mt-1" t-esc="o.emp_hire_date"/>
-                            </strong>
-                        </p>
+                        <div class="row">
+                            <div class="col-6">
+
+                                <strong>
+                                    Ref.No: I210055
+                                </strong>
+
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong class="mt-1" t-esc="o.emp_hire_date"/>
+                            </div>
+                        </div>
                         <!-- Address -->
-                        <p>
+                        <p class="mt-4">
                             <strong>
-                                Ref.No: I210055
-                                <br/>
                                 Mr.
                                 <t t-esc="o.emp_name"/>
-                                <br/>
+                            </strong>
+                            <br/>
+                            <span>
                                 <t t-esc="o.emp_street"/>
-                                <br/>
+                            </span>
+                            <br/>
+                            <span>
                                 <t t-esc="o.emp_street2"/>
-                                <t class="mt-1" t-esc="o.emp_city"/>
-                                <br/>
+                                <t class="ms-1" t-esc="o.emp_city"/>
+                            </span>
+                            <br/>
 
+                            <span>
                                 <t t-esc="o.emp_state_id"/>
                                 -
-                                <t t-esc="o.emp_zip"/>
-                                <br/>
+                                <t t-esc="o.emp_zip"/>,
                                 <t t-esc="o.emp_country_id"/>
-                            </strong>
+                            </span>
                         </p>
 
                         <br/>
 
                         <!-- Content -->
-                        <p><strong t-esc="o.emp_name"/>,
+                        <p><strong>Dear</strong><strong class="ms-1" t-esc="o.emp_name"/>,
                         </p>
 
                         <p>
@@ -867,7 +871,7 @@
                             Your designation will be<srong class="ms-1" t-esc="o.emp_job"/>. Your base
                             location
                             will be
-                            <strong class="ms-1">Tiruvannamalai</strong>
+                            <strong class="ms-1" t-esc="o.emp_location"/>
                             unless notified
                             otherwise.
                         </p>
@@ -889,17 +893,17 @@
                             <strong class="ms-1"
                                     t-esc="o.emp_join_date"/>
                             .
-                            Please convey your acceptance of this offer within 3 days of
-                            receiving this offer.
+                            Please convey your acceptance of this offer within 3
                         </p>
 
-                        <p>
+                        <p>days of
+                            receiving this offer.
                             You will be on 30 days of notice as per the company policy.
                         </p>
 
                         <p>
                             We welcome you to
-                            <p t-esc="o.emp_company"/>
+                            <t t-esc="o.emp_company"/>
                             and looking forward to a long and mutually rewarding
                             association with you.
                         </p>
@@ -924,16 +928,16 @@
                         <!-- Annexure A -->
                         <div style="page-break-before: always;"/>
 
-                        <h3 class="text-center">
+                        <h6 class="text-center">
                             <b>Annexure - A</b>
-                        </h3>
+                        </h6>
                         <h4>Compensation Structure</h4>
                         <t t-esc="o.emp_calculation_table"/>
 
                         <!-- Annexure B -->
-                        <h3 class="text-center">
+                        <h6 class="text-center mt-4">
                             <b>Annexure - B</b>
-                        </h3>
+                        </h6>
 
                         <p>
                             At the time of joining, you are requested to bring the following documents in original,

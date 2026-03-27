@@ -34,15 +34,50 @@
 
             <xpath expr="//field[@name='department_id']" position="before">
                 <field name="struct_id"/>
-                <field name="departure_reason_id"/>
             </xpath>
             <xpath expr="//field[@name='employee_type']" position="before">
                 <field name="tds_amount"/>
-                <field name="salary_calculation_id"/>
             </xpath>
 
             <xpath expr="//notebook" position="inside">
                 <page name="Salary Calculation">
+                    <header>
+                        <button name="action_print_offer_full_report"
+                                type="object"
+                                string="Offer Letter ( FULL )"
+                                class="btn-primary" invisible="is_first_version != True or not applicant_ids"/>
+                        <button name="action_print_offer_basic_report"
+                                type="object"
+                                string="Offer Letter ( BASIC )"
+                                class="btn-primary" invisible="is_first_version != True  or not applicant_ids"/>
+                        <button name="action_print_experience_report"
+                                type="object"
+                                string="Experience Letter"
+                                class="btn-primary" invisible="is_last_version == False or active==True"/>
+                        <button name="action_print_hike_report"
+                                type="object"
+                                string="Hike Letter"
+                                class="btn-primary" invisible="is_first_version == True"/>
+                        <button name="action_print_relieving_report"
+                                type="object"
+                                string="Relieving Letter"
+                                class="btn-primary" invisible="is_last_version == False or active==True"/>
+                    </header>
+                    <group>
+                        <group>
+                            <field name="departure_reason_id"/>
+                            <field name="version_id"/>
+                            <field name="is_first_version"/>
+                            <field name="is_last_version"/>
+                            <field name="departure_date" string="Relieving Date"/>
+                        </group>
+                        <group>
+
+                            <field name="salary_calculation_id"/>
+                            <field name="hire_date"/>
+                            <field name="hike_date"/>
+                        </group>
+                    </group>
                     <field name="salary_calculation_html"/>
                 </page>
             </xpath>
