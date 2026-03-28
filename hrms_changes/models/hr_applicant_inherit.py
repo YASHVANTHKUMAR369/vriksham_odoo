@@ -1,8 +1,8 @@
 from odoo import models, fields, api, _
 
-# from .exceptions import UserError, AccessError, AccessDenied
-#
-# from odoo.tools import clean_context
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools import clean_context
+
 
 class HrApplicant(models.Model):
     _inherit = 'hr.applicant'
@@ -18,19 +18,24 @@ class HrApplicant(models.Model):
         groups="hr.group_hr_user", tracking=True)
     zip = fields.Char(string="Zip", groups="hr.group_hr_user", tracking=True)
     country_id = fields.Many2one("res.country", string="Country",
-                                         groups="hr.group_hr_user", tracking=True)
-    salary_calculation_id = fields.Many2one("salary.calculation", string="Salary Calculation", groups="hr.group_hr_user")
+                                 groups="hr.group_hr_user", tracking=True)
+    salary_calculation_id = fields.Many2one("salary.calculation", string="Salary Calculation",
+                                            groups="hr.group_hr_user")
     join_date = fields.Date(string="Join Date", tracking=True)
     work_location_id = fields.Many2one('hr.work.location')
     salary_calculation_html = fields.Html(string="Salary Calculation", compute='_compute_salary_calculation_html')
+    identification_id = fields.Char(string="Identification", groups="hr.group_hr_user")
+
     @api.depends('salary_calculation_id')
     def _compute_salary_calculation_html(self):
         for rec in self:
             output = rec.generate_salary_html(rec.salary_calculation)
             rec.salary_calculation_html = output if output else None
+
     @property
     def emp_calculation_table(self):
         return self.salary_calculation_html
+
     @api.depends("country_id")
     def _compute_allowed_country_state_ids(self):
         states = self.env["res.country.state"].search([])
@@ -39,9 +44,14 @@ class HrApplicant(models.Model):
                 version.allowed_country_state_ids = version.country_id.state_ids
             else:
                 version.allowed_country_state_ids = states
+
     @property
     def salary_calculation(self):
         return self.salary_calculation_id.get_calculation_line_ids(self.salary_proposed, False)
+
+    @property
+    def emp_identification_id(self):
+        return self.identification_id
 
     @property
     def emp_name(self):
@@ -92,18 +102,21 @@ class HrApplicant(models.Model):
         variable_pay = self.salary_calculation.get('variable_pay') or {}
         output = 0
         for key, value in variable_pay.items():
-            output+=value.get('amount')
+            output += value.get('amount')
         return output
 
     @property
     def emp_annualized_basis(self):
         return self.salary_proposed - self.emp_variable_pay
+
     @property
     def emp_gross_amount(self):
         return self.salary_proposed
+
     @property
     def emp_company(self):
         return self.company_id.display_name if self.company_id else None
+
     @property
     def emp_hr_name(self):
         return "Vinodhini D"
@@ -122,9 +135,7 @@ class HrApplicant(models.Model):
                         monthly = amount
                     else:
                         yearly = amount
-                        monthly = amount /12
-
-
+                        monthly = amount / 12
 
                     rows.append({
                         'name': name,
@@ -139,7 +150,6 @@ class HrApplicant(models.Model):
             process_component(data.get('other_allowance', {}))
             process_component(data.get('other_deduction', {}))
             process_component(data.get('variable_pay', {}))
-
 
             # Generate HTML
             html = """
@@ -190,34 +200,67 @@ class HrApplicant(models.Model):
         else:
             return False
 
-    # def create_employee_from_applicant(self):
-    #     """ Create an employee from applicant """
-    #     self.ensure_one()
-    #     self._check_interviewer_access()
-    #
-    #     if not self.partner_id:
-    #         if not self.partner_name:
-    #             raise UserError(_('Please provide an applicant name.'))
-    #         self.partner_id = self.env['res.partner'].create({
-    #             'is_company': False,
-    #             'name': self.partner_name,
-    #             'email': self.email_from,
-    #         })
-    #
-    #     action = self.env['ir.actions.act_window']._for_xml_id('hr.open_view_employee_list')
-    #     employee = self.env['hr.employee'].with_context(clean_context(self.env.context)).create(self._get_employee_create_vals())
-    #     action['res_id'] = employee.id
-    #     employee_attachments = self.env['ir.attachment'].search([('res_model', '=','hr.employee'), ('res_id', '=', employee.id)])
-    #     unique_attachments = self.attachment_ids.filtered(
-    #         lambda attachment: attachment.datas not in employee_attachments.mapped('datas')
-    #     )
-    #     unique_attachments.copy({'res_model': 'hr.employee', 'res_id': employee.id})
-    #     employee.write({
-    #         'job_id': self.job_id.id,
-    #         'job_title': self.job_id.name,
-    #         'department_id': self.department_id.id,
-    #         'work_email': self.department_id.company_id.email or self.email_from, # To have a valid email address by default
-    #         'work_phone': self.department_id.company_id.phone,
-    #     })
-    #     return action
-    #
+    def create_employee_from_applicant(self):
+        """ Create an employee from applicant """
+        self.ensure_one()
+        self._check_interviewer_access()
+
+        if not self.partner_id:
+            if not self.partner_name:
+                raise UserError(_('Please provide an applicant name.'))
+            self.partner_id = self.env['res.partner'].create({
+                'is_company': False,
+                'name': self.partner_name,
+                'email': self.email_from,
+                'phone': self.partner_phone,
+                'street': self.street,
+                'street2': self.street2,
+                'city': self.city,
+                'zip': self.zip,
+                'state_id': self.state_id.id,
+                'country_id': self.country_id.id,
+            })
+        else:
+            self.partner_id.write({
+                'phone': self.partner_phone,
+                'street': self.street,
+                'street2': self.street2,
+                'city': self.city,
+                'zip': self.zip,
+                'state_id': self.state_id.id,
+                'country_id': self.country_id.id,
+            })
+
+        action = self.env['ir.actions.act_window']._for_xml_id('hr.open_view_employee_list')
+        employee = self.env['hr.employee'].with_context(clean_context(self.env.context)).create(
+            self._get_employee_create_vals())
+        action['res_id'] = employee.id
+        employee_attachments = self.env['ir.attachment'].search(
+            [('res_model', '=', 'hr.employee'), ('res_id', '=', employee.id)])
+        unique_attachments = self.attachment_ids.filtered(
+            lambda attachment: attachment.datas not in employee_attachments.mapped('datas')
+        )
+        unique_attachments.copy({'res_model': 'hr.employee', 'res_id': employee.id})
+        employee.write({
+            'job_id': self.job_id.id,
+            'job_title': self.job_id.name,
+            'department_id': self.department_id.id,
+            'work_email': self.department_id.company_id.email or self.email_from,
+            # To have a valid email address by default
+            'work_phone': self.department_id.company_id.phone,
+            'private_email': self.email_from,
+            'private_phone': self.partner_phone,
+            'private_street': self.street,
+            'private_street2': self.street2,
+            'private_city': self.city,
+            'private_zip': self.zip,
+            'private_state_id': self.state_id.id,
+            'private_country_id': self.country_id.id,
+            'contract_date_start': self.join_date,
+            'hire_date': self.date_closed,
+            'work_location_id': self.work_location_id.id,
+            'salary_calculation_id': self.salary_calculation_id.id,
+            'identification_id': self.identification_id,
+            'wage': self.salary_proposed/12 if self.salary_proposed else 0,
+        })
+        return action

@@ -9,7 +9,7 @@
             <xpath expr="//field[@name='date_closed']" position="after">
                 <field name="join_date"/>
                 <field name="work_location_id"/>
-                <field name="employee_id"/>
+                <field name="identification_id"/>
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page name="Salary Calculation">

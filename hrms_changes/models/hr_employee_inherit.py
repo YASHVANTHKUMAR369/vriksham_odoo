@@ -128,13 +128,18 @@ class HrEmployee(models.Model):
             print("versions[-1:]:", versions[-1:])
             rec.is_first_version = rec.version_id.id == versions[:1].id
             rec.is_last_version = rec.version_id.id == versions[-1:].id
+    @property
+    def first_version(self):
+        return self.version_ids[:1]
 
     def action_print_offer_full_report(self):
-        return self.env.ref('hrms_changes.action_offer_letter_full').report_action(self.applicant_ids.filtered(lambda x: x.application_status != 'hired'))
+        print("============ action_print_offer_full_report ============")
+        return self.env.ref('hrms_changes.employee_action_offer_letter_full').report_action(self)
 
 
     def action_print_offer_basic_report(self):
-        return self.env.ref('hrms_changes.action_offer_letter_basic').report_action(self.applicant_ids.filtered(lambda x: x.application_status != 'hired'))
+        print("============ action_print_offer_basic_report ============")
+        return self.env.ref('hrms_changes.employee_action_offer_letter_basic').report_action(self)
 
     def action_print_experience_report(self):
         return self.env.ref('hrms_changes.action_experience_letter_full').report_action(self)
@@ -142,6 +147,82 @@ class HrEmployee(models.Model):
         return self.env.ref('hrms_changes.action_hike_letter').report_action(self)
     def action_print_relieving_report(self):
         return self.env.ref('hrms_changes.action_relieving_letter').report_action(self)
+
+    @property
+    def emp_calculation_table(self):
+        return self.first_version.salary_calculation_html
+    @property
+    def emp_identification_id(self):
+        return self.identification_id
+
+    @property
+    def emp_name(self):
+        return self.name
+
+    @property
+    def emp_street(self):
+        return self.private_street
+
+    @property
+    def emp_street2(self):
+        return self.private_street2
+
+    @property
+    def emp_city(self):
+        return self.private_city
+
+    @property
+    def emp_state_id(self):
+        return self.private_state_id.name
+
+    @property
+    def emp_country_id(self):
+        return self.private_country_id.name
+
+    @property
+    def emp_zip(self):
+        return self.private_zip
+
+    @property
+    def emp_job(self):
+        return self.first_version.job_id.display_name
+
+    @property
+    def emp_location(self):
+        return self.first_version.work_location_id.display_name
+
+    @property
+    def emp_hire_date(self):
+        return self.hire_date.strftime("%d-%b-%Y") if self.hire_date else None
+
+    @property
+    def emp_join_date(self):
+        return self.first_joining_date.strftime("%d-%b-%Y") if self.first_joining_date else None
+
+    @property
+    def emp_variable_pay(self):
+        variable_pay = self.first_version.salary_calculation.get('variable_pay') or {}
+        output = 0
+        for key, value in variable_pay.items():
+            output += value.get('amount')
+        return output
+
+    @property
+    def emp_annualized_basis(self):
+        return (self.first_version.wage * 12) - self.emp_variable_pay
+
+    @property
+    def emp_gross_amount(self):
+        return self.first_version.wage
+
+    @property
+    def emp_company(self):
+        return self.company_id.display_name if self.company_id else None
+
+    @property
+    def emp_hr_name(self):
+        return "Vinodhini D"
+
 
 
 

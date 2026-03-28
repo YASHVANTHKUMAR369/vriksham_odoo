@@ -7,7 +7,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">hrms_changes.report_offer_letter_full</field>
         <field name="report_file">hrms_changes.report_offer_letter_full</field>
-        <field name="print_report_name">'Offer Letter - %s' % (object.partner_name)</field>
+        <field name="print_report_name">'Offer Letter - %s' % (object.emp_name)</field>
         <field name="binding_model_id" ref="model_hr_applicant"/>
         <field name="binding_type">report</field>
     </record>
@@ -17,8 +17,28 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">hrms_changes.report_offer_letter_basic</field>
         <field name="report_file">hrms_changes.report_offer_letter_basic</field>
-        <field name="print_report_name">'Offer Letter - %s' % (object.partner_name)</field>
+        <field name="print_report_name">'Offer Letter - %s' % (object.emp_name)</field>
         <field name="binding_model_id" ref="model_hr_applicant"/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="employee_action_offer_letter_full" model="ir.actions.report">
+        <field name="name">Employee Offer Letter ( Full )</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hrms_changes.report_offer_letter_full</field>
+        <field name="report_file">hrms_changes.report_offer_letter_full</field>
+        <field name="print_report_name">'Offer Letter - %s' % (object.emp_name)</field>
+        <field name="binding_model_id" ref=""/>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="employee_action_offer_letter_basic" model="ir.actions.report">
+        <field name="name">Employee Offer Letter ( Basic )</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hrms_changes.report_offer_letter_basic</field>
+        <field name="report_file">hrms_changes.report_offer_letter_basic</field>
+        <field name="print_report_name">'Offer Letter - %s' % (object.emp_name)</field>
+        <field name="binding_model_id" ref=""/>
         <field name="binding_type">report</field>
     </record>
     <template id="report_offer_letter_full">
@@ -40,7 +60,8 @@
                         <!-- Address -->
                         <p>
                             <strong>
-                                Ref.No: I210055
+                                Ref.No:
+                                <t class="ms-1" t-esc="o.emp_identification_id"/>
                                 <br/>
                                 Mr.
                                 <t t-esc="o.emp_name"/>
@@ -81,7 +102,7 @@
                         <p>
                             Your date of appointment is effective from the date of joining
                             <strong class="mt-1"
-                                    t-esc="o.join_date"/>
+                                    t-esc="o.emp_join_date"/>
                             . Please carefully
                             review this offer of
                             employment before agreeing to its terms by signing it. The offer outlines important
@@ -280,6 +301,7 @@
                             </p>
 
                             <div style="page-break-before: always;"/>
+                            <br/>
                             <p>
                                 (c) By signing this letter, you represent that your acceptance of this offer and your
                                 employment with VST does
@@ -529,6 +551,7 @@
                             </p>
 
                             <div style="page-break-before: always;"/>
+                            <br/>
                             <p>
                                 (d) If a court declares any provision void, that provision will be severed from this
                                 Agreement, and the
@@ -645,6 +668,7 @@
                             deemed reasonable.
                         </p>
                         <div style="page-break-before: always;"/>
+                        <br/>
                         <p>
                             By accepting this offer of employment, you affirm that you have not signed any agreements
                             with
@@ -682,9 +706,14 @@
 
                         <br/>
                         <br/>
+                        <br/>
+                        <br/>
+                        <br/>
 
                         <p>With best wishes, Yours truly,</p>
 
+                        <br/>
+                        <br/>
                         <br/>
                         <br/>
 
@@ -822,7 +851,8 @@
                             <div class="col-6">
 
                                 <strong>
-                                    Ref.No: I210055
+                                    Ref.No:
+                                    <t class="ms-1" t-esc="o.emp_identification_id"/>
                                 </strong>
 
                             </div>
@@ -858,7 +888,9 @@
                         <br/>
 
                         <!-- Content -->
-                        <p><strong>Dear</strong><strong class="ms-1" t-esc="o.emp_name"/>,
+                        <p>
+                            <strong>Dear</strong>
+                            <strong class="ms-1" t-esc="o.emp_name"/>,
                         </p>
 
                         <p>
@@ -893,10 +925,7 @@
                             <strong class="ms-1"
                                     t-esc="o.emp_join_date"/>
                             .
-                            Please convey your acceptance of this offer within 3
-                        </p>
-
-                        <p>days of
+                            Please convey your acceptance of this offer within 3 days of
                             receiving this offer.
                             You will be on 30 days of notice as per the company policy.
                         </p>
@@ -910,10 +939,15 @@
 
                         <br/>
                         <br/>
+                        <br/>
+                        <br/>
+                        <br/>
 
                         <p>For<strong class="ms-1" t-esc="o.emp_company"/>,
                         </p>
 
+                        <br/>
+                        <br/>
                         <br/>
                         <br/>
 

@@ -45,11 +45,11 @@
                         <button name="action_print_offer_full_report"
                                 type="object"
                                 string="Offer Letter ( FULL )"
-                                class="btn-primary" invisible="is_first_version != True or not applicant_ids"/>
+                                class="btn-primary" invisible="is_first_version != True"/>
                         <button name="action_print_offer_basic_report"
                                 type="object"
                                 string="Offer Letter ( BASIC )"
-                                class="btn-primary" invisible="is_first_version != True  or not applicant_ids"/>
+                                class="btn-primary" invisible="is_first_version != True"/>
                         <button name="action_print_experience_report"
                                 type="object"
                                 string="Experience Letter"
@@ -65,17 +65,16 @@
                     </header>
                     <group>
                         <group>
-                            <field name="departure_reason_id"/>
-                            <field name="version_id"/>
-                            <field name="is_first_version"/>
-                            <field name="is_last_version"/>
-                            <field name="departure_date" string="Relieving Date"/>
+
+                            <field name="salary_calculation_id" required="1"/>
+                            <field name="hire_date" required="1"/>
+                            <field name="hike_date" readonly="is_first_version" required="is_first_version == False"/>
                         </group>
                         <group>
-
-                            <field name="salary_calculation_id"/>
-                            <field name="hire_date"/>
-                            <field name="hike_date"/>
+                            <field name="departure_reason_id" invisible="active"/>
+                            <field name="is_first_version" invisible="1"/>
+                            <field name="is_last_version" invisible="1"/>
+                            <field name="departure_date" string="Relieving Date" invisible="active"/>
                         </group>
                     </group>
                     <field name="salary_calculation_html"/>
