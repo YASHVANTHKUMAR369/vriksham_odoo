@@ -15,3 +15,4 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.hr_signature',
         readonly=False,
     )
+    l10n_in_gsp = fields.Char()
