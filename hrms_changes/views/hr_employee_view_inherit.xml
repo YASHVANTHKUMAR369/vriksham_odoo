@@ -76,7 +76,7 @@
 
                             <field name="salary_calculation_id" required="1"/>
                             <field name="hire_date" required="1"/>
-                            <field name="hike_date" readonly="is_first_version" required="is_first_version == False"/>
+                            <field name="hike_date" readonly="is_first_version"/>
                         </group>
                         <group>
                             <field name="departure_reason_id" invisible="active"/>

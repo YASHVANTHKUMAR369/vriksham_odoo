@@ -128,8 +128,7 @@
                                 <br/>
                                 HR Head
                                 <br/>
-                                VST
-<!--                                <t t-esc="o.company_id.name"/>-->
+                                <t t-esc="o.company_id.name"/>
                             </strong>
                         </p>
 

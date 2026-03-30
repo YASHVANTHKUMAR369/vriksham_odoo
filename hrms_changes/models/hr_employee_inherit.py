@@ -207,7 +207,7 @@ class HrEmployee(models.Model):
 
     @property
     def emp_annualized_basis(self):
-        return (self.first_version.wage * 12) - self.emp_variable_pay
+        return self.first_version.wage - self.emp_variable_pay
 
     @property
     def emp_gross_amount(self):
