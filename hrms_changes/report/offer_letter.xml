@@ -712,15 +712,15 @@
 
                         <p>With best wishes, Yours truly,</p>
 
-                        <br/>
-                        <br/>
-                        <br/>
-                        <br/>
+                        <img t-if="o.company_id and o.company_id.hr_signature"
+                             t-att-src="image_data_uri(o.company_id.hr_signature)"
+                             style="max-height:130px; margin-left:20px"/>
 
                         <p>
                             <strong>For
                                 <strong class="ms-1" t-esc="o.emp_company"/>,
-                                <br/><t t-esc="o.emp_hr_name"/>
+                                <br/>
+                                <t t-esc="o.emp_hr_name"/>
                                 <br/>HR Head
                             </strong>
                         </p>
@@ -932,24 +932,30 @@
                             and looking forward to a long and mutually rewarding
                             association with you.
                         </p>
-
-                        <br/>
-                        <br/>
-                        <br/>
-                        <br/>
-                        <br/>
-
-                        <p>For
-                            <strong class="ms-1" t-esc="o.emp_company"/>,
-                        </p>
+                        <img t-if="o.company_id and o.company_id.hr_signature"
+                             t-att-src="image_data_uri(o.company_id.hr_signature)"
+                             style="max-height:130px; margin-left:20px"/>
 
                         <p>
-                            <b>
-                                <strong>Vinodhini D</strong>
-                            </b>
-                            <br/>
-                            <strong>HR HEAD</strong>
+                            <strong>For
+                                <strong class="ms-1" t-esc="o.emp_company"/>,
+                                <br/>
+                                <t t-esc="o.emp_hr_name"/>
+                                <br/>HR Head
+                            </strong>
                         </p>
+
+<!--                        <p>For-->
+<!--                            <strong class="ms-1" t-esc="o.emp_company"/>,-->
+<!--                        </p>-->
+
+<!--                        <p>-->
+<!--                            <b>-->
+<!--                                <strong t-esc="o.emp_hr_name"/>-->
+<!--                            </b>-->
+<!--                            <br/>-->
+<!--                            <strong>HR HEAD</strong>-->
+<!--                        </p>-->
 
                         <!-- Annexure A -->
                         <div style="page-break-before: always;"/>

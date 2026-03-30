@@ -219,7 +219,7 @@ class HrEmployee(models.Model):
 
     @property
     def emp_hr_name(self):
-        return "Vinodhini D"
+        return self.company_id.hr_name if self.company_id and self.company_id.hr_name else "Vinodhini D"
 
 
 

@@ -9,6 +9,7 @@
         'views/hr_applicant_view_inherit.xml',
         'views/hr_payslip_view_inherit.xml',
         'views/hr_version_view_inherit.xml',
+        'views/res_config_settings_view_inherit.xml',
         'views/salary_calculation_views.xml',
         'views/salary_calculation_line_views.xml',
         'report/offer_letter.xml',
