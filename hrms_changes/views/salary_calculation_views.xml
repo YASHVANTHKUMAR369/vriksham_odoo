@@ -54,6 +54,7 @@
     <menuitem id="salary_calculation_action_menu"
               name="Salary Calculation"
               action="salary_calculation_action"
+              web_icon="website_payment,static/description/icon.png"
               groups="hr.group_hr_user"
               sequence="4"/>
 </odoo>

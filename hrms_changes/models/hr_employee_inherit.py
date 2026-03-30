@@ -133,12 +133,10 @@ class HrEmployee(models.Model):
         return self.version_ids[:1]
 
     def action_print_offer_full_report(self):
-        print("============ action_print_offer_full_report ============")
         return self.env.ref('hrms_changes.employee_action_offer_letter_full').report_action(self)
 
 
     def action_print_offer_basic_report(self):
-        print("============ action_print_offer_basic_report ============")
         return self.env.ref('hrms_changes.employee_action_offer_letter_basic').report_action(self)
 
     def action_print_experience_report(self):

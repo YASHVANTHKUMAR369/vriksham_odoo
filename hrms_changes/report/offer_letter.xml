@@ -718,13 +718,9 @@
                         <br/>
 
                         <p>
-                            <strong>For
-                                <strong class="ms-1" t-esc="o.emp_company"/>
-                            </strong>
-                        </p>
-                        <p>
-                            <strong>
-                                <strong t-esc="o.emp_hr_name"/>
+                            <strong>For VST,
+<!--                                <strong class="ms-1" t-esc="o.emp_company"/>-->
+                                <br/><t t-esc="o.emp_hr_name"/>
                                 <br/>HR Head
                             </strong>
                         </p>
@@ -943,13 +939,9 @@
                         <br/>
                         <br/>
 
-                        <p>For<strong class="ms-1" t-esc="o.emp_company"/>,
+                        <p>For VST,
+<!--                            <strong class="ms-1" t-esc="o.emp_company"/>,-->
                         </p>
-
-                        <br/>
-                        <br/>
-                        <br/>
-                        <br/>
 
                         <p>
                             <b>

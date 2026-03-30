@@ -9,9 +9,7 @@ class SalaryCalculation(models.Model):
     name = fields.Char(string="Name")
     calculation_line_ids = fields.One2many('salary.calculation.line', 'salary_calculation_id', string="Calculation Lines")
 
-    def get_calculation_line_ids(self, amount, month):
-        if month:
-            amount = amount * 12
+    def get_calculation_line_ids(self, amount):
         output = {
             'basic': {},
             'main_allowance': {},

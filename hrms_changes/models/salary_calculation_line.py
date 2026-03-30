@@ -29,7 +29,7 @@ class SalaryCalculationLine(models.Model):
             if self.calculation_type == 'amount':
                 val = {"type": "amount", "value": self.amount}
             elif self.calculation_type == 'percentage':
-                val = {"type": "amount", "value": self.percentage * amount}
+                val = {"type": "amount", "value": ((self.percentage/100) if self.percentage else 0.0) * amount }
         else:
             val =  {"type": "balance", "value": 0.0}
         return val

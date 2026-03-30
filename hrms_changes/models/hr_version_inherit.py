@@ -13,10 +13,10 @@ class HrVersion(models.Model):
     @api.depends('salary_calculation_id' , 'wage')
     def _compute_salary_calculation_html(self):
         for rec in self:
-            output = rec.generate_salary_html(rec.salary_calculation, True)
+            output = rec.generate_salary_html(rec.salary_calculation)
             rec.salary_calculation_html = output if output else None
 
-    def generate_salary_html(self, data, is_monthly=True):
+    def generate_salary_html(self, data):
         if self.wage > 0 or not self.salary_calculation_id:
             rows = []
 
@@ -25,14 +25,8 @@ class HrVersion(models.Model):
                 for rec in component.values():
                     name = rec['name']
                     amount = rec['amount']
-                    # if is_monthly:
-                    #     yearly = amount * 12
-                    #     monthly = amount
-                    # else:
                     yearly = amount
                     monthly = amount /12
-
-
 
                     rows.append({
                         'name': name,
@@ -75,8 +69,8 @@ class HrVersion(models.Model):
                 </tr>
                 """
 
-            total_monthly = self.wage if is_monthly else self.wage / 12
-            total_yearly = total_monthly * 12
+            total_monthly = self.wage/12 if self.wage else 0
+            total_yearly = self.wage
 
             html += f"""
                 <tr style="font-weight:bold; background-color:#f2f2f2;">
@@ -101,7 +95,7 @@ class HrVersion(models.Model):
 
     @property
     def salary_calculation(self):
-        return self.salary_calculation_id.get_calculation_line_ids(self.wage, True)
+        return self.salary_calculation_id.get_calculation_line_ids(self.wage)
     @property
     def get_upcoming_fy(self):
         dt = self.contract_date_start

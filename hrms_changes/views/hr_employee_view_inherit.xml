@@ -38,6 +38,14 @@
             <xpath expr="//field[@name='employee_type']" position="before">
                 <field name="tds_amount"/>
             </xpath>
+            <xpath expr="//label[@for='wage']" position="attributes">
+                <attribute name="string">CTC</attribute>
+            </xpath>
+
+            <!-- Change Field Display Name -->
+            <xpath expr="//field[@name='wage']" position="attributes">
+                <attribute name="string">CTC</attribute>
+            </xpath>
 
             <xpath expr="//notebook" position="inside">
                 <page name="Salary Calculation">

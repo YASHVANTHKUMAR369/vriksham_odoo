@@ -47,7 +47,7 @@ class HrApplicant(models.Model):
 
     @property
     def salary_calculation(self):
-        return self.salary_calculation_id.get_calculation_line_ids(self.salary_proposed, False)
+        return self.salary_calculation_id.get_calculation_line_ids(self.salary_proposed)
 
     @property
     def emp_identification_id(self):
@@ -121,7 +121,7 @@ class HrApplicant(models.Model):
     def emp_hr_name(self):
         return "Vinodhini D"
 
-    def generate_salary_html(self, data, is_monthly=False):
+    def generate_salary_html(self, data):
         if self.salary_proposed > 0:
             rows = []
 
@@ -130,12 +130,8 @@ class HrApplicant(models.Model):
                 for rec in component.values():
                     name = rec['name']
                     amount = rec['amount']
-                    if is_monthly:
-                        yearly = amount * 12
-                        monthly = amount
-                    else:
-                        yearly = amount
-                        monthly = amount / 12
+                    yearly = amount
+                    monthly = amount / 12
 
                     rows.append({
                         'name': name,
@@ -163,7 +159,6 @@ class HrApplicant(models.Model):
                 </thead>
                 <tbody>
             """
-
             for row in rows:
                 html += f"""
                 <tr>
@@ -177,8 +172,8 @@ class HrApplicant(models.Model):
                 </tr>
                 """
 
-            total_monthly = self.salary_proposed if is_monthly else self.salary_proposed / 12
-            total_yearly = total_monthly * 12
+            total_monthly = self.salary_proposed/ 12 if self.salary_proposed else 0
+            total_yearly = self.salary_proposed
 
             html += f"""
                 <tr style="font-weight:bold; background-color:#f2f2f2;">
