@@ -37,6 +37,8 @@
             </xpath>
             <xpath expr="//field[@name='employee_type']" position="before">
                 <field name="tds_amount"/>
+                <field name="employee_pf"/>
+                <field name="professional_tax"/>
             </xpath>
             <xpath expr="//label[@for='wage']" position="attributes">
                 <attribute name="string">CTC</attribute>

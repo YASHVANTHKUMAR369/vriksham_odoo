@@ -5,6 +5,8 @@ class HrVersion(models.Model):
     _inherit = 'hr.version'
 
     tds_amount = fields.Float(string="TDS Amount")
+    employee_pf = fields.Float(string="Employee PF")
+    professional_tax = fields.Float(string="Professional Tax")
     hike_date = fields.Date(string="Hike Date", tracking=True)
     salary_calculation_id = fields.Many2one("salary.calculation", string="Salary Calculation", groups="hr.group_hr_user")
 

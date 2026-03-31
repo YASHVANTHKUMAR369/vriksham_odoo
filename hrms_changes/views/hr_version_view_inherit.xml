@@ -10,6 +10,8 @@
             <xpath expr="//field[@name='wage']" position="after">
                 <field name="hike_date"/>
                 <field name="tds_amount"/>
+                <field name="employee_pf"/>
+                <field name="professional_tax"/>
                 <field name="salary_calculation_id"/>
                 <field name="salary_calculation_html" groups="hr.group_hr_manager"/>
                 <field name="payslip_calculation_html" groups="hr.group_hr_manager"/>

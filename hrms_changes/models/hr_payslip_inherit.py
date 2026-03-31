@@ -19,16 +19,35 @@ class HrPayslip(models.Model):
     gross_salary = fields.Float(string="Gross Salary", compute='compute_net_salary')
     payslip_calculation_html = fields.Html(string='Payslip Calculation', compute='_compute_payslip_calculation_html', store=False)
 
-    @api.depends('line_ids')
+    @api.depends('contract_id', 'date_from', 'date_to')
     def compute_net_salary(self):
         for payslip in self:
-            payslip.net_salary = 0
             payslip.gross_salary = 0
-            for line in payslip.line_ids:
-                if line.category_id.id == self.env.ref('hr_payroll_community.NET').id:
-                    payslip.net_salary = line.total
-                if line.category_id.id == self.env.ref('hr_payroll_community.GROSS').id:
-                    payslip.gross_salary = line.total
+            payslip.net_salary = 0
+            if not payslip.contract_id or not payslip.contract_id.salary_calculation_id:
+                continue
+            try:
+                data = payslip.contract_id.salary_payslip
+                total_monthly = sum(
+                    rec['amount'] / 12
+                    for category in ('basic', 'main_allowance', 'main_deduction', 'other_allowance', 'other_deduction')
+                    for rec in data.get(category, {}).values()
+                )
+                payslip.gross_salary = total_monthly
+
+                summary = payslip.compute_days_summary()
+                per_day_salary = summary.get('per_day_salary', 0)
+                lop_days = summary.get('lop_day', 0)
+                lop_amount = per_day_salary * lop_days
+
+                contract = payslip.contract_id
+                employee_pf = contract.employee_pf or 0
+                professional_tax = contract.professional_tax or 0
+                tds_amount = contract.tds_amount or 0
+
+                payslip.net_salary = total_monthly - lop_amount - employee_pf - professional_tax - tds_amount
+            except Exception:
+                pass
 
     struct_id = fields.Many2one(comodel_name='hr.payroll.structure',
                                 string='Structure',
@@ -51,8 +70,19 @@ class HrPayslip(models.Model):
         Returns a dictionary with all relevant info.
         """
         total_days = (self.date_to - self.date_from).days + 1
-        wage = self.contract_id.wage
-        per_day_salary = wage / total_days if total_days else 0.0
+
+        # Compute adjusted wage: exclude variable pay, use monthly value
+        raw_wage = self.contract_id.wage
+        total_variable_pay = 0
+        salary_calc = self.contract_id.salary_calculation_id
+        if salary_calc:
+            for line in salary_calc.calculation_line_ids:
+                if line.category_type == 'variable_pay':
+                    vp_data = line.get_calculated_amount(raw_wage)
+                    if vp_data['type'] == 'amount':
+                        total_variable_pay += vp_data['value']
+        wage = round((raw_wage - total_variable_pay) / 12, 2)
+        per_day_salary = round(wage / total_days, 2) if total_days else 0.0
 
         # Attendances — count unique check-in days using date conversion
         attendance_records = self.env['hr.attendance'].search([
@@ -131,40 +161,46 @@ class HrPayslip(models.Model):
                 payslip.payslip_calculation_html = False
                 continue
             try:
-                summary = payslip.compute_days_summary()
                 data = payslip.contract_id.salary_payslip
-                lop_days = summary.get('lop_day', 0)
+                summary = payslip.compute_days_summary()
                 total_days = summary.get('total_days', 0)
-                per_day = summary.get('per_day_salary', 0)
-                lop_deduction = per_day * lop_days
+                per_day_salary = summary.get('per_day_salary', 0)
+                lop_days = summary.get('lop_day', 0)
+                lop_amount = per_day_salary * lop_days
+
+                contract = payslip.contract_id
+                employee_pf = contract.employee_pf or 0
+                professional_tax = contract.professional_tax or 0
+                tds_amount = contract.tds_amount or 0
 
                 rows = []
                 for category in ('basic', 'main_allowance', 'main_deduction', 'other_allowance', 'other_deduction'):
                     for rec in data.get(category, {}).values():
-                        yearly = rec['amount']
-                        monthly = yearly / 12
-                        actual = monthly - (lop_deduction if category not in ('main_deduction', 'other_deduction') else -lop_deduction)
-                        # Only apply LOP deduction on allowance/basic, not deductions
-                        if category in ('main_deduction', 'other_deduction'):
-                            actual = monthly
-                        else:
-                            actual = monthly - lop_deduction if lop_days else monthly
                         rows.append({
                             'name': rec['name'],
-                            'monthly': monthly,
-                            'actual': actual,
+                            'monthly': rec['amount'] / 12,
                         })
 
                 total_monthly = sum(r['monthly'] for r in rows)
-                total_actual = sum(r['actual'] for r in rows)
 
-                html = """
+                html = f"""
+                <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:8px;">
+                    <tbody>
+                        <tr style="background-color:#dce8f5;">
+                            <td style="border:1px solid #000; padding:6px; font-weight:bold;">Wage (Monthly)</td>
+                            <td style="border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{summary.get('wage', 0):,.2f}</td>
+                            <td style="border:1px solid #000; padding:6px; font-weight:bold;">Per Day Salary</td>
+                            <td style="border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{per_day_salary:,.2f}</td>
+                            <td style="border:1px solid #000; padding:6px; font-weight:bold;">LOP Days</td>
+                            <td style="border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{lop_days}</td>
+                        </tr>
+                    </tbody>
+                </table>
                 <table style="width:100%; border-collapse:collapse; font-size:14px;">
                     <thead>
                         <tr style="background-color:#e9ecef;">
                             <th style="border:1px solid #000; padding:8px; text-align:left;">Component</th>
                             <th style="border:1px solid #000; padding:8px; text-align:right;">Monthly Amount (INR)</th>
-                            <th style="border:1px solid #000; padding:8px; text-align:right;">Payable Amount (INR)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -174,15 +210,45 @@ class HrPayslip(models.Model):
                         <tr>
                             <td style="border:1px solid #000; padding:6px;">{row['name']}</td>
                             <td style="border:1px solid #000; padding:6px; text-align:right;">{row['monthly']:,.2f}</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right;">{row['actual']:,.2f}</td>
                         </tr>
                     """
 
                 html += f"""
                         <tr style="font-weight:bold; background-color:#f2f2f2;">
-                            <td style="border:1px solid #000; padding:8px;">TOTAL</td>
+                            <td style="border:1px solid #000; padding:8px;">Gross Salary</td>
                             <td style="border:1px solid #000; padding:8px; text-align:right;">{total_monthly:,.2f}</td>
-                            <td style="border:1px solid #000; padding:8px; text-align:right;">{total_actual:,.2f}</td>
+                        </tr>
+                        <tr>
+                            <td style="border:1px solid #000; padding:6px;">LOP Amount</td>
+                            <td style="border:1px solid #000; padding:6px; text-align:right;">- {lop_amount:,.2f}</td>
+                        </tr>
+                """
+                if employee_pf > 0:
+                    html += f"""
+                        <tr>
+                            <td style="border:1px solid #000; padding:6px;">Employee PF</td>
+                            <td style="border:1px solid #000; padding:6px; text-align:right;">- {employee_pf:,.2f}</td>
+                        </tr>
+                    """
+                if professional_tax > 0:
+                    html += f"""
+                        <tr>
+                            <td style="border:1px solid #000; padding:6px;">Professional Tax</td>
+                            <td style="border:1px solid #000; padding:6px; text-align:right;">- {professional_tax:,.2f}</td>
+                        </tr>
+                    """
+                if tds_amount > 0:
+                    html += f"""
+                        <tr>
+                            <td style="border:1px solid #000; padding:6px;">TDS</td>
+                            <td style="border:1px solid #000; padding:6px; text-align:right;">- {tds_amount:,.2f}</td>
+                        </tr>
+                    """
+                net_salary = total_monthly - lop_amount - employee_pf - professional_tax - tds_amount
+                html += f"""
+                        <tr style="font-weight:bold; background-color:#d4edda;">
+                            <td style="border:1px solid #000; padding:8px;">Net Salary</td>
+                            <td style="border:1px solid #000; padding:8px; text-align:right;">{net_salary:,.2f}</td>
                         </tr>
                     </tbody>
                 </table>
