@@ -19,7 +19,7 @@ class HrPayslip(models.Model):
     gross_salary = fields.Float(string="Gross Salary", compute='compute_net_salary')
     payslip_calculation_html = fields.Html(string='Payslip Calculation', compute='_compute_payslip_calculation_html', store=False)
 
-    @api.depends('contract_id', 'date_from', 'date_to')
+    @api.depends('contract_id', 'date_from', 'date_to', 'input_line_ids')
     def compute_net_salary(self):
         for payslip in self:
             payslip.gross_salary = 0
@@ -44,8 +44,9 @@ class HrPayslip(models.Model):
                 employee_pf = contract.employee_pf or 0
                 professional_tax = contract.professional_tax or 0
                 tds_amount = contract.tds_amount or 0
+                input_total = sum(line.amount for line in payslip.input_line_ids if line.amount)
 
-                payslip.net_salary = total_monthly - lop_amount - employee_pf - professional_tax - tds_amount
+                payslip.net_salary = total_monthly - lop_amount - employee_pf - professional_tax - tds_amount + input_total
             except Exception:
                 pass
 
@@ -244,7 +245,17 @@ class HrPayslip(models.Model):
                             <td style="border:1px solid #000; padding:6px; text-align:right;">- {tds_amount:,.2f}</td>
                         </tr>
                     """
-                net_salary = total_monthly - lop_amount - employee_pf - professional_tax - tds_amount
+                input_lines = [(line.name, line.amount) for line in payslip.input_line_ids if line.amount]
+                input_total = 0
+                for inp_name, inp_amount in input_lines:
+                    input_total += inp_amount
+                    html += f"""
+                        <tr>
+                            <td style="border:1px solid #000; padding:6px;">{inp_name}</td>
+                            <td style="border:1px solid #000; padding:6px; text-align:right;">{inp_amount:,.2f}</td>
+                        </tr>
+                    """
+                net_salary = total_monthly - lop_amount - employee_pf - professional_tax - tds_amount + input_total
                 html += f"""
                         <tr style="font-weight:bold; background-color:#d4edda;">
                             <td style="border:1px solid #000; padding:8px;">Net Salary</td>
