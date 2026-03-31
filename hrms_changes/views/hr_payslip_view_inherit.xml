@@ -28,9 +28,14 @@
             </xpath>
             <xpath expr="//page[1]" position="replace">
                 <page string="Worked Days &amp; Inputs">
-                            <separator string="Worked Days"/>
+                    <separator string="Worked Days"/>
                     <group>
                         <field name="days_calculation" readonly="1" force_save="1"/>
+                    </group>
+                </page>
+                <page string="Salary Calculation">
+                    <group>
+                        <field name="payslip_calculation_html" readonly="1"/>
                     </group>
                 </page>
             </xpath>

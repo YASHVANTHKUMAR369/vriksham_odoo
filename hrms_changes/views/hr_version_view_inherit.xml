@@ -11,7 +11,8 @@
                 <field name="hike_date"/>
                 <field name="tds_amount"/>
                 <field name="salary_calculation_id"/>
-                <field name="salary_calculation_html"/>
+                <field name="salary_calculation_html" groups="hr.group_hr_manager"/>
+                <field name="payslip_calculation_html" groups="hr.group_hr_manager"/>
             </xpath>
             <xpath expr="//field[@name='hr_responsible_id']" position="after">
                 <div class="o_row" name="contract_dates">

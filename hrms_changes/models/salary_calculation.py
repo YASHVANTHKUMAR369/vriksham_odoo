@@ -54,3 +54,55 @@ class SalaryCalculation(models.Model):
                 }
 
         return output
+
+    def get_payslip_calculation(self, amount):
+        output = {
+            'basic': {},
+            'main_allowance': {},
+            'main_deduction': {},
+            'other_allowance': {},
+            'other_deduction': {},
+        }
+
+        # Step 1: Calculate variable pay from original amount (not shown in payslip)
+        total_variable_pay = 0
+        for line in self.calculation_line_ids:
+            if line.category_type == 'variable_pay':
+                data = line.get_calculated_amount(amount)
+                if data['type'] == 'amount':
+                    total_variable_pay += data['value']
+
+        # Step 2: adjusted amount = original - variable pay
+        # All payslip components are calculated on this amount
+        adjusted_amount = amount - total_variable_pay
+
+        # Step 3: Calculate non-balance items for all categories on adjusted amount
+        total_allocated = 0
+        for line in self.calculation_line_ids:
+            if line.category_type in ('basic', 'main_allowance', 'main_deduction', 'other_allowance', 'other_deduction'):
+                data = line.get_calculated_amount(adjusted_amount)
+                if data['type'] == 'balance':
+                    continue
+                if data['type'] == 'amount':
+                    total_allocated += data['value']
+                    output[line.category_type][line.id] = {
+                        'name': line.name,
+                        'calculation_type': line.calculation_type,
+                        'amount': data['value']
+                    }
+
+        # Step 4: balance = adjusted_amount - all non-balance allocations
+        balance_amount = adjusted_amount - total_allocated
+
+        # Step 5: Assign balance to any balance_amount=True lines (any category)
+        for line in self.calculation_line_ids:
+            if line.category_type in ('basic', 'main_allowance', 'main_deduction', 'other_allowance', 'other_deduction'):
+                data = line.get_calculated_amount(adjusted_amount)
+                if data['type'] == 'balance':
+                    output[line.category_type][line.id] = {
+                        'name': line.name,
+                        'calculation_type': line.calculation_type,
+                        'amount': balance_amount
+                    }
+
+        return output

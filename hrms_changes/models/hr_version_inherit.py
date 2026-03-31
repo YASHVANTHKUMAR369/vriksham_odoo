@@ -8,13 +8,20 @@ class HrVersion(models.Model):
     hike_date = fields.Date(string="Hike Date", tracking=True)
     salary_calculation_id = fields.Many2one("salary.calculation", string="Salary Calculation", groups="hr.group_hr_user")
 
-    salary_calculation_html = fields.Html(string="Salary Calculation", compute='_compute_salary_calculation_html')
+    salary_calculation_html = fields.Html(string="Salary Calculation", compute='_compute_salary_calculation_html', groups="hr.group_hr_manager")
+    payslip_calculation_html = fields.Html(string="Payslip Calculation", compute='_compute_payslip_calculation_html', groups="hr.group_hr_manager")
 
-    @api.depends('salary_calculation_id' , 'wage')
+    @api.depends('salary_calculation_id', 'wage')
     def _compute_salary_calculation_html(self):
         for rec in self:
             output = rec.generate_salary_html(rec.salary_calculation)
             rec.salary_calculation_html = output if output else None
+
+    @api.depends('salary_calculation_id', 'wage')
+    def _compute_payslip_calculation_html(self):
+        for rec in self:
+            output = rec.generate_salary_html(rec.salary_payslip)
+            rec.payslip_calculation_html = output if output else None
 
     def generate_salary_html(self, data):
         if self.wage > 0 or not self.salary_calculation_id:
@@ -69,8 +76,8 @@ class HrVersion(models.Model):
                 </tr>
                 """
 
-            total_monthly = self.wage/12 if self.wage else 0
-            total_yearly = self.wage
+            total_yearly = sum(row['yearly'] for row in rows)
+            total_monthly = total_yearly / 12 if total_yearly else 0
 
             html += f"""
                 <tr style="font-weight:bold; background-color:#f2f2f2;">
@@ -96,6 +103,10 @@ class HrVersion(models.Model):
     @property
     def salary_calculation(self):
         return self.salary_calculation_id.get_calculation_line_ids(self.wage)
+
+    @property
+    def salary_payslip(self):
+        return self.salary_calculation_id.get_payslip_calculation(self.wage)
     @property
     def get_upcoming_fy(self):
         dt = self.contract_date_start
