@@ -1,0 +1,75 @@
+<odoo>
+    <data>
+        <template id="web.external_layout_standard">
+            <div class="header">
+                <br/>
+                <table class="table table-sm table-borderless mt-1">
+                    <tr>
+                        <td>
+                            <img src="/web/binary/company_logo" width="50%"
+                                 class="img-responsive mt-1"/>
+                        </td>
+                        <td class="text-end">
+                            <strong style="font-size:13px;" t-esc="res_company.name"/>
+                            <span t-esc="res_company.partner_id" style="font-size:13px;"
+                                  t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+
+                            <span style="font-size:13px;" t-esc="res_company.phone"/>
+                        </td>
+                    </tr>
+                </table>
+                <div name="watermark" style="margin-top:300px">
+                    <img src="/web/binary/company_logo" width="100%" style="opacity: 0.1;"
+                         class="img-responsive"/>
+                </div>
+            </div>
+
+            <t t-set="layout_background_url"
+               t-value="'data:image/png;base64,%s' % company.layout_background_image.decode('utf-8') if company.layout_background_image and company.layout_background == 'Custom' else
+                '/base/static/img/demo_logo_report.png' if company.layout_background == 'Demo logo' else ''"/>
+            <div t-attf-class="article o_report_layout_standard o_table_standard o_company_#{company.id}_layout o_snail_mail {{'o_report_layout_background' if company.layout_background != 'Blank' else ''}}"
+                 t-attf-style="{{ 'background-image: url(%s);' % layout_background_url if layout_background_url else '' }}"
+                 t-att-data-oe-model="o and o._name"
+                 t-att-data-oe-id="o and o.id"
+                 t-att-data-oe-lang="o and o.env.context.get('lang')">
+                <t t-call="web.address_layout"/>
+                <h2 t-out="layout_document_title"/>
+                <t t-out="0"/>
+            </div>
+
+<!--            <div class="footer text-end">-->
+<!--                <div style="border-top: 3px solid #ADD8E6;"/>-->
+<!--                <div style="white-space: nowrap;">-->
+<!--                    <center>-->
+<!--                        <strong style="font-size:20px;" t-esc="res_company.name"/>-->
+<!--                    </center>-->
+<!--                </div>-->
+<!--                <div style="white-space: nowrap;">-->
+<!--                    <center>-->
+<!--                        <strong style="font-size:13px;">Head Office –</strong>-->
+<!--                        <strong style="font-size:13px;" t-esc="res_company.street"/>-->
+<!--                        <strong style="font-size:13px;" t-esc="res_company.street2"/>-->
+<!--                        <strong style="font-size:13px;" t-esc="res_company.city"/>-->
+<!--                        <strong style="font-size:13px;" t-esc="res_company.state_id.name"/>-->
+<!--                        - -->
+<!--                        <strong style="font-size:13px;" t-esc="res_company.zip"/>-->
+<!--                    </center>-->
+<!--                </div>-->
+<!--                <div style="white-space: nowrap;">-->
+<!--                    <center>-->
+<!--                        <t t-if="res_company.company_registry">-->
+<!--                            <strong style="font-size:13px;">CIN :</strong>-->
+<!--                            <strong style="font-size:13px;" t-esc="res_company.company_registry"/>-->
+<!--                            <strong class="px-2" style="font-size:15px;">|</strong>-->
+<!--                        </t>-->
+<!--                        <t t-if="res_company.website">-->
+<!--                            <strong style="font-size:13px;" t-esc="res_company.website"/>-->
+<!--                            <strong class="px-2" style="font-size:15px;">|</strong>-->
+<!--                        </t>-->
+<!--                        <strong style="font-size:13px;" t-esc="res_company.email"/>-->
+<!--                    </center>-->
+<!--                </div>-->
+<!--            </div>-->
+        </template>
+    </data>
+</odoo>

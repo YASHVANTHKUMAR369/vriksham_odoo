@@ -1,0 +1,90 @@
+<odoo>
+    <record id="hr_payroll.action_report_payslip" model="ir.actions.report">
+        <field name="name">Payslip</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_payroll.report_payslip_lang</field>
+        <field name="report_file">hr_payroll.report_payslip_lang</field>
+        <field name="print_report_name">'% s - %s' % (object.employee_id.name, object.name)</field>
+        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip"/>
+        <field name="binding_type">report</field>
+        <!-- Erase fields to avoid double PDF posting -->
+        <field name="attachment"></field>
+        <field name="attachment_use" eval="False"/>
+    </record>
+    <data>
+        <template id="payslip_report_correction" inherit_id="hr_payroll.report_payslip">
+            <!--            <xpath expr="//t[@t-call='web.external_layout']" position="attributes">-->
+            <!--                <attribute name="t-call" >web.basic_layout</attribute>-->
+            <!--            </xpath>-->
+            <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+                <attribute name="t-call">web.basic_layout</attribute>
+            </xpath>
+
+            <xpath expr="//t[@t-call='web.basic_layout']" position="inside">
+                <t t-call="vrikshamsoftech_reports.vriksham_header_formate_experience_letter"/>
+            </xpath>
+            <xpath expr="//div[@id='employee_id']" position="replace"/>
+            <xpath expr="//div[@id='employee_marital']" position="replace"/>
+            <xpath expr="//div[@id='employee_person_in_charge']" position="replace"/>
+            <xpath expr="//div[@id='contract_type']" position="replace"/>
+            <xpath expr="//div[@id='working_schedule']" position="replace"/>
+            <xpath expr="//div[@id='wage']" position="replace"/>
+            <xpath expr="//th[@id='work_days_header_amount']" position="replace"/>
+            <xpath expr="//th[@id='work_days_header_ytd']" position="replace"/>
+            <xpath expr="//td[@id='worked_days_amount']" position="replace"/>
+            <xpath expr="//td[@id='worked_days_ytd']" position="replace"/>
+            <xpath expr="//td[@id='worked_days_total_amount']" position="replace"/>
+            <xpath expr="//td[@id='worked_days_total_ytd']" position="replace"/>
+            <xpath expr="//div[@id='worked_days_table']" position="replace"/>
+            <xpath expr="//div[@id='contract_start']" position="replace">
+                <div id="joining_start">
+                    <strong class="me-2">Date of Joining:</strong>
+                    <t t-if="o.employee_id.x_date_of_joining">
+                        <span t-esc="o.employee_id.x_date_of_joining.strftime('%d/%m/%Y')"/>
+                    </t>
+                </div>
+            </xpath>
+            <xpath expr="//div[@id='to_pay']" position="after">
+                <div id="signature_not_rewired" class="mt-5">
+                    <center>**This is computer generated report signature not required**</center>
+                </div>
+            </xpath>
+            <xpath expr="//div[@id='payslip_lines_table']" position="replace">
+                <div id="payslip_lines_table">
+                    <table class="table table-sm table-borderless">
+                        <thead class="o_black_border">
+                            <tr>
+                                <th width="80%" id="line_header_name">Name</th>
+                                <th width="20%" id="line_header_total" class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payslip_lines">
+                            <span t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip)" t-as="line">
+                                <t t-set="line_styling" t-value="line.get_payslip_styling_dict()"/>
+                                <t t-set="line_style" t-value="line_styling['line_style']"/>
+                                <t t-set="line_class" t-value="line_styling['line_class']"/>
+                                <t t-set="o_title" t-value="line_styling['o_title']"/>
+                                <tr id="line_display">
+                                    <td id="payslip_line_name" t-att-class="line_class" t-att-style="line_style"
+                                        t-att-colspan="99 if line.salary_rule_id.title else 1">
+                                        <span t-field="line.name" class="d-block"/>
+                                        <span t-field="line.salary_rule_id.note"
+                                              t-attf-class="#{line_class} d-inline-block text-truncate pb-0 mb-0 ps-1"
+                                              style="max-width: 500px; font-size: 0.875em;"/>
+                                    </td>
+                                    <td id="payslip_line_total" t-attf-class="#{line_class} text-end #{o_title}"
+                                        t-att-style="line_style">
+                                        <span t-out="line.total"
+                                              t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </span>
+                        </tbody>
+                    </table>
+                    <div class="oe_structure"></div>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

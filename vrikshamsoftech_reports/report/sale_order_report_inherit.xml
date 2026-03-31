@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vriksham_paper_format_experience_letter_sale_order" model="report.paperformat">
+        <field name="name">Sale payslip paper format</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">30</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">35</field>
+        <field name="dpi">90</field>
+    </record>
+
+
+    <record id="sale.action_report_pro_forma_invoice" model="ir.actions.report">
+        <field name="paperformat_id" ref="vrikshamsoftech_reports.vriksham_paper_format_experience_letter_sale_order"/>
+    </record>
+
+    <record id="sale.action_report_saleorder" model="ir.actions.report">
+        <field name="paperformat_id" ref="vrikshamsoftech_reports.vriksham_paper_format_experience_letter_sale_order"/>
+    </record>
+
+    <record id="sale_pdf_quote_builder.action_report_saleorder_raw" model="ir.actions.report">
+        <field name="paperformat_id" ref="vrikshamsoftech_reports.vriksham_paper_format_experience_letter_sale_order"/>
+    </record>
+
+    <template id="report_saleorder_document_vriksham" inherit_id="sale.report_saleorder_document">
+
+        <xpath expr="//div[@name='signature']/following-sibling::div[1]" position="attributes">
+            <attribute name="style">display: none;</attribute>
+        </xpath>
+        <xpath expr="//div[@name='signature']" position="replace"/>
+        <xpath expr="//div[hasclass('page')]" position="inside">
+            <div style="font-size:13px;page-break-inside: avoid">
+                <div class="mt-2 text-end">
+                    <span>
+                        For
+                        <strong t-out="res_company.name if res_company.name else ''"/>
+                    </span>
+                </div>
+                <div class="col-12 text-end" style="margin-left:50px">
+                    <t t-if="doc.env.user.sign_signature">
+                        <img t-att-src="image_data_uri(doc.env.user.sign_signature)"
+                             style="max-height: 52pt;max-width: 100%;" alt="Employee Image"/>
+                    </t>
+                    <t t-else="">
+                        <div class="col-12" style="min-height: 10rem"/>
+                    </t>
+                </div>
+
+                <div class="col-12 text-end">
+                    <span>Authorized signatory</span>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

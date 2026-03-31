@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Inherit hr.employee form to add custom fields in existing payroll tab -->
+        <record id="view_employee_form_inherit_offer_letter" model="ir.ui.view">
+            <field name="name">hr.employee.form.inherit.offer.letter</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <!-- Add fields in the existing payroll tab -->
+                <xpath expr="//page[@name='payroll_information']" position="inside">
+                    <group name="offer_letter_group" string="Offer Letter Information">
+                        <field name="x_offer_letter_contract"/>
+                        <field name="x_date_of_joining"/>
+                    </group>
+                    <group name="hike_information_group" string="Hike Information">
+                        <field name="x_hike_contract"/>
+                    </group>
+                </xpath>
+                <!-- Add custom report buttons in work information tab -->
+                 <xpath expr="//page[@name='work_information']" position="inside">
+                    <group>
+                        <button name="action_offer_letter"
+                                string="Offer Letter"
+                                type="object"
+                                class="btn-primary"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,103 @@
+<odoo>
+    <data>
+
+        <record id="vriksham_action_record_appreciation_letter" model="ir.actions.report">
+            <field name="name">Appreciation letter</field>
+            <field name="model">hr.employee</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">vrikshamsoftech_reports.vriksham_appreciation_letter_template</field>
+            <field name="report_file">vrikshamsoftech_reports.vriksham_appreciation_letter_template</field>
+            <field name="print_report_name">'%s - Appreciation letter' % (object.name).replace('/', '')</field>
+            <field name="binding_model_id" ref="hr.model_hr_employee"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="vrikshamsoftech_reports.vriksham_paper_format_experience_letter"/>
+        </record>
+
+
+        <template id="vriksham_appreciation_letter_template">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+                    <t t-foreach="docs" t-as="o">
+                        <t t-call="vrikshamsoftech_reports.vriksham_header_formate_experience_letter"/>
+                        <br/>
+                        <center class="mt-2">
+                            <h4>
+                                <strong>EMPLOYEE RECOGNITION LETTER</strong>
+                            </h4>
+                        </center>
+                        <t t-set="today" t-value="o.create_date.today()"/>
+                        <div class="mt-3 text-end" style="text-align:right">
+                            <span t-esc="today.strftime('%d/%m/%Y')"/>
+                        </div>
+                        <div class="mt-5">
+                            Dear
+                            <strong t-field="o.name"/>,
+                        </div>
+                        <div class="mt-3">
+                            <span>
+                                In recognition of your outstanding contribution &amp; best performance, you have been
+                                chosen
+                                as Vriksham Soft Tech’s Employee of the Quarter.
+                            </span>
+                        </div>
+                        <div class="mt-3">
+                            <span>
+                                Your dedication &amp; involvement are the greatest inspiration to all of us. We are
+                                especially impressed by your meticulous work<span class="px-1">in</span>
+                                <strong t-out="o.x_appreciation_project if o.x_appreciation_project else 'Enter Project Name'"/>
+                                .
+                            </span>
+                        </div>
+                        <div class="mt-3">
+                            <span>
+                                Without you, VST would not stand where it is today, and we want to thank you for
+                                exemplifying our vision and goal for Vriksham Soft Tech.
+                            </span>
+                        </div>
+                        <div class="mt-3">
+                            <span>
+                                On behalf of the whole VST Team, Congratulations on being The Employee of the Quarter.
+                            </span>
+                        </div>
+                        <div class="mt-3">
+                            <span>We wish you success in your future endeavors.</span>
+                        </div>
+
+                        <div class="text-start" style="margin-top:350px">
+                            <span>
+                                For
+                                <strong t-out="res_company.name if res_company.name else ''"/>
+                            </span>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 text-start">
+                                <t t-if="o.env.user.sign_signature">
+                                    <img t-att-src="image_data_uri(o.env.user.sign_signature)"
+                                         style="max-height: 50pt; max-width: 100%;" alt="Employee Image"/>
+                                </t>
+                                <t t-else="">
+                                    <div class="col-12" style="min-height: 10rem"/>
+                                </t>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>
+                                    Jeevitha D
+                                    <br/>
+                                    Head - Human Resources
+                                </strong>
+                            </div>
+                            <div class="col-6 text-end">
+                            </div>
+                        </div>
+
+<!--                        <t t-call="vrikshamsoftech_reports.vriksham_footer_formate_experience_letter"/>-->
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

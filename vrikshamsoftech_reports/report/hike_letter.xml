@@ -1,0 +1,307 @@
+<odoo>
+    <data>
+
+        <record id="vriksham_action_record_hike_letter" model="ir.actions.report">
+            <field name="name">Hike letter</field>
+            <field name="model">hr.employee</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">vrikshamsoftech_reports.vriksham_hike_letter_template</field>
+            <field name="report_file">vrikshamsoftech_reports.vriksham_hike_letter_template</field>
+            <field name="print_report_name">'%s - Hike letter' % (object.name).replace('/', '')</field>
+            <field name="binding_model_id" ref="hr.model_hr_employee"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="vrikshamsoftech_reports.vriksham_paper_format_experience_letter"/>
+        </record>
+
+
+        <template id="vriksham_hike_letter_template">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+                    <t t-foreach="docs" t-as="o">
+                        <t t-call="vrikshamsoftech_reports.vriksham_header_formate_experience_letter"/>
+                        <t t-if="o.x_hike_contract">
+                            <t t-set="today" t-value="o.create_date.today()"/>
+                            <div class="mt-3 text-end" style="text-align:right">
+                                <span t-esc="today.strftime('%d/%m/%Y')"/>
+                            </div>
+                            <div class="mt-3">
+                                <strong t-field="o.name"/>
+                                <br/>
+                                Employee No :
+                                <strong t-field="o.registration_number"/>
+                            </div>
+                            <center class="mt-2">
+                                <h5>
+                                    <strong>ANNUAL INCREMENT LETTER</strong>
+                                </h5>
+                            </center>
+                            <div class="mt-3">
+                                Dear
+                                <strong t-field="o.name"/>,
+                            </div>
+                            <div class="mt-3">
+                                <span>
+                                    We are pleased to inform you that, in recognition of your unwavering commitment and
+                                    valuable contributions to Vriksham Soft Tech (VST) during the financial year FY’
+                                    <span
+                                            t-esc="str(o.x_hike_contract.date_start.year)[2:] if o.x_hike_contract.date_start.month >= 4 else str(o.x_hike_contract.date_start.year - 1)[2:]"/>
+                                    , your
+                                    annual Cost to Company (CTC) has been revised. Effective
+                                    <span t-esc="o.x_hike_contract.date_start.strftime('%B %d, %Y') if o.x_hike_contract and o.x_hike_contract.date_start else 'DD-MM-YY'"/>
+                                    , your revised
+                                    CTC will be
+                                    Rs.
+
+                                    <span t-esc="'%.2f' % float(o.x_hike_contract.wage*12 if o.x_hike_contract and o.x_hike_contract.wage else 0.00)"/>
+                                </span>
+                            </div>
+                            <div class="mt-3">
+                                <span>This increment reflects the organization's acknowledgment of your exceptional
+                                    performance, competencies, and dedication to excellence. Your continued contribution
+                                    has
+                                    played a pivotal role in the success and growth of VST, and we are confident that
+                                    you
+                                    will maintain the same level of excellence in the future.
+                                </span>
+                            </div>
+                            <div class="mt-3">
+                                <span>Please find attached the Annexure containing the detailed breakdown of your
+                                    revised
+                                    remuneration structure. Kindly note that this information is strictly confidential
+                                    and
+                                    must not be shared or discussed with any other employees under any circumstances.
+                                </span>
+                            </div>
+                            <div class="mt-3">
+                                <span>Looking ahead, the appraisal process for the upcoming financial year (FY’
+                                    <span
+                                            t-esc="str(o.x_hike_contract.date_start.year+1)[2:] if o.x_hike_contract.date_start.month >= 4 else str(o.x_hike_contract.date_start.year)[2:]"/>
+                                    ) will be
+                                    based on ongoing evaluations of your alignment with organizational objectives,
+                                    performance in assigned projects, and the successful attainment of your goals.
+                                </span>
+                            </div>
+                            <div class="mt-3">
+                                <span>We take this opportunity to extend our heartfelt appreciation for your efforts and
+                                    wish you continued success in your professional journey with us. As always, the
+                                    Human
+                                    Resources department remains committed to supporting your growth and enhancing your
+                                    employee experience. Should you have any questions or require further clarification,
+                                    please do not hesitate to contact the HR Team.
+                                </span>
+                            </div>
+
+                            <div class="mt-3">
+                                <span>We wish you success in your future endeavors.</span>
+                            </div>
+                            <div class="mt-5 text-start">
+                                <span>
+                                    For
+                                    <strong t-out="res_company.name if res_company.name else ''"/>
+                                </span>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-start">
+                                    <t t-if="o.env.user.sign_signature">
+                                        <img t-att-src="image_data_uri(o.env.user.sign_signature)"
+                                             style="max-height: 50pt; max-width: 100%;" alt="Employee Image"/>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="col-12" style="min-height: 10rem"/>
+                                    </t>
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong>
+                                        Jeevitha D
+                                        <br/>
+                                        Head - Human Resources
+                                    </strong>
+                                </div>
+                                <div class="col-6 text-end">
+                                </div>
+                            </div>
+                            <div style="page-break-inside: avoid;">
+                                <center class="mt-2">
+                                    <strong>Annexure</strong>
+                                </center>
+
+                                <table class="table table-sm p-2 mt-4">
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">Name</th>
+                                            <td>
+                                                <t t-if="o.name">
+                                                    <span t-esc="o.name"/>
+                                                </t>
+                                                <t t-else="">
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Designation</th>
+                                            <td>
+                                                <t t-if="o.job_id">
+                                                    <span t-esc="o.job_id.name"/>
+                                                </t>
+                                                <t t-else="">
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Department</th>
+                                            <td>
+                                                <t t-if="o.department_id">
+                                                    <span t-esc="o.department_id.name"/>
+                                                </t>
+                                                <t t-else="">
+                                                </t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">Location</th>
+                                            <td>
+                                                <span t-esc="o.private_city"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <t t-set="year_wage" t-value="o.x_hike_contract.wage*12"/>
+                                <t t-set="variable" t-value="year_wage*0.1"/>
+                                <t t-set="employer_pf" t-value="21600"/>
+                                <t t-set="health" t-value="10000"/>
+                                <t t-set="basic" t-value="year_wage*0.5 if year_wage >= 400000 else year_wage*0.55"/>
+                                <t t-set="hra" t-value="year_wage*0.25 if year_wage >= 400000 else year_wage*0.15"/>
+                                <t t-set="project" t-value="2000"/>
+                                <t t-set="additional"
+                                   t-value="year_wage - variable - employer_pf - health-basic - hra - project"/>
+                                <table class="table table-sm p-2 mt-4">
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-center">
+                                                <strong>Component</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                <strong>Yearly Amount (INR)</strong>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span>BASIC SALARY</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-esc="'%.2f' % float(basic)"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span>HOUSE RENT ALLOWANCE (HRA)</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-esc="'%.2f' % float(hra)"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span>PROJECT ALLOWANCE</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-esc="'%.2f' % float(project)"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span>ADDITIONAL ALLOWANCE</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-esc="'%.2f' % float(additional)"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span>PROVIDENT FUND (EMPLOYER)</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-esc="'%.2f' % float(employer_pf)"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span>HEALTH BENEFIT</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-esc="'%.2f' % float(health)"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span>VARIABLE PAY</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-esc="'%.2f' % float(variable)"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center">
+                                                <strong>TOTAL COST TO COMPANY (PER ANNUM)</strong>
+                                            </td>
+                                            <td class="text-end">
+                                                <strong t-esc="'%.2f' % float(year_wage)"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <center class="mt-5">
+                                    <h6>
+                                        <strong>Declaration by Employee:</strong>
+                                    </h6>
+                                </center>
+                                <div class="mt-3">
+                                    <span><span class="px-1">I</span>,<span t-esc="o.name"/>, hereby acknowledge and
+                                        accept the revised terms of
+                                        my
+                                        remuneration as stated in this letter,
+                                        <span class="px-1">effective</span>
+                                        <span
+                                                t-esc="o.x_hike_contract.date_start.strftime('%B %d, %Y') if o.x_hike_contract and o.x_hike_contract.date_start else 'DD-MM-YY'"/>
+                                        . I confirm that
+                                        I have reviewed the details of the revised Cost to Company (CTC) as outlined in
+                                        the Annexure and agree to comply with the confidentiality clause stated herein.
+                                    </span>
+                                </div>
+                                <div class="mt-3">
+                                    <span>I understand that all other terms and conditions of my employment shall remain
+                                        as per the existing Company Policy, subject to amendments from time to time.
+                                    </span>
+                                </div>
+                                <div class="mt-5">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td>
+                                                <span>Signature:</span>
+                                            </td>
+                                            <td>
+                                                <div style="border-top: 2px;"/>
+                                            </td>
+                                            <td>
+                                                <span>Date:</span>
+                                            </td>
+                                            <td>
+                                                <div style="border-top: 2px;"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </t>
+<!--                        <t t-call="vrikshamsoftech_reports.vriksham_footer_formate_experience_letter"/>-->
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>
