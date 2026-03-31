@@ -155,7 +155,7 @@
             </div>
 
             <!-- Bank Details -->
-            <div class="mt-4">
+            <div class="mt-4 mb-4">
                 <h6 class="fw-bold border-bottom pb-1">Bank Details</h6>
 
                 <table class="table table-sm" style="border-bottom:2px solid #000;">
@@ -194,23 +194,25 @@
                 </table>
             </div>
 
-            <div style="page-break-before: always;"/>
-            <!-- Footer -->
-            <div class="mt-4">
-                <div t-out="o.narration" class="mb-3"/>
+            <!-- Footer - Will stay together on same page -->
+            <div style="page-break-inside: avoid; display: block;">
+                <div t-if="o.narration" t-out="o.narration" class="mb-4"/>
 
-                <div class="text-end">
-                    <p class="mb-5">
-                        For
-                        <strong t-out="res_company.name"/>
-                    </p>
+                <div class="row" style="margin-top: 220px;">
+                    <div class="col-12 text-end">
+                        <p class="mb-4">
+                            For <strong t-out="res_company.name"/>
+                        </p>
 
-                    <t t-if="o.env.user.sign_signature">
-                        <img t-att-src="image_data_uri(o.env.user.sign_signature)"
-                             style="max-height:70px;"/>
-                    </t>
+                        <div style="min-height: 80px; display: inline-block;">
+                            <t t-if="o.env.user.sign_signature">
+                                <img t-att-src="image_data_uri(o.env.user.sign_signature)"
+                                     style="max-height:70px; display: block;"/>
+                            </t>
+                        </div>
 
-                    <p class="mt-2 fw-semibold">Authorized Signatory</p>
+                        <p class="mt-2 mb-0 fw-semibold">Authorized Signatory</p>
+                    </div>
                 </div>
             </div>
 
