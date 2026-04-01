@@ -154,6 +154,10 @@ class HrEmployee(models.Model):
         return self.identification_id
 
     @property
+    def emp_salutation(self):
+        return 'Ms.' if self.sex == 'female' else 'Mr.'
+
+    @property
     def emp_name(self):
         return self.name
 

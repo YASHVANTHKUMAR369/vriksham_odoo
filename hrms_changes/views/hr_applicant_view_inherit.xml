@@ -10,6 +10,7 @@
                 <field name="join_date"/>
                 <field name="work_location_id"/>
                 <field name="identification_id"/>
+                <field name="gender"/>
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page name="Salary Calculation">

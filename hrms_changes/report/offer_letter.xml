@@ -63,7 +63,7 @@
                                 Ref.No:
                                 <t class="ms-1" t-esc="o.emp_identification_id"/>
                                 <br/>
-                                Mr.
+                                <t t-esc="o.emp_salutation"/>
                                 <t t-esc="o.emp_name"/>
                                 <br/>
                                 <t t-esc="o.emp_street"/>
@@ -711,15 +711,19 @@
                         <br/>
 
                         <p>With best wishes, Yours truly,</p>
-
+                        <br/>
+                        <br/>
+                        <p>
+                            <strong>For
+                                <strong class="ms-1" t-esc="o.emp_company"/>,
+                                </strong>
+                                </p>
                         <img t-if="o.company_id and o.company_id.hr_signature"
                              t-att-src="image_data_uri(o.company_id.hr_signature)"
                              style="max-height:130px; margin-left:20px"/>
 
                         <p>
-                            <strong>For
-                                <strong class="ms-1" t-esc="o.emp_company"/>,
-                                <br/>
+                            <strong>
                                 <t t-esc="o.emp_hr_name"/>
                                 <br/>HR Head
                             </strong>
@@ -859,7 +863,7 @@
                         <!-- Address -->
                         <p class="mt-4">
                             <strong>
-                                Mr.
+                                <t t-esc="o.emp_salutation"/>
                                 <t t-esc="o.emp_name"/>
                             </strong>
                             <br/>

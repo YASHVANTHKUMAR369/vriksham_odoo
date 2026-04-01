@@ -69,7 +69,7 @@
 
                             <br/>
                             At the time of resignation,
-                            he/she was designated as
+                            <t t-esc="'she' if o.sex == 'female' else 'he'"/> was designated as
                             <strong>
                                 <t t-esc="o.job_title"/>
                             </strong>

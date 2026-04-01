@@ -25,6 +25,10 @@ class HrApplicant(models.Model):
     work_location_id = fields.Many2one('hr.work.location')
     salary_calculation_html = fields.Html(string="Salary Calculation", compute='_compute_salary_calculation_html')
     identification_id = fields.Char(string="Identification", groups="hr.group_hr_user")
+    gender = fields.Selection(
+        [('male', 'Male'), ('female', 'Female'), ('other', 'Other')],
+        string="Gender", groups="hr.group_hr_user", tracking=True
+    )
 
     @api.depends('salary_calculation_id')
     def _compute_salary_calculation_html(self):
@@ -52,6 +56,10 @@ class HrApplicant(models.Model):
     @property
     def emp_identification_id(self):
         return self.identification_id
+
+    @property
+    def emp_salutation(self):
+        return 'Ms.' if self.gender == 'female' else 'Mr.'
 
     @property
     def emp_name(self):
@@ -256,6 +264,7 @@ class HrApplicant(models.Model):
             'work_location_id': self.work_location_id.id,
             'salary_calculation_id': self.salary_calculation_id.id,
             'identification_id': self.identification_id,
+            'sex': self.gender,
             'wage': self.salary_proposed/12 if self.salary_proposed else 0,
         })
         return action
