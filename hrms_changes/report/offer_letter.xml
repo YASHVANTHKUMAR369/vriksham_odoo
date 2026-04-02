@@ -861,7 +861,7 @@
                             </div>
                         </div>
                         <!-- Address -->
-                        <p class="mt-4">
+                        <p>
                             <strong>
                                 <t t-esc="o.emp_salutation"/>
                                 <t t-esc="o.emp_name"/>
