@@ -943,7 +943,14 @@
                         <p>
                             <strong>For
                                 <strong class="ms-1" t-esc="o.emp_company"/>,
-                                <br/>
+                                </strong>
+                                </p>
+                        <img t-if="o.company_id and o.company_id.hr_signature"
+                             t-att-src="image_data_uri(o.company_id.hr_signature)"
+                             style="max-height:130px; margin-left:20px"/>
+
+                        <p>
+                            <strong>
                                 <t t-esc="o.emp_hr_name"/>
                                 <br/>HR Head
                             </strong>
