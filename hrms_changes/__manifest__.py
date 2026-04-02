@@ -1,7 +1,7 @@
 {
     'name': 'Hrms Changes',
     'version': '19.0.1.0.0',
-    'depends': ['base', 'hr', 'hr_maintenance', 'hr_holidays', 'hr_holidays_attendance', 'hr_payroll_community', 'hr_skills', 'hr_recruitment'],
+    'depends': ['base', 'hr', 'hr_maintenance', 'hr_holidays', 'hr_holidays_attendance', 'hr_payroll_community', 'hr_skills', 'hr_recruitment', 'ohrms_loan', 'ohrms_salary_advance'],
     'data': [
         'security/ir.model.access.csv',
 
@@ -12,12 +12,14 @@
         'views/res_config_settings_view_inherit.xml',
         'views/salary_calculation_views.xml',
         'views/salary_calculation_line_views.xml',
+        'views/salary_advance_view_inherit.xml',
         'views/res_users_inherit_view.xml',
         'report/offer_letter.xml',
         'report/experience_letter.xml',
         'report/relieving_letter.xml',
         'report/hike_letter.xml',
         'report/gst_invoice_report.xml',
+        'report/payslip_report.xml',
     ],
     'author': 'yash',
     'installable': True,

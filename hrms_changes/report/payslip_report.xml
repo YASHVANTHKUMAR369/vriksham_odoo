@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--Template for Payslip Details Report-->
+    <template id="hr_payroll_community.report_payslipdetails">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center">
+                            <h3>Pay Slip</h3>
+                        </div>
+<!--                        <p t-field="o.name"/>-->
+                        <table class="table table-sm table-bordered" style="border-bottom:2px solid #000;">
+                            <tr>
+                                <td>
+                                    <strong>Name</strong>
+                                </td>
+                                <td>
+                                    <span t-field="o.employee_id"/>
+                                </td>
+                                <td>
+                                    <strong>Designation</strong>
+                                </td>
+                                <td>
+                                    <span t-field="o.employee_id.job_id"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Email</strong>
+                                </td>
+                                <td>
+                                    <span t-field="o.employee_id.work_email"/>
+                                </td>
+                                <td>
+                                    <strong>Identification No</strong>
+                                </td>
+                                <td>
+                                    <span t-field="o.employee_id.identification_id"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Reference</strong>
+                                </td>
+                                <td>
+                                    <span t-field="o.number"/>
+                                </td>
+                                <td>
+                                    <strong>Bank Account</strong>
+                                </td>
+                                <td>
+                                    <span t-field="o.employee_id.bank_account_ids"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Date From</strong>
+                                </td>
+                                <td>
+                                    <span t-field="o.date_from"/>
+                                </td>
+                                <td>
+                                    <strong>Date To</strong>
+                                </td>
+                                <td>
+                                    <span t-field="o.date_to"/>
+                                </td>
+                            </tr>
+                        </table>
+                        <h3>Details by Salary Rule Category</h3>
+                        <t t-esc="o.payslip_calculation_html"/>
+                        <div style="margin-top: 24px;">
+                            <p>
+                                <strong>
+                                    For <span class="ms-1" t-esc="o.emp_company"/>,
+                                </strong>
+                            </p>
+
+                            <img t-if="o.company_id and o.company_id.hr_signature"
+                                 t-att-src="image_data_uri(o.company_id.hr_signature)"
+                                 style="max-height:130px; margin-left:20px"/>
+
+                            <p>
+                                <strong>
+                                    <t t-esc="o.emp_hr_name"/>
+                                    <br/>HR Head
+                                </strong>
+                            </p>
+                        </div>
+                        
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

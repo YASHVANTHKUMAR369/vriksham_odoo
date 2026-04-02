@@ -9,11 +9,16 @@ class HrPayslip(models.Model):
     _inherit = 'hr.payslip'
 
     days_calculation = fields.Html(string='Days Calculation')
-    # loan_ids = fields.Many2many(
-    #     comodel_name="hr.loan.line",
-    #     string="Loan Records",
-    #     domain="[('employee_id', '=', employee_id), ('paid', '=', False)]"
-    # )
+    loan_ids = fields.Many2many(
+        comodel_name="hr.loan.line",
+        string="Loan Records",
+        domain="[('employee_id', '=', employee_id), ('paid', '=', False)]"
+    )
+    salary_advance_ids = fields.Many2many(
+        comodel_name="salary.advance",
+        string="Salary Advances",
+        domain="[('employee_id', '=', employee_id), ('state', '=', 'approve'), ('paid', '=', False)]"
+    )
     variable_pay = fields.Float(string="Variable Pay")
     net_salary = fields.Float(string="Net Salary", compute='compute_net_salary')
     gross_salary = fields.Float(string="Gross Salary", compute='compute_net_salary')
@@ -44,11 +49,35 @@ class HrPayslip(models.Model):
                 employee_pf = contract.employee_pf or 0
                 professional_tax = contract.professional_tax or 0
                 tds_amount = contract.tds_amount or 0
+                loan_amount = payslip._get_loan_deduction_total()
+                salary_advance_amount = payslip._get_salary_advance_deduction_total()
                 input_total = sum(line.amount for line in payslip.input_line_ids if line.amount)
 
-                payslip.net_salary = total_monthly - lop_amount - employee_pf - professional_tax - tds_amount + input_total
+                payslip.net_salary = total_monthly - lop_amount - loan_amount - salary_advance_amount - employee_pf - professional_tax - tds_amount + input_total
             except Exception:
                 pass
+
+    def _get_loan_deduction_total(self):
+        self.ensure_one()
+        if not self.loan_ids:
+            return 0.0
+
+        return sum(self.loan_ids.mapped('amount'))
+
+    def _get_salary_advance_deduction_total(self):
+        self.ensure_one()
+        if not self.salary_advance_ids:
+            return 0.0
+
+        return sum(self.salary_advance_ids.mapped('advance'))
+
+    @property
+    def emp_company(self):
+        return self.company_id.display_name if self.company_id else None
+
+    @property
+    def emp_hr_name(self):
+        return self.company_id.hr_name if self.company_id and self.company_id.hr_name else "-"
 
     struct_id = fields.Many2one(comodel_name='hr.payroll.structure',
                                 string='Structure',
@@ -173,94 +202,97 @@ class HrPayslip(models.Model):
                 employee_pf = contract.employee_pf or 0
                 professional_tax = contract.professional_tax or 0
                 tds_amount = contract.tds_amount or 0
+                loan_amount = payslip._get_loan_deduction_total()
+                salary_advance_amount = payslip._get_salary_advance_deduction_total()
 
-                rows = []
+                earning_rows = []
                 for category in ('basic', 'main_allowance', 'main_deduction', 'other_allowance', 'other_deduction'):
                     for rec in data.get(category, {}).values():
-                        rows.append({
-                            'name': rec['name'],
-                            'monthly': rec['amount'] / 12,
-                        })
+                        earning_rows.append((rec['name'], rec['amount'] / 12))
 
-                total_monthly = sum(r['monthly'] for r in rows)
+                total_monthly = sum(amount for _, amount in earning_rows)
+
+                right_rows = [
+                    ('LOP Amount', -lop_amount),
+                    ('Loan Amount', -loan_amount) if loan_amount > 0 else None,
+                    ('Salary Advance', -salary_advance_amount) if salary_advance_amount > 0 else None,
+                    ('Employee PF', -employee_pf) if employee_pf > 0 else None,
+                    ('Professional Tax', -professional_tax) if professional_tax > 0 else None,
+                    ('TDS', -tds_amount) if tds_amount > 0 else None,
+                ]
+                right_rows = [row for row in right_rows if row]
+
+                input_lines = [(line.name, line.amount) for line in payslip.input_line_ids if line.amount]
+                right_rows.extend(input_lines)
+
+                net_salary = total_monthly + sum(amount for _, amount in right_rows)
+                left_rows = earning_rows + [('Gross Salary', total_monthly)]
+                right_rows = right_rows + [('Net Salary', net_salary)]
+                total_rows = max(len(left_rows), len(right_rows))
+
+                def _fmt_amount(amount):
+                    return f"{amount:,.2f}" if amount >= 0 else f"- {abs(amount):,.2f}"
 
                 html = f"""
                 <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:8px;">
                     <tbody>
                         <tr style="background-color:#dce8f5;">
-                            <td style="border:1px solid #000; padding:6px; font-weight:bold;">Wage (Monthly)</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{summary.get('wage', 0):,.2f}</td>
-                            <td style="border:1px solid #000; padding:6px; font-weight:bold;">Per Day Salary</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{per_day_salary:,.2f}</td>
-                            <td style="border:1px solid #000; padding:6px; font-weight:bold;">LOP Days</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{lop_days}</td>
+                            <td style="width:16.66%; border:1px solid #000; padding:6px; font-weight:bold;">Wage (Monthly)</td>
+                            <td style="width:16.66%; border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{summary.get('wage', 0):,.2f}</td>
+                            <td style="width:16.66%; border:1px solid #000; padding:6px; font-weight:bold;">Per Day Salary</td>
+                            <td style="width:16.66%; border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{per_day_salary:,.2f}</td>
+                            <td style="width:16.66%; border:1px solid #000; padding:6px; font-weight:bold;">LOP Days</td>
+                            <td style="width:16.66%; border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{lop_days}</td>
                         </tr>
                     </tbody>
                 </table>
-                <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                <table style="width:100%; border-collapse:collapse; font-size:14px; table-layout:fixed;">
+                    <colgroup>
+                        <col style="width:30%;"/>
+                        <col style="width:20%;"/>
+                        <col style="width:30%;"/>
+                        <col style="width:20%;"/>
+                    </colgroup>
                     <thead>
                         <tr style="background-color:#e9ecef;">
-                            <th style="border:1px solid #000; padding:8px; text-align:left;">Component</th>
-                            <th style="border:1px solid #000; padding:8px; text-align:right;">Monthly Amount (INR)</th>
+                            <th style="border:1px solid #000; padding:8px; text-align:left;">Basic Component</th>
+                            <th style="border:1px solid #000; padding:8px; text-align:right;">Basic Amount (INR)</th>
+                            <th style="border:1px solid #000; padding:8px; text-align:left;">Addtional Component</th>
+                            <th style="border:1px solid #000; padding:8px; text-align:right;">Addtional Amount (INR)</th>
                         </tr>
                     </thead>
                     <tbody>
                 """
-                for row in rows:
-                    html += f"""
-                        <tr>
-                            <td style="border:1px solid #000; padding:6px;">{row['name']}</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right;">{row['monthly']:,.2f}</td>
-                        </tr>
-                    """
 
+                for idx in range(total_rows):
+                    left_name = ''
+                    left_amount = ''
+                    right_name = ''
+                    right_amount = ''
+                    left_style = ''
+                    right_style = ''
+
+                    if idx < len(left_rows):
+                        left_name, left_val = left_rows[idx]
+                        left_amount = f"{left_val:,.2f}"
+                        if left_name == 'Gross Salary':
+                            left_style = 'font-weight:bold; background-color:#f2f2f2;'
+
+                    if idx < len(right_rows):
+                        right_name, right_val = right_rows[idx]
+                        right_amount = _fmt_amount(right_val)
+                        if right_name == 'Net Salary':
+                            right_style = 'font-weight:bold; background-color:#d4edda;'
+
+                    html += f"""
+                        <tr>
+                            <td style="border:1px solid #000; padding:6px; {left_style}">{left_name}</td>
+                            <td style="border:1px solid #000; padding:6px; text-align:right; {left_style}">{left_amount}</td>
+                            <td style="border:1px solid #000; padding:6px; {right_style}">{right_name}</td>
+                            <td style="border:1px solid #000; padding:6px; text-align:right; {right_style}">{right_amount}</td>
+                        </tr>
+                    """
                 html += f"""
-                        <tr style="font-weight:bold; background-color:#f2f2f2;">
-                            <td style="border:1px solid #000; padding:8px;">Gross Salary</td>
-                            <td style="border:1px solid #000; padding:8px; text-align:right;">{total_monthly:,.2f}</td>
-                        </tr>
-                        <tr>
-                            <td style="border:1px solid #000; padding:6px;">LOP Amount</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right;">- {lop_amount:,.2f}</td>
-                        </tr>
-                """
-                if employee_pf > 0:
-                    html += f"""
-                        <tr>
-                            <td style="border:1px solid #000; padding:6px;">Employee PF</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right;">- {employee_pf:,.2f}</td>
-                        </tr>
-                    """
-                if professional_tax > 0:
-                    html += f"""
-                        <tr>
-                            <td style="border:1px solid #000; padding:6px;">Professional Tax</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right;">- {professional_tax:,.2f}</td>
-                        </tr>
-                    """
-                if tds_amount > 0:
-                    html += f"""
-                        <tr>
-                            <td style="border:1px solid #000; padding:6px;">TDS</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right;">- {tds_amount:,.2f}</td>
-                        </tr>
-                    """
-                input_lines = [(line.name, line.amount) for line in payslip.input_line_ids if line.amount]
-                input_total = 0
-                for inp_name, inp_amount in input_lines:
-                    input_total += inp_amount
-                    html += f"""
-                        <tr>
-                            <td style="border:1px solid #000; padding:6px;">{inp_name}</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right;">{inp_amount:,.2f}</td>
-                        </tr>
-                    """
-                net_salary = total_monthly - lop_amount - employee_pf - professional_tax - tds_amount + input_total
-                html += f"""
-                        <tr style="font-weight:bold; background-color:#d4edda;">
-                            <td style="border:1px solid #000; padding:8px;">Net Salary</td>
-                            <td style="border:1px solid #000; padding:8px; text-align:right;">{net_salary:,.2f}</td>
-                        </tr>
                     </tbody>
                 </table>
                 """
@@ -400,6 +432,19 @@ class HrPayslip(models.Model):
     def _check_dates(self):
         return
 
+    def _update_loan_ids_by_date_range(self):
+        for rec in self:
+            rec.loan_ids = [(5, 0, 0)]
+            if not rec.employee_id or not rec.date_from or not rec.date_to:
+                continue
+            loan_lines = self.env['hr.loan.line'].search([
+                ('employee_id', '=', rec.employee_id.id),
+                ('paid', '=', False),
+                ('date', '>=', rec.date_from),
+                ('date', '<=', rec.date_to),
+            ])
+            rec.loan_ids = [(6, 0, loan_lines.ids)]
+
     @api.onchange('employee_id')
     def onchange_employee(self):
         if (not self.employee_id) or (not self.date_from):
@@ -414,6 +459,7 @@ class HrPayslip(models.Model):
             contract_ids = self.get_contract(employee, date_from, date_to)
             self.contract_id = self.env['hr.version'].browse(contract_ids[0]) if contract_ids else None
             self.struct_id = self.contract_id.struct_id or False
+        self._update_loan_ids_by_date_range()
         self._compute_get_days_calculation_data()
 
 
@@ -421,6 +467,32 @@ class HrPayslip(models.Model):
         for rec in self:
             rec._compute_get_days_calculation_data()
         return super().action_compute_sheet()
+
+    def action_payslip_done(self):
+        res = super().action_payslip_done()
+        for rec in self:
+            if rec.loan_ids:
+                rec.loan_ids.write({'paid': True})
+                rec.salary_advance_ids.write({'paid': True})
+        return res
+
+    def action_payslip_draft(self):
+        res = super().action_payslip_draft()
+        for rec in self:
+            if rec.loan_ids:
+                rec.loan_ids.write({'paid': False})
+                rec.salary_advance_ids.write({'paid': False})
+        return res
+
+    
+
+    def action_payslip_cancel(self):
+        res = super().action_payslip_cancel()
+        for rec in self:
+            if rec.loan_ids:
+                rec.loan_ids.write({'paid': False})
+                rec.salary_advance_ids.write({'paid': False})
+        return res
 
     @api.onchange('date_from')
     def onchange_date_from(self):
@@ -431,10 +503,14 @@ class HrPayslip(models.Model):
         worked_days_lines = self.worked_days_line_ids.browse([])
         for r in worked_days_line_ids:
             worked_days_lines += worked_days_lines.new(r)
+        self._update_loan_ids_by_date_range()
         self._compute_get_days_calculation_data()
         return
 
+    @api.onchange('date_to')
     def onchange_date_to(self):
+        self._update_loan_ids_by_date_range()
+        self._compute_get_days_calculation_data()
         return
 
 

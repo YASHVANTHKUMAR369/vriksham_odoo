@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="salary_advance_view_form_inherit_paid" model="ir.ui.view">
+        <field name="name">salary.advance.form.inherit.paid</field>
+        <field name="model">salary.advance</field>
+        <field name="inherit_id" ref="ohrms_salary_advance.salary_advance_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='exceed_condition']" position="after">
+                <field name="paid" readonly="1" force_save="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

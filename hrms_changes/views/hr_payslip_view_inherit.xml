@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
 
+    <record id="hr_payslip_view_tree_inherit_salary" model="ir.ui.view">
+        <field name="name">hr.payslip.tree.inherit.salary</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll_community.hr_payslip_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_to']" position="after">
+                <field name="gross_salary"/>
+                <field name="net_salary"/>
+            </xpath>
+        </field>
+    </record>
+
     <record id="hr_payslip_view_form_inherit" model="ir.ui.view">
         <field name="name">hr.payslip.kanban.contract.info</field>
         <field name="model">hr.payslip</field>
@@ -11,13 +23,18 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
 
+            <xpath expr="//button[contains(@class, 'oe_stat_button') and .//field[@name='payslip_count']]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
             <xpath expr="//field[@name='date_to']" position="attributes">
                 <attribute name="readonly">1</attribute>
                 <attribute name="force_save">1</attribute>
             </xpath>
 
             <xpath expr="//field[@name='credit_note']" position="after">
-<!--                <field name="loan_ids" widget="many2many_tags"/>-->
+               <field name="loan_ids" widget="many2many_tags" readonly="state == 'done'" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="salary_advance_ids" widget="many2many_tags" readonly="state == 'done'" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                 <field name="gross_salary"/>
                 <field name="net_salary"/>
             </xpath>
