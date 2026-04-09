@@ -4,6 +4,45 @@ import babel
 from dateutil.relativedelta import relativedelta
 from collections import defaultdict
 
+class HrLeave(models.Model):
+    _inherit = 'hr.leave'
+
+
+    def get_actual_leave(self, from_date, to_date):
+        self.ensure_one()
+        value = 0
+
+        leave_start = self.request_date_from
+        leave_end = self.request_date_to
+
+        # No overlap
+        if to_date < leave_start or from_date > leave_end:
+            return value
+
+        # Overlapping period
+        overlap_start = max(from_date, leave_start)
+        overlap_end = min(to_date, leave_end)
+
+        # Get working days from employee calendar
+        week_days = list(set(
+            self.employee_id.resource_calendar_id.attendance_ids.mapped('dayofweek')
+        ))
+
+        week_off_count = 0
+        current_day = overlap_start
+
+        while current_day <= overlap_end:
+            if str(current_day.weekday()) not in week_days:
+                week_off_count += 1
+            current_day += timedelta(days=1)
+
+        # Total overlapping days
+        total_days = (overlap_end - overlap_start).days + 1
+
+        # Actual leave excluding week offs
+        value = total_days - week_off_count
+
+        return value
 
 class HrPayslip(models.Model):
     _inherit = 'hr.payslip'
