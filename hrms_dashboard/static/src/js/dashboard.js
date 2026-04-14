@@ -14,6 +14,7 @@ export class HrDashboard extends Component{
     setup() {
         this.effect = useService("effect");
         this.action = useService("action");
+        this.notification = useService("notification");
         this.log_in_out = useRef("log_in_out")
         this.emp_graph = useRef("emp_graph")
         this.leave_graph = useRef("leave_graph")
@@ -455,12 +456,18 @@ export class HrDashboard extends Component{
     // EVENT METHODS
     add_attendance() {
         this.action.doAction({
-            name: _t("Attendances"),
+            name: _t("My Attendances"),
             type: 'ir.actions.act_window',
             res_model: 'hr.attendance',
-            view_mode: 'form',
-            views: [[false, 'form']],
-            target: 'new'
+            view_mode: 'tree,form',
+            views: [[false, 'list'], [false, 'form']],
+            domain: [['employee_id', '=', this.state.login_employee.id]],
+            context: {
+                create: false,
+                edit: false,
+                delete: false,
+            },
+            target: 'current'
         });
     }
     add_leave() {
@@ -545,15 +552,14 @@ export class HrDashboard extends Component{
             target: 'current'
         })
     }
-    hr_payslip() {
-        this.action.doAction({
-            name: _t("Employee Payslips"),
-            type: 'ir.actions.act_window',
-            res_model: 'hr.payslip',
-            view_mode: 'tree,form,calendar',
-            views: [[false, 'list'],[false, 'form']],
-            domain: [['employee_id','=', this.state.login_employee.id]],
-            target: 'current'
+    async hr_payslip() {
+        const reportAction = await this.orm.call('hr.employee', 'get_latest_payslip_report_action', []);
+        if (reportAction) {
+            this.action.doAction(reportAction);
+            return;
+        }
+        this.notification.add(_t("No payslip report available to download."), {
+            type: "warning",
         });
     }
    async hr_contract() {

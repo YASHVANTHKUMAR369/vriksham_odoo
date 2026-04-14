@@ -613,3 +613,27 @@ class HrEmployee(models.Model):
             })
         return task_data
 
+    @api.model
+    def get_latest_payslip_report_action(self):
+        """Return report action for latest employee payslip of current user."""
+        uid = request.session.uid
+        employee = self.env['hr.employee'].sudo().search([('user_id', '=', uid)], limit=1)
+        if not employee:
+            return False
+        payslip = self.env['hr.payslip'].sudo().search(
+            [('employee_id', '=', employee.id)],
+            order='date_to desc, id desc',
+            limit=1,
+        )
+        if not payslip:
+            return False
+        report = self.env.ref('hr_payroll_community.action_report_payslip', raise_if_not_found=False)
+        if not report:
+            report = self.env['ir.actions.report'].sudo().search([
+                ('model', '=', 'hr.payslip'),
+                ('report_type', 'in', ['qweb-pdf', 'qweb-html']),
+            ], limit=1)
+        if not report:
+            return False
+        return report.sudo().report_action(payslip)
+
