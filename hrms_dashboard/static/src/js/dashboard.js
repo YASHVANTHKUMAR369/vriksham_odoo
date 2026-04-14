@@ -5,9 +5,7 @@ import { _t } from "@web/core/l10n/translation";
 import { onMounted, Component, useRef } from "@odoo/owl";
 import { onWillStart, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
-import { WebClient } from "@web/webclient/webclient";
 import { user } from "@web/core/user";
-const actionRegistry = registry.category("actions");
 import { ActivityMenu } from "@hr_attendance/components/attendance_menu/attendance_menu";
 import { patch } from "@web/core/utils/patch";
 export class HrDashboard extends Component{
@@ -22,6 +20,7 @@ export class HrDashboard extends Component{
         this.join_resign_trend = useRef("join_resign_trend")
         this.attrition_rate = useRef("attrition_rate")
         this.leave_trend = useRef("leave_trend")
+        this.isAttendanceActionInProgress = false;
         this.orm = useService("orm");
         this.state = useState({
             is_manager: false,
@@ -63,7 +62,6 @@ export class HrDashboard extends Component{
         });
     }
     add_project_task() {
-            console.log("add_project_task:", user)
                 this.action.doAction({
                     name: _t("Project Task"),
                     type: 'ir.actions.act_window',
@@ -72,7 +70,7 @@ export class HrDashboard extends Component{
                     views: [[false, 'form']],
                     target: 'new',
                     context: {
-                        'default_user_ids': [user.userId]
+                        'default_user_ids': [[6, 0, [user.userId]]]
                     }
                 });
             }
@@ -475,16 +473,6 @@ export class HrDashboard extends Component{
             target: 'new'
         });
     }
-    add_leave() {
-        this.action.doAction({
-            name: _t("Leave Request"),
-            type: 'ir.actions.act_window',
-            res_model: 'hr.leave',
-            view_mode: 'form',
-            views: [[false, 'form']],
-            target: 'new'
-        });
-    }
     add_expense() {
         this.action.doAction({
             name: _t("Expense"),
@@ -569,31 +557,28 @@ export class HrDashboard extends Component{
         });
     }
    async hr_contract() {
-        console.log("this:", this)
+        const views = [[false, 'list'], [false, 'form'], [false, 'graph'], [false, 'pivot']];
         if (this.isHrManager) {
-
-            // Call the Python function to get the view ID
             const view_id = await this.orm.call(
                 'hr.version',
                 'get_hr_version_list_view_id',
                 []
             );
-            this.action.doAction({
-                name: _t("Contracts"),
-                type: 'ir.actions.act_window',
-                res_model: 'hr.version',
-                view_mode: 'tree,form,graph,pivot',
-                views: [
-                    [view_id, 'list'],
-                    [false, 'graph'],
-                    [false, 'pivot'],
-                ],
-                context: {
-                    'search_default_employee_id': this.state.login_employee.id,
-                },
-                target: 'current'
-            });
+            if (view_id) {
+                views[0] = [view_id, 'list'];
+            }
         }
+        this.action.doAction({
+            name: _t("Contracts"),
+            type: 'ir.actions.act_window',
+            res_model: 'hr.version',
+            view_mode: 'tree,form,graph,pivot',
+            views,
+            context: {
+                'search_default_employee_id': this.state.login_employee.id,
+            },
+            target: 'current'
+        });
    }
 
     hr_timesheets() {
@@ -612,9 +597,6 @@ export class HrDashboard extends Component{
     }
     employee_broad_factor() {
         var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0');
-        var yyyy = today.getFullYear();
         this.action.doAction({
             name: _t("Leave Request"),
             type: 'ir.actions.act_window',
@@ -626,40 +608,34 @@ export class HrDashboard extends Component{
             context:{'order':'duration_display'}
         })
     }
-     attendance_sign_in_out() {
-        if (this.state.login_employee['attendance_state'] == 'checked_out') {
-            this.state.login_employee['attendance_state'] = 'checked_in'
+     async attendance_sign_in_out() {
+        if (this.isAttendanceActionInProgress || !this.state.login_employee.id) {
+            return;
         }
-        else{
-            if (this.state.login_employee['attendance_state'] == 'checked_in') {
-                this.state.login_employee['attendance_state'] = 'checked_out'
+        this.isAttendanceActionInProgress = true;
+        try {
+            const result = await this.orm.call('hr.employee', 'attendance_manual', [[this.state.login_employee.id]]);
+            if (!result) {
+                return;
             }
-        }
-        this.update_attendance()
-    }
-    async update_attendance() {
-        var self = this;
-        var result = await this.orm.call('hr.employee', 'attendance_manual',[[this.state.login_employee.id]])
-        if (result) {
-            var attendance_state = this.state.login_employee.attendance_state;
-            var message = ''
-            if (attendance_state == 'checked_in'){
-                message = 'Checked In'
-                this.env.bus.trigger('signin_signout', {
-                    mode: "checked_in",
-                });
+            const empDetails = await this.orm.call('hr.employee', 'get_user_employee_details', []);
+            if (empDetails && empDetails[0]) {
+                this.state.login_employee = {
+                    ...this.state.login_employee,
+                    ...empDetails[0],
+                };
             }
-            else if (attendance_state == 'checked_out'){
-                message = 'Checked Out'
-                this.env.bus.trigger('signin_signout', {
-                    mode: false,
-                });
-            }
+            const isCheckedIn = this.state.login_employee.attendance_state === 'checked_in';
+            this.env.bus.trigger('signin_signout', {
+                mode: isCheckedIn ? 'checked_in' : false,
+            });
             this.effect.add({
-                message: _t("Successfully " + message),
+                message: _t(isCheckedIn ? "Successfully Checked In" : "Successfully Checked Out"),
                 type: 'rainbow_man',
                 fadeout: "fast",
-            })
+            });
+        } finally {
+            this.isAttendanceActionInProgress = false;
         }
     }
 }
