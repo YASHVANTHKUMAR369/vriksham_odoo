@@ -96,18 +96,29 @@ class HrEmployee(models.Model):
             return False
         attendance = self.env['hr.attendance'].sudo().search_read(
             [('employee_id', '=', employee[0]['id'])],
-            fields=['id', 'check_in', 'check_out', 'worked_hours'])
+            fields=['id', 'check_in', 'check_out', 'worked_hours'],
+            order='check_in desc',
+            limit=20)
         attendance_line = []
         for line in attendance:
-            if line['check_in'] and line['check_out']:
-                val = {
-                    'id':line['id'],
-                    'date': line['check_in'].date(),
-                    'sign_in': line['check_in'].time().strftime('%H:%M'),
-                    'sign_out': line['check_out'].time().strftime('%H:%M'),
-                    'worked_hours': format_duration(line['worked_hours'])
-                }
-                attendance_line.append(val)
+            if not line['check_in']:
+                continue
+            check_in_dt = fields.Datetime.to_datetime(line['check_in'])
+            check_out_dt = fields.Datetime.to_datetime(line['check_out']) if line['check_out'] else False
+            local_check_in = fields.Datetime.context_timestamp(self, check_in_dt)
+            local_check_out = fields.Datetime.context_timestamp(self, check_out_dt) if check_out_dt else False
+            if check_out_dt:
+                worked_hours = line['worked_hours']
+            else:
+                worked_hours = max((datetime.utcnow() - check_in_dt).total_seconds() / 3600.0, 0)
+            val = {
+                'id': line['id'],
+                'date': local_check_in.date(),
+                'sign_in': local_check_in.strftime('%H:%M'),
+                'sign_out': local_check_out.strftime('%H:%M') if local_check_out else '--',
+                'worked_hours': format_duration(worked_hours)
+            }
+            attendance_line.append(val)
         leaves = self.env['hr.leave'].sudo().search_read(
             [('employee_id', '=', employee[0]['id'])],
             fields=['request_date_from', 'request_date_to', 'state',
