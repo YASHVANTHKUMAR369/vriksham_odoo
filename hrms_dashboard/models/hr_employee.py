@@ -85,7 +85,15 @@ class HrEmployee(models.Model):
         """To fetch the details of employee"""
         uid = request.session.uid
         employee = self.env['hr.employee'].sudo().search_read(
-            [('user_id', '=', uid)], limit=1)
+            [('user_id', '=', uid)],
+            fields=['id', 'name', 'image_1920', 'job_id', 'birthday',
+                    'joining_date', 'attendance_state', 'mobile_phone',
+                    'work_email', 'private_street', 'private_street2',
+                    'private_city', 'private_state_id', 'private_zip',
+                    'private_country_id'],
+            limit=1)
+        if not employee:
+            return False
         attendance = self.env['hr.attendance'].sudo().search_read(
             [('employee_id', '=', employee[0]['id'])],
             fields=['id', 'check_in', 'check_out', 'worked_hours'])
@@ -154,7 +162,7 @@ class HrEmployee(models.Model):
         state='validate'""" % (today, today)
         cr = self._cr
         cr.execute(query)
-        leaves_today = cr.fetchall()
+        leaves_today = cr.fetchone()[0]
         first_day = date.today().replace(day=1)
         last_day = (date.today() + relativedelta(months=1, day=1)) - timedelta(
             1)
@@ -166,7 +174,7 @@ class HrEmployee(models.Model):
                 and  state='validate'""" % (first_day, last_day)
         cr = self._cr
         cr.execute(query)
-        leaves_this_month = cr.fetchall()
+        leaves_this_month = cr.fetchone()[0]
         leaves_alloc_req = self.env['hr.leave.allocation'].sudo().search_count(
             [('state', 'in', ['confirm', 'validate1'])])
         timesheet_count = self.env['account.analytic.line'].sudo().search_count(
@@ -176,59 +184,55 @@ class HrEmployee(models.Model):
         timesheet_view_id = self.env.ref(
             'hr_timesheet.hr_timesheet_line_search')
         job_applications = self.env['hr.applicant'].sudo().search_count([])
-        if employee:
-            sql = """select broad_factor from hr_employee_broad_factor 
-            where id =%s"""
-            self.env.cr.execute(sql, (employee[0]['id'],))
-            result = self.env.cr.dictfetchall()
-            broad_factor = result[0]['broad_factor'] if result[0][
-                'broad_factor'] else False
-            if employee[0]['birthday']:
-                diff = relativedelta(datetime.today(), employee[0]['birthday'])
-                age = diff.years
-            else:
-                age = False
-            if employee[0]['joining_date']:
-                diff = relativedelta(datetime.today(),
-                                     employee[0]['joining_date'])
-                years = diff.years
-                months = diff.months
-                days = diff.days
-                experience = '{} years {} months {} days'.format(years, months,
-                                                                 days)
-            else:
-                experience = False
-            if employee:
-                data = {
-                    'broad_factor': broad_factor if broad_factor else 0,
-                    'leaves_to_approve': leaves_to_approve,
-                    'leaves_today': leaves_today,
-                    'leaves_this_month': leaves_this_month,
-                    'leaves_alloc_req': leaves_alloc_req,
-                    'emp_timesheets': timesheet_count,
-                    'contracts_count': contract_count,
-                    'job_applications': job_applications,
-                    'timesheet_view_id': timesheet_view_id,
-                    'experience': experience,
-                    'age': age,
-                    'attendance_lines': attendance_line,
-                    'leave_lines': leaves,
-                    'expense_lines': expense
-                }
-                employee[0].update(data)
-            return employee
+        sql = """select broad_factor from hr_employee_broad_factor 
+        where id =%s"""
+        self.env.cr.execute(sql, (employee[0]['id'],))
+        result = self.env.cr.dictfetchall()
+        broad_factor = result[0]['broad_factor'] if result and result[0][
+            'broad_factor'] else False
+        if employee[0]['birthday']:
+            diff = relativedelta(datetime.today(), employee[0]['birthday'])
+            age = diff.years
         else:
-            return False
+            age = False
+        if employee[0]['joining_date']:
+            diff = relativedelta(datetime.today(),
+                                 employee[0]['joining_date'])
+            years = diff.years
+            months = diff.months
+            days = diff.days
+            experience = '{} years {} months {} days'.format(years, months,
+                                                             days)
+        else:
+            experience = False
+        data = {
+            'broad_factor': broad_factor if broad_factor else 0,
+            'leaves_to_approve': leaves_to_approve,
+            'leaves_today': leaves_today,
+            'leaves_this_month': leaves_this_month,
+            'leaves_alloc_req': leaves_alloc_req,
+            'emp_timesheets': timesheet_count,
+            'contracts_count': contract_count,
+            'job_applications': job_applications,
+            'timesheet_view_id': timesheet_view_id,
+            'experience': experience,
+            'age': age,
+            'attendance_lines': attendance_line,
+            'leave_lines': leaves,
+            'expense_lines': expense
+        }
+        employee[0].update(data)
+        return employee
 
     @api.model
     def get_upcoming(self):
         """It returns upcoming events, announcements and birthday"""
         cr = self._cr
         uid = request.session.uid
-        employee = self.env['hr.employee'].search([('user_id', '=', uid)],
-                                                  limit=1)
+        employee = self.env['hr.employee'].sudo().search([('user_id', '=', uid)],
+                                                         limit=1)
         today = fields.Date.today()
-        birthday_employees = self.env['hr.employee'].search_read(
+        birthday_employees = self.env['hr.employee'].sudo().search_read(
             [('birthday', '!=', False)], fields=['id', 'name', 'birthday'], order='birthday ASC', limit=4)
 
         for emp in birthday_employees:
@@ -238,7 +242,7 @@ class HrEmployee(models.Model):
             else:
                 emp_birthday = emp['birthday'].replace(year=today.year)
                 emp['days'] = (emp_birthday - today).days
-        announcements = self.env['hr.announcement'].search_read(
+        announcements = self.env['hr.announcement'].sudo().search_read(
             [('state', '=', 'approved'),
              ('date_start', '<=', fields.Date.today()),
              '|', ('is_announcement', '=', True),
@@ -248,7 +252,7 @@ class HrEmployee(models.Model):
              ('position_ids', 'in', employee.job_id.id),
              ], fields=['announcement_reason', 'date_start', 'date_end'])
 
-        events = self.env['event.event'].search_read(
+        events = self.env['event.event'].sudo().search_read(
             domain=[('date_begin', '>=', fields.Datetime.now())],
             fields=['id','name', 'date_begin', 'date_end', 'address_id'],
             order='date_begin'
@@ -399,6 +403,10 @@ class HrEmployee(models.Model):
         uid = request.session.uid
         employee = self.env['hr.employee'].sudo().search_read(
             [('user_id', '=', uid)], limit=1)
+        if not employee:
+            for month in month_list:
+                graph_result.append({'l_month': month.split(' ')[:1][0].strip()[:3] + " " + month.split(' ')[1:2][0], 'leave': 0})
+            return graph_result
         for month in month_list:
             vals = {
                 'l_month': month,
@@ -574,7 +582,7 @@ class HrEmployee(models.Model):
     @api.model
     def get_employee_project_tasks(self):
         """Get employee's project tasks"""
-        employee = self.env['hr.employee'].sudo().browse(self.env.uid)
+        employee = self.env['hr.employee'].sudo().search([('user_id', '=', self.env.uid)], limit=1)
         if not employee:
             return []
 
