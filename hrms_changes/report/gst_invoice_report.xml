@@ -74,7 +74,7 @@
                 <tr>
                     <td class="fw-semibold">Company PAN</td>
                     <td class="text-end">
-                        <span t-esc="o.company_id.vat"/>
+                        <span t-esc="o.company_id.l10n_in_pan_entity_id.display_name or ''"/>
                     </td>
                 </tr>
             </table>
