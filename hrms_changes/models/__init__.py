@@ -1,1 +1,13 @@
-from . import hr_employee_inherit, hr_payslip_inherit,hr_version_inherit, hr_applicant_inherit, salary_calculation, salary_calculation_line, res_company_inherit, res_config_settings_inherit, res_user_inherit, salary_advance_inherit
+from . import (
+	account_move_inherit,
+	hr_employee_inherit,
+	hr_payslip_inherit,
+	hr_version_inherit,
+	hr_applicant_inherit,
+	salary_calculation,
+	salary_calculation_line,
+	res_company_inherit,
+	res_config_settings_inherit,
+	res_user_inherit,
+	salary_advance_inherit,
+)

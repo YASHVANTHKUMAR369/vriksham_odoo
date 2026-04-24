@@ -21,7 +21,6 @@
                              t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
 
                         <div class="mt-1">
-                            📞
                             <span t-esc="o.partner_id.phone"/>
                         </div>
 
@@ -32,7 +31,7 @@
                             </div>
                             <div>
                                 <strong>PAN :</strong>
-                                <span t-esc="o.partner_id.vat"/>
+                                <span t-esc="o.partner_id.l10n_in_pan_entity_id.display_name or ''"/>
                             </div>
                         </div>
                     </td>
@@ -54,7 +53,7 @@
                 <tr>
                     <td class="fw-semibold">Billing Month</td>
                     <td class="text-end">
-                        <span t-out="o.invoice_date.strftime('%B %Y') if o.invoice_date else ''"/>
+                        <span t-out="(o.bill_date or o.invoice_date).strftime('%B %Y') if (o.bill_date or o.invoice_date) else ''"/>
                     </td>
                 </tr>
 

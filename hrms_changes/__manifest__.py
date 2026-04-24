@@ -1,7 +1,7 @@
 {
     'name': 'Hrms Changes',
     'version': '19.0.1.0.0',
-    'depends': ['base', 'hr', 'hr_maintenance', 'hr_holidays', 'hr_holidays_attendance', 'hr_payroll_community', 'hr_skills', 'hr_recruitment', 'ohrms_loan', 'ohrms_salary_advance'],
+    'depends': ['base', 'account', 'hr', 'hr_maintenance', 'hr_holidays', 'hr_holidays_attendance', 'hr_payroll_community', 'hr_skills', 'hr_recruitment', 'ohrms_loan', 'ohrms_salary_advance'],
     'data': [
         'security/ir.model.access.csv',
 
@@ -14,6 +14,7 @@
         'views/salary_calculation_line_views.xml',
         'views/salary_advance_view_inherit.xml',
         'views/res_users_inherit_view.xml',
+        'views/account_move_view_inherit.xml',
         'report/offer_letter.xml',
         'report/experience_letter.xml',
         'report/relieving_letter.xml',
