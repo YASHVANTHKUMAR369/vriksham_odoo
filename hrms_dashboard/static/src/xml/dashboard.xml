@@ -124,7 +124,6 @@
                     <div class="cd-card">
                         <div class="cd-card-head">
                             <h3>Attendance</h3>
-                            <button type="button" class="cd-add" t-on-click="add_attendance"><i class="fa fa-plus"/></button>
                         </div>
                         <div class="cd-table-wrap">
                             <table class="table table-sm table-hover mb-0">
@@ -152,7 +151,6 @@
                     <div class="cd-card">
                         <div class="cd-card-head">
                             <h3>Leaves</h3>
-                            <button type="button" class="cd-add" t-on-click="add_leave"><i class="fa fa-plus"/></button>
                         </div>
                         <div class="cd-table-wrap">
                             <table class="table table-sm table-hover mb-0">
@@ -180,7 +178,6 @@
                     <div class="cd-card">
                         <div class="cd-card-head">
                             <h3>Expenses</h3>
-                            <button type="button" class="cd-add" t-on-click="add_expense"><i class="fa fa-plus"/></button>
                         </div>
                         <div class="cd-table-wrap">
                             <table class="table table-sm table-hover mb-0">
@@ -208,7 +205,6 @@
                     <div class="cd-card">
                         <div class="cd-card-head">
                             <h3>Projects</h3>
-                            <button type="button" class="cd-add" t-on-click="add_project_task"><i class="fa fa-plus"/></button>
                         </div>
                         <div class="cd-table-wrap">
                             <table class="table table-sm table-hover mb-0">

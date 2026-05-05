@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="hr_attendance.menu_hr_attendance_root" model="ir.ui.menu">
+            <field name="group_ids" eval="[(4, ref('hr_attendance_own_access.group_hr_attendance_own'))]"/>
+        </record>
+
+        <record id="hr_attendance.menu_hr_attendance_overview" model="ir.ui.menu">
+            <field name="group_ids" eval="[(4, ref('hr_attendance_own_access.group_hr_attendance_own'))]"/>
+        </record>
+
+        <record id="hr_attendance.menu_hr_attendance_reporting" model="ir.ui.menu">
+            <field name="group_ids" eval="[(4, ref('hr_attendance_own_access.group_hr_attendance_own'))]"/>
+        </record>
+
+        <record id="hr_attendance.hr_attendance_action" model="ir.actions.act_window">
+            <field name="group_ids" eval="[(4, ref('hr_attendance_own_access.group_hr_attendance_own'))]"/>
+        </record>
+
+        <record id="hr_attendance.hr_attendance_reporting" model="ir.actions.act_window">
+            <field name="group_ids" eval="[(4, ref('hr_attendance_own_access.group_hr_attendance_own'))]"/>
+        </record>
+    </data>
+</odoo>

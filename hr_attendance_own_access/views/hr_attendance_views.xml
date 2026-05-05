@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_attendance_view_form_own_access" model="ir.ui.view">
+        <field name="name">hr.attendance.form.own.access</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='check_in']" position="replace">
+                <field name="check_in" options="{'rounding': 0}" groups="hr_attendance_own_access.group_hr_attendance_own"/>
+                <field name="check_in" options="{'rounding': 0}" readonly="not is_manager" groups="!hr_attendance_own_access.group_hr_attendance_own"/>
+            </xpath>
+            <xpath expr="//field[@name='check_out']" position="replace">
+                <field name="check_out" options="{'rounding': 0}" placeholder="Currently Working" groups="hr_attendance_own_access.group_hr_attendance_own"/>
+                <field name="check_out" options="{'rounding': 0}" placeholder="Currently Working" readonly="not is_manager" groups="!hr_attendance_own_access.group_hr_attendance_own"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
