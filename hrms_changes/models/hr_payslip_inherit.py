@@ -245,10 +245,9 @@ class HrPayslip(models.Model):
                     expected_hours = shift_hours_by_weekday.get(str(work_date.weekday()), 0.0)
                     if expected_hours > 0:
                         attendance_days += min(worked_hours / expected_hours, 1.0)
-                    elif worked_hours > 0:
-                        attendance_days += 1.0
             else:
-                attendance_days = float(len(attendance_hours_by_day))
+                week_days = set(calendar.attendance_ids.mapped('dayofweek')) if calendar else {'0', '1', '2', '3', '4', '5', '6'}
+                attendance_days = float(sum(1 for work_date in attendance_hours_by_day if str(work_date.weekday()) in week_days))
 
         attendance_days = round(attendance_days, 2)
 
@@ -312,21 +311,22 @@ class HrPayslip(models.Model):
 
         for leave in leave_ids:
             leave_cat = leave.holiday_status_id
-            if leave_cat.code not in ['EEL', 'CD', 'PER']:
-                if leave_cat.request_unit == 'day':
-                    days = leave.get_actual_leave(to_date=self.date_to, from_date=self.date_from)
-                else:
-                    days = leave.number_of_days
+            if leave_cat.request_unit == 'day':
+                days = leave.get_actual_leave(to_date=self.date_to, from_date=self.date_from)
+            else:
+                days = leave.number_of_days
 
-                applied_leaves += days
-                # Determine if it's paid or unpaid
-                target = paid_leaves if leave_cat.time_type != 'leave' else unpaid_leaves
+            if days <= 0:
+                continue
 
-                # Add or accumulate days for the same leave type
-                if leave_cat.name in target:
-                    target[leave_cat.name] += days
-                else:
-                    target[leave_cat.name] = days
+            applied_leaves += days
+            # Use leave type policy for paid/unpaid split.
+            target = unpaid_leaves if leave_cat.unpaid else paid_leaves
+
+            if leave_cat.name in target:
+                target[leave_cat.name] += days
+            else:
+                target[leave_cat.name] = days
 
         # Convert dicts back to list of dicts for display
         paid_leaves_list = [{'name': k, 'days': v} for k, v in paid_leaves.items()]
