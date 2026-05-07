@@ -9,5 +9,6 @@ from . import (
 	res_company_inherit,
 	res_config_settings_inherit,
 	res_user_inherit,
+	hr_payslip_run_inherit,
 	salary_advance_inherit,
 )

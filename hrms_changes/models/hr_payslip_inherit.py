@@ -596,22 +596,36 @@ class HrPayslip(models.Model):
         if not partner and not email_to:
             raise UserError(_('Please set Work Email or Home Address Email on employee to send payslip email.'))
 
-        template = self.env.ref('hrms_changes.mail_template_payslip_send', raise_if_not_found=False)
-        # Clear stale template report links (e.g. deleted ir.actions.report ids)
-        # to avoid Missing Record errors when opening the compose wizard.
-        if template:
-            template.sudo().write({'report_template_ids': [(5, 0, 0)]})
         compose_form = self.env.ref('mail.email_compose_message_wizard_form')
         attachment = self._get_or_create_payslip_pdf_attachment()
+        from_date_str = fields.Date.to_date(self.date_from).strftime('%d-%m-%Y') if self.date_from else ''
+        to_date_str = fields.Date.to_date(self.date_to).strftime('%d-%m-%Y') if self.date_to else ''
+        subject = _('Payslip - %s (%s to %s)') % (
+            self.employee_id.name or '',
+            from_date_str,
+            to_date_str,
+        )
+        body_html = _(
+            '<p>Dear %s,</p>'
+            '<p>Please find attached your payslip for the period <strong>%s</strong> to <strong>%s</strong>.</p>'
+            '<p>Regards,<br/>%s</p>'
+        ) % (
+            self.employee_id.name or '',
+            from_date_str,
+            to_date_str,
+            self.env.user.name or '',
+        )
 
         ctx = {
             'default_model': 'hr.payslip',
             'default_res_ids': [self.id],
             'default_composition_mode': 'comment',
-            'default_use_template': bool(template),
-            'default_template_id': template.id if template else False,
+            'default_use_template': False,
+            'default_template_id': False,
             'default_partner_ids': [(6, 0, [partner.id])] if partner else False,
             'default_email_to': email_to or False,
+            'default_subject': subject,
+            'default_body': body_html,
             'default_attachment_ids': [(6, 0, [attachment.id])] if attachment else False,
             'default_email_layout_xmlid': 'mail.mail_notification_layout_with_responsible_signature',
             'force_email': True,
@@ -643,12 +657,20 @@ class HrPayslip(models.Model):
         if existing:
             return existing
 
-        report_action = self.env.ref('hr_payroll_community.hr_payslip_report_action', raise_if_not_found=False)
-        if not report_action:
-            return False
+        pdf_content = False
+        report_service = self.env['ir.actions.report'].sudo()
+        for report_ref in ('hr_payroll_community.report_payslipdetails', 'hr_payroll_community.report_payslip'):
+            try:
+                pdf_content, _ = report_service._render_qweb_pdf(report_ref, self.id)
+                if pdf_content:
+                    break
+            except Exception:
+                pdf_content = False
 
-        pdf_content, _ = report_action._render_qweb_pdf(self.id)
-        return self.env['ir.attachment'].create({
+        if not pdf_content:
+            raise UserError(_('Payslip PDF report action is missing or inaccessible. Please reinstall/upgrade hr_payroll_community.'))
+
+        return self.env['ir.attachment'].sudo().create({
             'name': file_name,
             'type': 'binary',
             'datas': base64.b64encode(pdf_content),
@@ -687,15 +709,53 @@ class HrPayslip(models.Model):
                 rec.salary_advance_ids.write({'paid': False})
         return res
 
-    
+    def _cancel_and_delete_journal_entry(self):
+        for rec in self:
+            move = rec.journal_entry_id.sudo()
+            if not move:
+                continue
+
+            if move.state == 'posted':
+                try:
+                    move.button_draft()
+                except Exception as err:
+                    raise UserError(
+                        _('Please cancel/reset journal entry %s to draft before payslip cancel.\n%s')
+                        % (move.display_name, err)
+                    )
+
+            if move.state != 'draft':
+                raise UserError(
+                    _('Journal entry %s must be in draft before deletion.')
+                    % move.display_name
+                )
+
+            try:
+                move.unlink()
+            except Exception as err:
+                raise UserError(
+                    _('Unable to delete journal entry %s.\n%s')
+                    % (move.display_name, err)
+                )
+
+            rec.journal_entry_id = False
 
     def action_payslip_cancel(self):
+        self._cancel_and_delete_journal_entry()
         res = super().action_payslip_cancel()
         for rec in self:
             if rec.loan_ids:
                 rec.loan_ids.write({'paid': False})
                 rec.salary_advance_ids.write({'paid': False})
         return res
+
+    def unlink(self):
+        for rec in self:
+            if rec.state != 'cancel':
+                raise UserError(_('Please cancel the payslip before deleting it.'))
+
+        self._cancel_and_delete_journal_entry()
+        return super().unlink()
 
     @api.onchange('date_from')
     def onchange_date_from(self):

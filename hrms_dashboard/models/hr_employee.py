@@ -21,6 +21,7 @@
 #
 #############################################################################
 import pandas as pd
+import base64
 from collections import defaultdict
 from datetime import timedelta, datetime, date
 from dateutil.relativedelta import relativedelta
@@ -615,25 +616,58 @@ class HrEmployee(models.Model):
 
     @api.model
     def get_latest_payslip_report_action(self):
-        """Return report action for latest employee payslip of current user."""
+        """Download merged PDF of all payslips for current user's employee."""
         uid = request.session.uid
         employee = self.env['hr.employee'].sudo().search([('user_id', '=', uid)], limit=1)
         if not employee:
             return False
-        payslip = self.env['hr.payslip'].sudo().search(
+
+        payslips = self.env['hr.payslip'].sudo().search(
             [('employee_id', '=', employee.id)],
             order='date_to desc, id desc',
-            limit=1,
         )
-        if not payslip:
+        if not payslips:
             return False
-        report = self.env.ref('hr_payroll_community.action_report_payslip', raise_if_not_found=False)
-        if not report:
-            report = self.env['ir.actions.report'].sudo().search([
-                ('model', '=', 'hr.payslip'),
-                ('report_type', 'in', ['qweb-pdf', 'qweb-html']),
-            ], limit=1)
-        if not report:
+
+        pdf_content = False
+        report_service = self.env['ir.actions.report'].sudo()
+        for report_ref in ('hr_payroll_community.report_payslipdetails', 'hr_payroll_community.report_payslip'):
+            try:
+                pdf_content, _ = report_service._render_qweb_pdf(report_ref, payslips.ids)
+                if pdf_content:
+                    break
+            except Exception:
+                pdf_content = False
+
+        if not pdf_content:
             return False
-        return report.sudo().report_action(payslip)
+
+        safe_name = (employee.name or 'employee').replace(' ', '_')
+        file_name = f"Payslips_{safe_name}.pdf"
+
+        attachment = self.env['ir.attachment'].sudo().search([
+            ('res_model', '=', 'hr.employee'),
+            ('res_id', '=', employee.id),
+            ('name', '=', file_name),
+            ('mimetype', '=', 'application/pdf'),
+        ], limit=1)
+
+        vals = {
+            'name': file_name,
+            'type': 'binary',
+            'datas': base64.b64encode(pdf_content),
+            'mimetype': 'application/pdf',
+            'res_model': 'hr.employee',
+            'res_id': employee.id,
+        }
+        if attachment:
+            attachment.write(vals)
+        else:
+            attachment = self.env['ir.attachment'].sudo().create(vals)
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{attachment.id}?download=true',
+            'target': 'self',
+        }
 
