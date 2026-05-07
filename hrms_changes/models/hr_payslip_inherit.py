@@ -218,27 +218,54 @@ class HrPayslip(models.Model):
         wage = round(sum(amount for _, amount in self._get_monthly_payable_earning_rows()), 2)
         per_day_salary = round(wage / total_days, 2) if total_days else 0.0
 
-        # Attendances — count unique check-in days using date conversion
+        calendar = self.employee_id.resource_calendar_id or self.contract_id.resource_calendar_id
+
+        # Attendances — compute day credit based on shift (calendar) hours.
         attendance_records = self.env['hr.attendance'].search([
             ('employee_id', '=', self.employee_id.id),
             ('check_in', '>=', datetime.combine(self.date_from, time.min)),
             ('check_in', '<=', datetime.combine(self.date_to, time.max)),
         ])
-        attendance_days = len(set(
-            r.check_in.astimezone().date() for r in attendance_records
-        )) if attendance_records else 0
-        public_holidays_days = self.env['resource.calendar.leaves'].search_count([
-            ('calendar_id', '=', self.employee_id.resource_calendar_id.id),
-            ('resource_id', '=', False),
-            ('date_from', '>=', self.date_from),
-            ('date_to', '<=', self.date_to),
-        ])
+        attendance_days = 0.0
+        if attendance_records:
+            attendance_hours_by_day = defaultdict(float)
+            for attendance in attendance_records:
+                if not attendance.check_in:
+                    continue
+                work_date = attendance.check_in.astimezone().date()
+                attendance_hours_by_day[work_date] += max(attendance.worked_hours or 0.0, 0.0)
+
+            shift_hours_by_weekday = defaultdict(float)
+            if calendar and calendar.attendance_ids:
+                for shift in calendar.attendance_ids:
+                    shift_hours_by_weekday[shift.dayofweek] += max((shift.hour_to or 0.0) - (shift.hour_from or 0.0), 0.0)
+
+            if shift_hours_by_weekday:
+                for work_date, worked_hours in attendance_hours_by_day.items():
+                    expected_hours = shift_hours_by_weekday.get(str(work_date.weekday()), 0.0)
+                    if expected_hours > 0:
+                        attendance_days += min(worked_hours / expected_hours, 1.0)
+                    elif worked_hours > 0:
+                        attendance_days += 1.0
+            else:
+                attendance_days = float(len(attendance_hours_by_day))
+
+        attendance_days = round(attendance_days, 2)
+
+        public_holidays_days = 0
+        if calendar:
+            public_holidays_days = self.env['resource.calendar.leaves'].search_count([
+                ('calendar_id', '=', calendar.id),
+                ('resource_id', '=', False),
+                ('date_from', '>=', self.date_from),
+                ('date_to', '<=', self.date_to),
+            ])
         # Valid leaves
         leave_ids = self.env['hr.leave'].search([
             ('employee_id', '=', self.employee_id.id),
             ('state', '=', 'validate'),
         ])
-        week_days = list(set(self.employee_id.resource_calendar_id.attendance_ids.mapped('dayofweek')))
+        week_days = list(set(calendar.attendance_ids.mapped('dayofweek'))) if calendar else ['0', '1', '2', '3', '4', '5', '6']
         week_off_count = 0
         current_day = self.date_from
         while current_day <= self.date_to:
