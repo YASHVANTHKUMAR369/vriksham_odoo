@@ -253,13 +253,47 @@ class HrPayslip(models.Model):
         attendance_days = round(attendance_days, 2)
 
         public_holidays_days = 0
-        if calendar:
-            public_holidays_days = self.env['resource.calendar.leaves'].search_count([
-                ('calendar_id', '=', calendar.id),
-                ('resource_id', '=', False),
-                ('date_from', '>=', self.date_from),
-                ('date_to', '<=', self.date_to),
+        if self.employee_id:
+            tz_employee = self.employee_id.with_context(
+                tz=(self.employee_id.tz or (calendar.tz if calendar else False) or self.env.user.tz)
+            )
+            public_holiday_leaves = self.employee_id._get_public_holidays(
+                datetime.combine(self.date_from, time.min),
+                datetime.combine(self.date_to, time.max),
+            )
+
+            public_holiday_dates = set()
+            for holiday in public_holiday_leaves:
+                start_dt = fields.Datetime.to_datetime(holiday.date_from)
+                end_dt = fields.Datetime.to_datetime(holiday.date_to)
+                local_start_date = fields.Datetime.context_timestamp(tz_employee, start_dt).date()
+                local_end_date = fields.Datetime.context_timestamp(tz_employee, end_dt).date()
+
+                start_date = max(local_start_date, self.date_from)
+                end_date = min(local_end_date, self.date_to)
+                current_date = start_date
+                while current_date <= end_date:
+                    public_holiday_dates.add(current_date)
+                    current_date += timedelta(days=1)
+
+            override_leave_dates = set()
+            override_leaves = self.env['hr.leave'].search([
+                ('employee_id', '=', self.employee_id.id),
+                ('state', '=', 'validate'),
+                ('holiday_status_id.include_public_holidays_in_duration', '=', True),
+                ('request_date_from', '<=', self.date_to),
+                ('request_date_to', '>=', self.date_from),
             ])
+            for leave in override_leaves:
+                start_date = max(leave.request_date_from, self.date_from)
+                end_date = min(leave.request_date_to, self.date_to)
+                current_date = start_date
+                while current_date <= end_date:
+                    if current_date in public_holiday_dates:
+                        override_leave_dates.add(current_date)
+                    current_date += timedelta(days=1)
+
+            public_holidays_days = len(public_holiday_dates - override_leave_dates)
         # Valid leaves
         leave_ids = self.env['hr.leave'].search([
             ('employee_id', '=', self.employee_id.id),
