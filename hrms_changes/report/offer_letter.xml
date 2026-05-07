@@ -900,7 +900,7 @@
                         </p>
 
                         <p>
-                            Your designation will be<srong class="ms-1" t-esc="o.emp_job"/>. Your base
+                            Your designation will be<strong class="ms-1" t-esc="o.emp_job"/>. Your base
                             location
                             will be
                             <strong class="ms-1" t-esc="o.emp_location"/>

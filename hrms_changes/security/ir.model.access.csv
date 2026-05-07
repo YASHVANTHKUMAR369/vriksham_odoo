@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_salary_calculation,salary.calculation,model_salary_calculation,,1,1,1,1
 access_salary_calculation_line,salary.calculation.line,model_salary_calculation_line,,1,1,1,1
+access_hr_payslip_journal_entry_wizard_user,hr.payslip.journal.entry.wizard,model_hr_payslip_journal_entry_wizard,account.group_account_user,1,1,1,1

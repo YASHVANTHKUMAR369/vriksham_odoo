@@ -1,4 +1,7 @@
+import base64
+
 from odoo import models, fields, api, _, tools
+from odoo.exceptions import UserError
 from datetime import date, datetime, time, timedelta
 import babel
 from dateutil.relativedelta import relativedelta
@@ -61,38 +64,109 @@ class HrPayslip(models.Model):
     variable_pay = fields.Float(string="Variable Pay")
     net_salary = fields.Float(string="Net Salary", compute='compute_net_salary')
     gross_salary = fields.Float(string="Gross Salary", compute='compute_net_salary')
+    journal_entry_id = fields.Many2one('account.move', string='Journal Entry', readonly=True, copy=False)
+    journal_entry_count = fields.Integer(string='Journal Entries', compute='_compute_journal_entry_count')
+    journal_entry_status = fields.Selection(
+        [
+            ('not_paid', 'Not Paid'),
+            ('paid', 'Paid'),
+            ('reversed', 'Reversed'),
+        ],
+        string='Journal Entry Status',
+        compute='_compute_journal_entry_status',
+        store=False,
+    )
     payslip_calculation_html = fields.Html(string='Payslip Calculation', compute='_compute_payslip_calculation_html', store=False)
+
+    def _compute_journal_entry_count(self):
+        for rec in self:
+            rec.journal_entry_count = 1 if rec.journal_entry_id else 0
+
+    @api.depends('journal_entry_id', 'journal_entry_id.state', 'journal_entry_id.reversal_move_ids.state', 'journal_entry_id.reversed_entry_id.state')
+    def _compute_journal_entry_status(self):
+        for rec in self:
+            status = 'not_paid'
+            move = rec.journal_entry_id
+            if move:
+                has_posted_reversal = bool(move.reversal_move_ids.filtered(lambda m: m.state == 'posted'))
+                is_reversal_move = bool(move.reversed_entry_id and move.reversed_entry_id.state == 'posted')
+                if has_posted_reversal or is_reversal_move:
+                    status = 'reversed'
+                elif move.state == 'posted':
+                    status = 'paid'
+            rec.journal_entry_status = status
+
+    def _get_monthly_payable_earning_rows(self):
+        self.ensure_one()
+        if not self.contract_id or not self.contract_id.salary_calculation_id:
+            return []
+
+        data = self.contract_id.salary_payslip
+        rows = []
+        for category in ('basic', 'main_allowance', 'other_allowance'):
+            for rec in data.get(category, {}).values():
+                rows.append((rec['name'], rec['amount'] / 12))
+        return rows
+
+    def _prepare_salary_calculation_data(self):
+        self.ensure_one()
+        if not self.contract_id or not self.contract_id.salary_calculation_id:
+            return False
+
+        data = self.contract_id.salary_payslip
+        summary = self.compute_days_summary()
+        earning_rows = self._get_monthly_payable_earning_rows()
+
+        gross_salary = sum(amount for _, amount in earning_rows)
+        per_day_salary = summary.get('per_day_salary', 0)
+        lop_days = summary.get('lop_day', 0)
+        lop_amount = per_day_salary * lop_days
+
+        contract = self.contract_id
+        employee_pf = contract.employee_pf or 0
+        professional_tax = contract.professional_tax or 0
+        tds_amount = contract.tds_amount or 0
+        loan_amount = self._get_loan_deduction_total()
+        salary_advance_amount = self._get_salary_advance_deduction_total()
+        input_lines = [(line.name, line.amount) for line in self.input_line_ids if line.amount]
+
+        payroll_adjustment_rows = [
+            ('LOP Amount', -lop_amount),
+            ('Loan Amount', -loan_amount),
+            ('Salary Advance', -salary_advance_amount),
+            ('Employee PF', -employee_pf),
+            ('Professional Tax', -professional_tax),
+            ('TDS', -tds_amount),
+        ]
+
+        # Keep only non-zero rows; input lines can be positive or negative adjustments.
+        right_rows = [row for row in payroll_adjustment_rows if row[1]]
+        right_rows.extend(input_lines)
+
+        net_salary = gross_salary + sum(amount for _, amount in right_rows)
+
+        return {
+            'summary': summary,
+            'earning_rows': earning_rows,
+            'gross_salary': gross_salary,
+            'right_rows': right_rows,
+            'net_salary': net_salary,
+            'per_day_salary': per_day_salary,
+            'lop_days': lop_days,
+        }
 
     @api.depends('contract_id', 'date_from', 'date_to', 'input_line_ids')
     def compute_net_salary(self):
         for payslip in self:
             payslip.gross_salary = 0
             payslip.net_salary = 0
-            if not payslip.contract_id or not payslip.contract_id.salary_calculation_id:
-                continue
             try:
-                data = payslip.contract_id.salary_payslip
-                total_monthly = sum(
-                    rec['amount'] / 12
-                    for category in ('basic', 'main_allowance', 'main_deduction', 'other_allowance', 'other_deduction')
-                    for rec in data.get(category, {}).values()
-                )
-                payslip.gross_salary = total_monthly
+                calc_data = payslip._prepare_salary_calculation_data()
+                if not calc_data:
+                    continue
 
-                summary = payslip.compute_days_summary()
-                per_day_salary = summary.get('per_day_salary', 0)
-                lop_days = summary.get('lop_day', 0)
-                lop_amount = per_day_salary * lop_days
-
-                contract = payslip.contract_id
-                employee_pf = contract.employee_pf or 0
-                professional_tax = contract.professional_tax or 0
-                tds_amount = contract.tds_amount or 0
-                loan_amount = payslip._get_loan_deduction_total()
-                salary_advance_amount = payslip._get_salary_advance_deduction_total()
-                input_total = sum(line.amount for line in payslip.input_line_ids if line.amount)
-
-                payslip.net_salary = total_monthly - lop_amount - loan_amount - salary_advance_amount - employee_pf - professional_tax - tds_amount + input_total
+                payslip.gross_salary = calc_data['gross_salary']
+                payslip.net_salary = calc_data['net_salary']
             except Exception:
                 pass
 
@@ -140,17 +214,8 @@ class HrPayslip(models.Model):
         """
         total_days = (self.date_to - self.date_from).days + 1
 
-        # Compute adjusted wage: exclude variable pay, use monthly value
-        raw_wage = self.contract_id.wage
-        total_variable_pay = 0
-        salary_calc = self.contract_id.salary_calculation_id
-        if salary_calc:
-            for line in salary_calc.calculation_line_ids:
-                if line.category_type == 'variable_pay':
-                    vp_data = line.get_calculated_amount(raw_wage)
-                    if vp_data['type'] == 'amount':
-                        total_variable_pay += vp_data['value']
-        wage = round((raw_wage - total_variable_pay) / 12, 2)
+        # LOP base should be monthly payable earnings only, matching salary tab calculations.
+        wage = round(sum(amount for _, amount in self._get_monthly_payable_earning_rows()), 2)
         per_day_salary = round(wage / total_days, 2) if total_days else 0.0
 
         # Attendances — count unique check-in days using date conversion
@@ -226,66 +291,38 @@ class HrPayslip(models.Model):
 
     def _compute_payslip_calculation_html(self):
         for payslip in self:
-            if not payslip.contract_id or not payslip.contract_id.salary_calculation_id:
-                payslip.payslip_calculation_html = False
-                continue
             try:
-                data = payslip.contract_id.salary_payslip
-                summary = payslip.compute_days_summary()
-                total_days = summary.get('total_days', 0)
-                per_day_salary = summary.get('per_day_salary', 0)
-                lop_days = summary.get('lop_day', 0)
-                lop_amount = per_day_salary * lop_days
+                calc_data = payslip._prepare_salary_calculation_data()
+                if not calc_data:
+                    payslip.payslip_calculation_html = False
+                    continue
 
-                contract = payslip.contract_id
-                employee_pf = contract.employee_pf or 0
-                professional_tax = contract.professional_tax or 0
-                tds_amount = contract.tds_amount or 0
-                loan_amount = payslip._get_loan_deduction_total()
-                salary_advance_amount = payslip._get_salary_advance_deduction_total()
-
-                earning_rows = []
-                for category in ('basic', 'main_allowance', 'main_deduction', 'other_allowance', 'other_deduction'):
-                    for rec in data.get(category, {}).values():
-                        earning_rows.append((rec['name'], rec['amount'] / 12))
-
-                total_monthly = sum(amount for _, amount in earning_rows)
-
-                right_rows = [
-                    ('LOP Amount', -lop_amount),
-                    ('Loan Amount', -loan_amount) if loan_amount > 0 else None,
-                    ('Salary Advance', -salary_advance_amount) if salary_advance_amount > 0 else None,
-                    ('Employee PF', -employee_pf) if employee_pf > 0 else None,
-                    ('Professional Tax', -professional_tax) if professional_tax > 0 else None,
-                    ('TDS', -tds_amount) if tds_amount > 0 else None,
-                ]
-                right_rows = [row for row in right_rows if row]
-
-                input_lines = [(line.name, line.amount) for line in payslip.input_line_ids if line.amount]
-                right_rows.extend(input_lines)
-
-                net_salary = total_monthly + sum(amount for _, amount in right_rows)
-                left_rows = earning_rows + [('Gross Salary', total_monthly)]
-                right_rows = right_rows + [('Net Salary', net_salary)]
+                summary = calc_data['summary']
+                per_day_salary = calc_data['per_day_salary']
+                lop_days = calc_data['lop_days']
+                total_monthly = calc_data['gross_salary']
+                net_salary = calc_data['net_salary']
+                left_rows = calc_data['earning_rows'] + [('Gross Salary', total_monthly)]
+                right_rows = calc_data['right_rows'] + [('Net Salary', net_salary)]
                 total_rows = max(len(left_rows), len(right_rows))
 
                 def _fmt_amount(amount):
                     return f"{amount:,.2f}" if amount >= 0 else f"- {abs(amount):,.2f}"
 
                 html = f"""
-                <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:8px;">
+                <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:8px; color:#111827 !important; background-color:#ffffff !important;">
                     <tbody>
-                        <tr style="background-color:#dce8f5;">
-                            <td style="width:16.66%; border:1px solid #000; padding:6px; font-weight:bold;">Wage (Monthly)</td>
-                            <td style="width:16.66%; border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{summary.get('wage', 0):,.2f}</td>
-                            <td style="width:16.66%; border:1px solid #000; padding:6px; font-weight:bold;">Per Day Salary</td>
-                            <td style="width:16.66%; border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{per_day_salary:,.2f}</td>
-                            <td style="width:16.66%; border:1px solid #000; padding:6px; font-weight:bold;">LOP Days</td>
-                            <td style="width:16.66%; border:1px solid #000; padding:6px; text-align:right; font-weight:bold;">{lop_days}</td>
+                        <tr style="background-color:#dce8f5 !important; color:#111827 !important;">
+                            <td style="width:16.66%; border:1px solid #374151; padding:6px; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">Wage (Monthly)</td>
+                            <td style="width:16.66%; border:1px solid #374151; padding:6px; text-align:right; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">{summary.get('wage', 0):,.2f}</td>
+                            <td style="width:16.66%; border:1px solid #374151; padding:6px; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">Per Day Salary</td>
+                            <td style="width:16.66%; border:1px solid #374151; padding:6px; text-align:right; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">{per_day_salary:,.2f}</td>
+                            <td style="width:16.66%; border:1px solid #374151; padding:6px; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">LOP Days</td>
+                            <td style="width:16.66%; border:1px solid #374151; padding:6px; text-align:right; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">{lop_days}</td>
                         </tr>
                     </tbody>
                 </table>
-                <table style="width:100%; border-collapse:collapse; font-size:14px; table-layout:fixed;">
+                <table style="width:100%; border-collapse:collapse; font-size:14px; table-layout:fixed; color:#111827 !important; background-color:#ffffff !important;">
                     <colgroup>
                         <col style="width:30%;"/>
                         <col style="width:20%;"/>
@@ -293,11 +330,11 @@ class HrPayslip(models.Model):
                         <col style="width:20%;"/>
                     </colgroup>
                     <thead>
-                        <tr style="background-color:#e9ecef;">
-                            <th style="border:1px solid #000; padding:8px; text-align:left;">Basic Component</th>
-                            <th style="border:1px solid #000; padding:8px; text-align:right;">Basic Amount (INR)</th>
-                            <th style="border:1px solid #000; padding:8px; text-align:left;">Addtional Component</th>
-                            <th style="border:1px solid #000; padding:8px; text-align:right;">Addtional Amount (INR)</th>
+                        <tr style="background-color:#e9ecef !important; color:#111827 !important;">
+                            <th style="border:1px solid #374151; padding:8px; text-align:left; color:#111827 !important; background-color:#e9ecef !important;">Basic Component</th>
+                            <th style="border:1px solid #374151; padding:8px; text-align:right; color:#111827 !important; background-color:#e9ecef !important;">Basic Amount (INR)</th>
+                            <th style="border:1px solid #374151; padding:8px; text-align:left; color:#111827 !important; background-color:#e9ecef !important;">Additional Component</th>
+                            <th style="border:1px solid #374151; padding:8px; text-align:right; color:#111827 !important; background-color:#e9ecef !important;">Additional Amount (INR)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -325,10 +362,10 @@ class HrPayslip(models.Model):
 
                     html += f"""
                         <tr>
-                            <td style="border:1px solid #000; padding:6px; {left_style}">{left_name}</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right; {left_style}">{left_amount}</td>
-                            <td style="border:1px solid #000; padding:6px; {right_style}">{right_name}</td>
-                            <td style="border:1px solid #000; padding:6px; text-align:right; {right_style}">{right_amount}</td>
+                            <td style="border:1px solid #374151; padding:6px; color:#111827 !important; background-color:#ffffff !important; {left_style}">{left_name}</td>
+                            <td style="border:1px solid #374151; padding:6px; text-align:right; color:#111827 !important; background-color:#ffffff !important; {left_style}">{left_amount}</td>
+                            <td style="border:1px solid #374151; padding:6px; color:#111827 !important; background-color:#ffffff !important; {right_style}">{right_name}</td>
+                            <td style="border:1px solid #374151; padding:6px; text-align:right; color:#111827 !important; background-color:#ffffff !important; {right_style}">{right_amount}</td>
                         </tr>
                     """
                 html += f"""
@@ -506,6 +543,106 @@ class HrPayslip(models.Model):
         for rec in self:
             rec._compute_get_days_calculation_data()
         return super().action_compute_sheet()
+
+    def action_create_journal_entry(self):
+        if not self.env.user.has_group('account.group_account_user') and not self.env.user.has_group('account.group_account_manager'):
+            raise UserError(_('Only Accounting users can create journal entries.'))
+
+        payslips = self.filtered(lambda p: p.state == 'done')
+        if not payslips:
+            raise UserError(_('Please select confirmed payslips to create journal entries.'))
+
+        action = self.env.ref('hrms_changes.action_hr_payslip_journal_entry_wizard').read()[0]
+        action['context'] = {
+            'active_model': 'hr.payslip',
+            'active_ids': payslips.ids,
+        }
+        return action
+
+    def action_open_send_payslip_mail_wizard(self):
+        self.ensure_one()
+        if not self.employee_id:
+            raise UserError(_('Employee is required to send payslip email.'))
+
+        partner = self.employee_id.work_contact_id or self.employee_id.address_home_id
+        email_to = self.employee_id.work_email or (partner.email if partner else False)
+        if not partner and not email_to:
+            raise UserError(_('Please set Work Email or Home Address Email on employee to send payslip email.'))
+
+        template = self.env.ref('hrms_changes.mail_template_payslip_send', raise_if_not_found=False)
+        # Clear stale template report links (e.g. deleted ir.actions.report ids)
+        # to avoid Missing Record errors when opening the compose wizard.
+        if template:
+            template.sudo().write({'report_template_ids': [(5, 0, 0)]})
+        compose_form = self.env.ref('mail.email_compose_message_wizard_form')
+        attachment = self._get_or_create_payslip_pdf_attachment()
+
+        ctx = {
+            'default_model': 'hr.payslip',
+            'default_res_ids': [self.id],
+            'default_composition_mode': 'comment',
+            'default_use_template': bool(template),
+            'default_template_id': template.id if template else False,
+            'default_partner_ids': [(6, 0, [partner.id])] if partner else False,
+            'default_email_to': email_to or False,
+            'default_attachment_ids': [(6, 0, [attachment.id])] if attachment else False,
+            'default_email_layout_xmlid': 'mail.mail_notification_layout_with_responsible_signature',
+            'force_email': True,
+            'active_model': 'hr.payslip',
+            'active_id': self.id,
+            'active_ids': [self.id],
+        }
+
+        return {
+            'name': _('Send Payslip'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'mail.compose.message',
+            'view_mode': 'form',
+            'views': [(compose_form.id, 'form')],
+            'target': 'new',
+            'context': ctx,
+        }
+
+    def _get_or_create_payslip_pdf_attachment(self):
+        self.ensure_one()
+
+        file_name = (self.number or self.name or f'Payslip-{self.id}').replace('/', '_') + '.pdf'
+        existing = self.env['ir.attachment'].search([
+            ('res_model', '=', 'hr.payslip'),
+            ('res_id', '=', self.id),
+            ('name', '=', file_name),
+            ('mimetype', '=', 'application/pdf'),
+        ], limit=1)
+        if existing:
+            return existing
+
+        report_action = self.env.ref('hr_payroll_community.hr_payslip_report_action', raise_if_not_found=False)
+        if not report_action:
+            return False
+
+        pdf_content, _ = report_action._render_qweb_pdf(self.id)
+        return self.env['ir.attachment'].create({
+            'name': file_name,
+            'type': 'binary',
+            'datas': base64.b64encode(pdf_content),
+            'mimetype': 'application/pdf',
+            'res_model': 'hr.payslip',
+            'res_id': self.id,
+        })
+
+    def action_view_journal_entry(self):
+        self.ensure_one()
+        if not self.journal_entry_id:
+            raise UserError(_('No journal entry has been created for this payslip yet.'))
+
+        return {
+            'name': _('Journal Entry'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'view_mode': 'form',
+            'res_id': self.journal_entry_id.id,
+            'target': 'current',
+        }
 
     def action_payslip_done(self):
         res = super().action_payslip_done()

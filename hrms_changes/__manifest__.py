@@ -4,6 +4,7 @@
     'depends': ['base', 'account', 'hr', 'hr_maintenance', 'hr_holidays', 'hr_holidays_attendance', 'hr_payroll_community', 'hr_skills', 'hr_recruitment', 'ohrms_loan', 'ohrms_salary_advance'],
     'data': [
         'security/ir.model.access.csv',
+        'data/payslip_mail_template.xml',
 
         'views/hr_employee_view_inherit.xml',
         'views/hr_applicant_view_inherit.xml',
@@ -15,6 +16,7 @@
         'views/salary_advance_view_inherit.xml',
         'views/res_users_inherit_view.xml',
         'views/account_move_view_inherit.xml',
+        'views/payslip_journal_entry_wizard_views.xml',
         'report/offer_letter.xml',
         'report/experience_letter.xml',
         'report/relieving_letter.xml',

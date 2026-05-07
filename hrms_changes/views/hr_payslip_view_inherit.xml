@@ -19,7 +19,47 @@
         <field name="inherit_id" ref="hr_payroll_community.hr_payslip_view_form"/>
         <field name="arch" type="xml">
 
+            <xpath expr="//sheet" position="inside">
+                <widget name="web_ribbon"
+                        title="Paid"
+                        bg_color="bg-success"
+                        invisible="state != 'done' or journal_entry_status != 'paid'"/>
+                <widget name="web_ribbon"
+                        title="Reversed"
+                        bg_color="bg-danger"
+                        invisible="state != 'done' or journal_entry_status != 'reversed'"/>
+            </xpath>
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_journal_entry"
+                        class="oe_stat_button"
+                        icon="fa-book"
+                        type="object"
+                        invisible="not journal_entry_id"
+                        groups="account.group_account_manager,account.group_account_user">
+                    <field name="journal_entry_count" widget="statinfo" string="Journal Entry"/>
+                </button>
+            </xpath>
+
+            <xpath expr="//button[@name='action_payslip_done']" position="after">
+                <button string="Create Journal Entry"
+                        name="action_create_journal_entry"
+                        type="object"
+                        invisible="state != 'done' or journal_entry_count &gt; 0"
+                        class="btn-secondary"
+                        groups="account.group_account_manager,account.group_account_user"/>
+                <button string="Send Mail"
+                    name="action_open_send_payslip_mail_wizard"
+                    type="object"
+                    invisible="state != 'done'"
+                    class="btn-secondary"/>
+            </xpath>
+
             <xpath expr="//button[@name='action_compute_sheet']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='action_refund_sheet']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
 
@@ -32,11 +72,16 @@
                 <attribute name="force_save">1</attribute>
             </xpath>
 
+            <xpath expr="//field[@name='credit_note']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
             <xpath expr="//field[@name='credit_note']" position="after">
                <field name="loan_ids" widget="many2many_tags" readonly="state == 'done'" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                     <field name="salary_advance_ids" widget="many2many_tags" readonly="state == 'done'" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                 <field name="gross_salary"/>
                 <field name="net_salary"/>
+                <field name="journal_entry_id" readonly="1" options="{'no_create': True}"/>
             </xpath>
             <xpath expr="//field[@name='contract_id']" position="attributes">
                 <attribute name="readonly">1</attribute>
@@ -81,6 +126,22 @@
                     </page>
                 </notebook>
             </xpath>
+
+            <xpath expr="//sheet" position="after">
+                <chatter>
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </chatter>
+            </xpath>
         </field>
+    </record>
+
+    <record id="hr_payslip_action_create_journal_entry_multi" model="ir.actions.server">
+        <field name="name">Create Journal Entry</field>
+        <field name="model_id" ref="hr_payroll_community.model_hr_payslip"/>
+        <field name="binding_model_id" ref="hr_payroll_community.model_hr_payslip"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">records.action_create_journal_entry()</field>
     </record>
 </odoo>

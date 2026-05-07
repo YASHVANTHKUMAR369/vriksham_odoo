@@ -27,4 +27,49 @@
             </xpath>
         </field>
     </record>
+
+    <record id="res_config_settings_view_form_payroll_salary_advance_inherit" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.payroll.salary.advance</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="hr_payroll_community.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@data-key='hr_payroll_community']" position="inside">
+                <h2>Payslip</h2>
+                <div class="row mt16 o_settings_container" id="payslip_accounting_config">
+                    <div class="col-lg-6 col-12 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Payslip Accounting</span>
+                            <div class="text-muted">
+                                Default debit account for Payslip journal entries.
+                            </div>
+                            <div class="mt16">
+                                <field name="payslip_debit_account_id" options="{'no_create': True}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>Salary Advance</h2>
+                <div class="row mt16 o_settings_container" id="salary_advance_accounting_config">
+                    <div class="col-lg-6 col-12 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Salary Advance Accounting</span>
+                            <div class="text-muted">
+                                Default journal and debit/credit accounts for Salary Advance journal entries.
+                            </div>
+                            <div class="mt16">
+                                <field name="salary_advance_journal_id" options="{'no_create': True}"/>
+                            </div>
+                            <div class="mt16">
+                                <field name="salary_advance_debit_account_id" options="{'no_create': True}"/>
+                            </div>
+                            <div class="mt16">
+                                <field name="salary_advance_credit_account_id" options="{'no_create': True}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
 </odoo>
