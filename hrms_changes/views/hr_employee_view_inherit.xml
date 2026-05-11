@@ -88,7 +88,7 @@
                         </group>
                     </group>
                     <field name="salary_calculation_html" groups="hr.group_hr_manager"/>
-                    <field name="payslip_calculation_html" groups="hr.group_hr_manager"/>
+                    <field name="payslip_calculation_html" groups="hr.group_hr_manager" invisible="1"/>
                 </page>
             </xpath>
         </field>

@@ -5,71 +5,77 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
-                    <div class="page">
-                        <div class="text-center">
-                            <h3>Pay Slip</h3>
+                    <div class="page" style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:12px; color:#111827; line-height:1.35; text-transform:uppercase;">
+                        <div class="text-center" style="margin-bottom:10px;">
+                            <h3 style="font-size:20px; margin:0; font-weight:700; letter-spacing:0.2px;">PAY SLIP</h3>
                         </div>
 <!--                        <p t-field="o.name"/>-->
-                        <table class="table table-sm table-bordered" style="border-bottom:2px solid #000;">
+                        <table class="table table-sm table-bordered" style="width:100%; border-collapse:collapse; table-layout:fixed; margin-bottom:14px; border-bottom:2px solid #111827;">
+                            <colgroup>
+                                <col style="width:20%;"/>
+                                <col style="width:30%;"/>
+                                <col style="width:20%;"/>
+                                <col style="width:30%;"/>
+                            </colgroup>
                             <tr>
-                                <td>
-                                    <strong>Name</strong>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>NAME</strong>
                                 </td>
-                                <td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
                                     <span t-field="o.employee_id"/>
                                 </td>
-                                <td>
-                                    <strong>Designation</strong>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>DESIGNATION</strong>
                                 </td>
-                                <td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
                                     <span t-field="o.employee_id.job_id"/>
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-                                    <strong>Email</strong>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>EMAIL</strong>
                                 </td>
-                                <td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left; word-break:break-word;">
                                     <span t-field="o.employee_id.work_email"/>
                                 </td>
-                                <td>
-                                    <strong>Identification No</strong>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>IDENTIFICATION NO</strong>
                                 </td>
-                                <td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
                                     <span t-field="o.employee_id.identification_id"/>
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-                                    <strong>Reference</strong>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>REFERENCE</strong>
                                 </td>
-                                <td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
                                     <span t-field="o.number"/>
                                 </td>
-                                <td>
-                                    <strong>Bank Account</strong>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>BANK ACCOUNT</strong>
                                 </td>
-                                <td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
                                     <span t-field="o.employee_id.bank_account_ids"/>
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-                                    <strong>Date From</strong>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>DATE FROM</strong>
                                 </td>
-                                <td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
                                     <span t-field="o.date_from"/>
                                 </td>
-                                <td>
-                                    <strong>Date To</strong>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>DATE TO</strong>
                                 </td>
-                                <td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
                                     <span t-field="o.date_to"/>
                                 </td>
                             </tr>
                         </table>
-                        <h3>Details by Salary Rule Category</h3>
-                        <t t-esc="o.payslip_calculation_html"/>
+                        <h3 style="font-size:15px; margin:0 0 8px 0; font-weight:700; text-align:left;">DETAILS BY SALARY RULE CATEGORY</h3>
+                        <t t-raw="o.payslip_calculation_html"/>
                         <div style="margin-top: 24px;">
                             <p>
                                 <strong>

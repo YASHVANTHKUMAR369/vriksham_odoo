@@ -363,27 +363,33 @@ class HrPayslip(models.Model):
                 lop_days = calc_data['lop_days']
                 total_monthly = calc_data['gross_salary']
                 net_salary = calc_data['net_salary']
-                left_rows = calc_data['earning_rows'] + [('Gross Salary', total_monthly)]
-                right_rows = calc_data['right_rows'] + [('Net Salary', net_salary)]
+                left_rows = calc_data['earning_rows'] + [('GROSS SALARY', total_monthly)]
+                right_rows = calc_data['right_rows'] + [('NET SALARY', net_salary)]
                 total_rows = max(len(left_rows), len(right_rows))
 
                 def _fmt_amount(amount):
                     return f"{amount:,.2f}" if amount >= 0 else f"- {abs(amount):,.2f}"
 
+                base_font = "font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:12px; line-height:1.35; color:#111827; text-transform:uppercase;"
+                cell_style = "border:1px solid #9ca3af; padding:6px 8px; vertical-align:middle;"
+                label_cell = f"{cell_style} text-align:left; font-weight:600;"
+                amount_cell = f"{cell_style} text-align:right;"
+
                 html = f"""
-                <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:8px; color:#111827 !important; background-color:#ffffff !important;">
+                <div style="{base_font}">
+                <table style="width:100%; border-collapse:collapse; table-layout:fixed; margin-bottom:10px; background-color:#ffffff;">
                     <tbody>
-                        <tr style="background-color:#dce8f5 !important; color:#111827 !important;">
-                            <td style="width:16.66%; border:1px solid #374151; padding:6px; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">Wage (Monthly)</td>
-                            <td style="width:16.66%; border:1px solid #374151; padding:6px; text-align:right; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">{summary.get('wage', 0):,.2f}</td>
-                            <td style="width:16.66%; border:1px solid #374151; padding:6px; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">Per Day Salary</td>
-                            <td style="width:16.66%; border:1px solid #374151; padding:6px; text-align:right; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">{per_day_salary:,.2f}</td>
-                            <td style="width:16.66%; border:1px solid #374151; padding:6px; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">LOP Days</td>
-                            <td style="width:16.66%; border:1px solid #374151; padding:6px; text-align:right; font-weight:bold; color:#111827 !important; background-color:#dce8f5 !important;">{lop_days}</td>
+                        <tr style="background-color:#dce8f5;">
+                            <td style="width:16.66%; {label_cell}">WAGE (MONTHLY)</td>
+                            <td style="width:16.66%; {amount_cell} font-weight:700;">{summary.get('wage', 0):,.2f}</td>
+                            <td style="width:16.66%; {label_cell}">PER DAY SALARY</td>
+                            <td style="width:16.66%; {amount_cell} font-weight:700;">{per_day_salary:,.2f}</td>
+                            <td style="width:16.66%; {label_cell}">LOP DAYS</td>
+                            <td style="width:16.66%; {amount_cell} font-weight:700;">{lop_days}</td>
                         </tr>
                     </tbody>
                 </table>
-                <table style="width:100%; border-collapse:collapse; font-size:14px; table-layout:fixed; color:#111827 !important; background-color:#ffffff !important;">
+                <table style="width:100%; border-collapse:collapse; table-layout:fixed; background-color:#ffffff;">
                     <colgroup>
                         <col style="width:30%;"/>
                         <col style="width:20%;"/>
@@ -391,11 +397,11 @@ class HrPayslip(models.Model):
                         <col style="width:20%;"/>
                     </colgroup>
                     <thead>
-                        <tr style="background-color:#e9ecef !important; color:#111827 !important;">
-                            <th style="border:1px solid #374151; padding:8px; text-align:left; color:#111827 !important; background-color:#e9ecef !important;">Basic Component</th>
-                            <th style="border:1px solid #374151; padding:8px; text-align:right; color:#111827 !important; background-color:#e9ecef !important;">Basic Amount (INR)</th>
-                            <th style="border:1px solid #374151; padding:8px; text-align:left; color:#111827 !important; background-color:#e9ecef !important;">Additional Component</th>
-                            <th style="border:1px solid #374151; padding:8px; text-align:right; color:#111827 !important; background-color:#e9ecef !important;">Additional Amount (INR)</th>
+                        <tr style="background-color:#e9ecef;">
+                            <th style="{label_cell}">BASIC COMPONENT</th>
+                            <th style="{amount_cell} font-weight:700;">BASIC AMOUNT (INR)</th>
+                            <th style="{label_cell}">ADDITIONAL COMPONENT</th>
+                            <th style="{amount_cell} font-weight:700;">ADDITIONAL AMOUNT (INR)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -412,26 +418,27 @@ class HrPayslip(models.Model):
                     if idx < len(left_rows):
                         left_name, left_val = left_rows[idx]
                         left_amount = f"{left_val:,.2f}"
-                        if left_name == 'Gross Salary':
-                            left_style = 'font-weight:bold; background-color:#f2f2f2;'
+                        if left_name == 'GROSS SALARY':
+                            left_style = 'font-weight:700; background-color:#f2f2f2;'
 
                     if idx < len(right_rows):
                         right_name, right_val = right_rows[idx]
                         right_amount = _fmt_amount(right_val)
-                        if right_name == 'Net Salary':
-                            right_style = 'font-weight:bold; background-color:#d4edda;'
+                        if right_name == 'NET SALARY':
+                            right_style = 'font-weight:700; background-color:#d4edda;'
 
                     html += f"""
                         <tr>
-                            <td style="border:1px solid #374151; padding:6px; color:#111827 !important; background-color:#ffffff !important; {left_style}">{left_name}</td>
-                            <td style="border:1px solid #374151; padding:6px; text-align:right; color:#111827 !important; background-color:#ffffff !important; {left_style}">{left_amount}</td>
-                            <td style="border:1px solid #374151; padding:6px; color:#111827 !important; background-color:#ffffff !important; {right_style}">{right_name}</td>
-                            <td style="border:1px solid #374151; padding:6px; text-align:right; color:#111827 !important; background-color:#ffffff !important; {right_style}">{right_amount}</td>
+                            <td style="{label_cell} font-weight:500; background-color:#ffffff; {left_style}">{left_name}</td>
+                            <td style="{amount_cell} background-color:#ffffff; {left_style}">{left_amount}</td>
+                            <td style="{label_cell} font-weight:500; background-color:#ffffff; {right_style}">{right_name}</td>
+                            <td style="{amount_cell} background-color:#ffffff; {right_style}">{right_amount}</td>
                         </tr>
                     """
                 html += f"""
                     </tbody>
                 </table>
+                </div>
                 """
                 payslip.payslip_calculation_html = html
             except Exception:
