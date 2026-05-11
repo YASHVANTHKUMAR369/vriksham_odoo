@@ -6,6 +6,7 @@
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
                     <div class="page" style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:12px; color:#111827; line-height:1.35; text-transform:uppercase;">
+                        <t t-set="calc_data" t-value="o._prepare_salary_calculation_data()"/>
                         <div class="text-center" style="margin-bottom:10px;">
                             <h3 style="font-size:20px; margin:0; font-weight:700; letter-spacing:0.2px;">PAY SLIP</h3>
                         </div>
@@ -25,32 +26,18 @@
                                     <span t-field="o.employee_id"/>
                                 </td>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
-                                    <strong>DESIGNATION</strong>
+                                    <strong>REFERENCE</strong>
                                 </td>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
-                                    <span t-field="o.employee_id.job_id"/>
+                                    <span t-field="o.number"/>
                                 </td>
                             </tr>
                             <tr>
-                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
-                                    <strong>EMAIL</strong>
-                                </td>
-                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left; word-break:break-word;">
-                                    <span t-field="o.employee_id.work_email"/>
-                                </td>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
                                     <strong>IDENTIFICATION NO</strong>
                                 </td>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
                                     <span t-field="o.employee_id.identification_id"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
-                                    <strong>REFERENCE</strong>
-                                </td>
-                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
-                                    <span t-field="o.number"/>
                                 </td>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
                                     <strong>BANK ACCOUNT</strong>
@@ -61,10 +48,24 @@
                             </tr>
                             <tr>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>DESIGNATION</strong>
+                                </td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
+                                    <span t-field="o.employee_id.job_id"/>
+                                </td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
                                     <strong>DATE FROM</strong>
                                 </td>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
                                     <span t-field="o.date_from"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>EMAIL</strong>
+                                </td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left; word-break:break-word;">
+                                    <span t-field="o.employee_id.work_email"/>
                                 </td>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
                                     <strong>DATE TO</strong>
@@ -73,9 +74,22 @@
                                     <span t-field="o.date_to"/>
                                 </td>
                             </tr>
+                            <tr>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>UAN</strong>
+                                </td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
+                                    <span t-field="o.employee_id.uan"/>
+                                </td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
+                                    <strong>LOP DAYS</strong>
+                                </td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
+                                    <span t-esc="'{:,.2f}'.format((calc_data or {}).get('lop_days', 0.0))"/>
+                                </td>
+                            </tr>
                         </table>
-                        <h3 style="font-size:15px; margin:0 0 8px 0; font-weight:700; text-align:left;">DETAILS BY SALARY RULE CATEGORY</h3>
-                        <t t-raw="o.payslip_calculation_html"/>
+                        <t t-raw="o.payslip_calculation_html" class="mt-6"/>
                         <div style="margin-top: 24px;">
                             <p>
                                 <strong>

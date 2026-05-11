@@ -358,13 +358,10 @@ class HrPayslip(models.Model):
                     payslip.payslip_calculation_html = False
                     continue
 
-                summary = calc_data['summary']
-                per_day_salary = calc_data['per_day_salary']
-                lop_days = calc_data['lop_days']
                 total_monthly = calc_data['gross_salary']
                 net_salary = calc_data['net_salary']
-                left_rows = calc_data['earning_rows'] + [('GROSS SALARY', total_monthly)]
-                right_rows = calc_data['right_rows'] + [('NET SALARY', net_salary)]
+                left_rows = calc_data['earning_rows']
+                right_rows = calc_data['right_rows']
                 total_rows = max(len(left_rows), len(right_rows))
 
                 def _fmt_amount(amount):
@@ -377,18 +374,6 @@ class HrPayslip(models.Model):
 
                 html = f"""
                 <div style="{base_font}">
-                <table style="width:100%; border-collapse:collapse; table-layout:fixed; margin-bottom:10px; background-color:#ffffff;">
-                    <tbody>
-                        <tr style="background-color:#dce8f5;">
-                            <td style="width:16.66%; {label_cell}">WAGE (MONTHLY)</td>
-                            <td style="width:16.66%; {amount_cell} font-weight:700;">{summary.get('wage', 0):,.2f}</td>
-                            <td style="width:16.66%; {label_cell}">PER DAY SALARY</td>
-                            <td style="width:16.66%; {amount_cell} font-weight:700;">{per_day_salary:,.2f}</td>
-                            <td style="width:16.66%; {label_cell}">LOP DAYS</td>
-                            <td style="width:16.66%; {amount_cell} font-weight:700;">{lop_days}</td>
-                        </tr>
-                    </tbody>
-                </table>
                 <table style="width:100%; border-collapse:collapse; table-layout:fixed; background-color:#ffffff;">
                     <colgroup>
                         <col style="width:30%;"/>
@@ -412,30 +397,40 @@ class HrPayslip(models.Model):
                     left_amount = ''
                     right_name = ''
                     right_amount = ''
-                    left_style = ''
-                    right_style = ''
 
                     if idx < len(left_rows):
                         left_name, left_val = left_rows[idx]
                         left_amount = f"{left_val:,.2f}"
-                        if left_name == 'GROSS SALARY':
-                            left_style = 'font-weight:700; background-color:#f2f2f2;'
 
                     if idx < len(right_rows):
                         right_name, right_val = right_rows[idx]
                         right_amount = _fmt_amount(right_val)
-                        if right_name == 'NET SALARY':
-                            right_style = 'font-weight:700; background-color:#d4edda;'
 
                     html += f"""
                         <tr>
-                            <td style="{label_cell} font-weight:500; background-color:#ffffff; {left_style}">{left_name}</td>
-                            <td style="{amount_cell} background-color:#ffffff; {left_style}">{left_amount}</td>
-                            <td style="{label_cell} font-weight:500; background-color:#ffffff; {right_style}">{right_name}</td>
-                            <td style="{amount_cell} background-color:#ffffff; {right_style}">{right_amount}</td>
+                            <td style="{label_cell} font-weight:500; background-color:#ffffff;">{left_name}</td>
+                            <td style="{amount_cell} background-color:#ffffff;">{left_amount}</td>
+                            <td style="{label_cell} font-weight:500; background-color:#ffffff;">{right_name}</td>
+                            <td style="{amount_cell} background-color:#ffffff;">{right_amount}</td>
                         </tr>
                     """
                 html += f"""
+                    </tbody>
+                </table>
+                <table style="width:100%; border-collapse:collapse; table-layout:fixed; margin-top:8px; background-color:#ffffff;">
+                    <colgroup>
+                        <col style="width:30%;"/>
+                        <col style="width:20%;"/>
+                        <col style="width:30%;"/>
+                        <col style="width:20%;"/>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td style="{label_cell} background-color:#f2f2f2;">GROSS SALARY</td>
+                            <td style="{amount_cell} font-weight:700; background-color:#f2f2f2;">{total_monthly:,.2f}</td>
+                            <td style="{label_cell} background-color:#d4edda;">NET SALARY</td>
+                            <td style="{amount_cell} font-weight:700; background-color:#d4edda;">{_fmt_amount(net_salary)}</td>
+                        </tr>
                     </tbody>
                 </table>
                 </div>
