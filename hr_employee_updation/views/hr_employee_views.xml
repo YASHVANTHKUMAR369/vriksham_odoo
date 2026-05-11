@@ -43,6 +43,7 @@
 
                 <group name="private_details_id" string="Private Details">
                     <field name="uan"/>
+                    <field name="pf_number"/>
                     <field name="esic_number"/>
                     <field name="pan"/>
                     <field name="aadhar_no"/>

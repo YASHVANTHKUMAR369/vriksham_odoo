@@ -59,6 +59,7 @@ class HrEmployee(models.Model):
         selection=[('A+', 'A+'), ('A−', 'A−'), ('B+', 'B+'), ('B−', 'B−'), ('AB+', 'AB+'), ('AB−', 'AB−'), ('O+', 'O+'),
                    ('O−', 'O−')], string='Blood Group')
     uan = fields.Char(string='UAN')
+    pf_number = fields.Char(string='PF Number')
     esic_number = fields.Char(string='ESIC Number')
     pan = fields.Char(string='PAN')
     aadhar_no = fields.Char(string='Aadhar No')

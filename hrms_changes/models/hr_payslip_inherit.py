@@ -120,7 +120,6 @@ class HrPayslip(models.Model):
         gross_salary = sum(amount for _, amount in earning_rows)
         per_day_salary = summary.get('per_day_salary', 0)
         lop_days = summary.get('lop_day', 0)
-        lop_amount = per_day_salary * lop_days
 
         contract = self.contract_id
         employee_pf = contract.employee_pf or 0
@@ -131,7 +130,6 @@ class HrPayslip(models.Model):
         input_lines = [(line.name, line.amount) for line in self.input_line_ids if line.amount]
 
         payroll_adjustment_rows = [
-            ('LOP Amount', -lop_amount),
             ('Loan Amount', -loan_amount),
             ('Salary Advance', -salary_advance_amount),
             ('Employee PF', -employee_pf),
@@ -365,21 +363,21 @@ class HrPayslip(models.Model):
                 total_rows = max(len(left_rows), len(right_rows))
 
                 def _fmt_amount(amount):
-                    return f"{amount:,.2f}" if amount >= 0 else f"- {abs(amount):,.2f}"
+                    return f"{amount:,.2f}" if amount >= 0 else f"-{abs(amount):,.2f}"
 
                 base_font = "font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; font-size:12px; line-height:1.35; color:#111827; text-transform:uppercase;"
                 cell_style = "border:1px solid #9ca3af; padding:6px 8px; vertical-align:middle;"
                 label_cell = f"{cell_style} text-align:left; font-weight:600;"
-                amount_cell = f"{cell_style} text-align:right;"
+                amount_cell = f"{cell_style} text-align:right; white-space:nowrap;"
 
                 html = f"""
                 <div style="{base_font}">
                 <table style="width:100%; border-collapse:collapse; table-layout:fixed; background-color:#ffffff;">
                     <colgroup>
-                        <col style="width:30%;"/>
-                        <col style="width:20%;"/>
-                        <col style="width:30%;"/>
-                        <col style="width:20%;"/>
+                        <col style="width:28%;"/>
+                        <col style="width:22%;"/>
+                        <col style="width:28%;"/>
+                        <col style="width:22%;"/>
                     </colgroup>
                     <thead>
                         <tr style="background-color:#e9ecef;">
@@ -419,10 +417,10 @@ class HrPayslip(models.Model):
                 </table>
                 <table style="width:100%; border-collapse:collapse; table-layout:fixed; margin-top:8px; background-color:#ffffff;">
                     <colgroup>
-                        <col style="width:30%;"/>
-                        <col style="width:20%;"/>
-                        <col style="width:30%;"/>
-                        <col style="width:20%;"/>
+                        <col style="width:28%;"/>
+                        <col style="width:22%;"/>
+                        <col style="width:28%;"/>
+                        <col style="width:22%;"/>
                     </colgroup>
                     <tbody>
                         <tr>

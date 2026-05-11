@@ -23,13 +23,13 @@
                                     <strong>NAME</strong>
                                 </td>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
-                                    <span t-field="o.employee_id"/>
-                                </td>
-                                <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
-                                    <strong>REFERENCE</strong>
+                                    <span t-field="o.employee_id.name"/>
                                 </td>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
-                                    <span t-field="o.number"/>
+                                        <strong>MONTH</strong>
+                                </td>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
+                                        <span t-esc="((o.date_to or o.date_from).strftime('%b %y') if (o.date_to or o.date_from) else '')"/>
                                 </td>
                             </tr>
                             <tr>
@@ -62,10 +62,10 @@
                             </tr>
                             <tr>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
-                                    <strong>EMAIL</strong>
+                                    <strong>PF NO</strong>
                                 </td>
-                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left; word-break:break-word;">
-                                    <span t-field="o.employee_id.work_email"/>
+                                <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;">
+                                    <span t-esc="o.employee_id.pf_number"/>
                                 </td>
                                 <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left;">
                                     <strong>DATE TO</strong>
@@ -90,6 +90,14 @@
                             </tr>
                         </table>
                         <t t-raw="o.payslip_calculation_html" class="mt-6"/>
+                        <table style="width:100%; border-collapse:collapse; margin-top:8px;">
+                            <tbody>
+                                <tr>
+                                    <td style="padding:6px 8px; border:1px solid #9ca3af; font-weight:600; text-align:left; width:25%;">NET SALARY IN WORDS</td>
+                                    <td style="padding:6px 8px; border:1px solid #9ca3af; text-align:left;  text-transform:uppercase;" t-esc="o.company_id.currency_id.amount_to_text(abs(o.net_salary or 0.0)).replace(',', '').replace('-', ' ')"/>
+                                </tr>
+                            </tbody>
+                        </table>
                         <div style="margin-top: 24px;">
                             <p>
                                 <strong>
