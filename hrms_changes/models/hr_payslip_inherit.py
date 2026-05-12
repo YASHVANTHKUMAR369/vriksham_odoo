@@ -369,22 +369,24 @@ class HrPayslip(models.Model):
                 cell_style = "border:1px solid #9ca3af; padding:6px 8px; vertical-align:middle;"
                 label_cell = f"{cell_style} text-align:left; font-weight:600;"
                 amount_cell = f"{cell_style} text-align:right; white-space:nowrap;"
+                label_header_cell = f"{cell_style} text-align:left; font-weight:700;"
+                amount_header_cell = f"{cell_style} text-align:left; font-weight:700; white-space:normal;"
 
                 html = f"""
                 <div style="{base_font}">
                 <table style="width:100%; border-collapse:collapse; table-layout:fixed; background-color:#ffffff;">
                     <colgroup>
-                        <col style="width:28%;"/>
-                        <col style="width:22%;"/>
-                        <col style="width:28%;"/>
-                        <col style="width:22%;"/>
+                        <col style="width:26%;"/>
+                        <col style="width:24%;"/>
+                        <col style="width:26%;"/>
+                        <col style="width:24%;"/>
                     </colgroup>
                     <thead>
                         <tr style="background-color:#e9ecef;">
-                            <th style="{label_cell}">BASIC COMPONENT</th>
-                            <th style="{amount_cell} font-weight:700;">BASIC AMOUNT (INR)</th>
-                            <th style="{label_cell}">ADDITIONAL COMPONENT</th>
-                            <th style="{amount_cell} font-weight:700;">ADDITIONAL AMOUNT (INR)</th>
+                            <th style="{label_header_cell}">BASIC COMPONENT</th>
+                            <th style="{amount_header_cell}">BASIC AMOUNT (INR)</th>
+                            <th style="{label_header_cell}">ADDITIONAL COMPONENT</th>
+                            <th style="{amount_header_cell}">ADDITIONAL AMOUNT (INR)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -417,10 +419,10 @@ class HrPayslip(models.Model):
                 </table>
                 <table style="width:100%; border-collapse:collapse; table-layout:fixed; margin-top:8px; background-color:#ffffff;">
                     <colgroup>
-                        <col style="width:28%;"/>
-                        <col style="width:22%;"/>
-                        <col style="width:28%;"/>
-                        <col style="width:22%;"/>
+                        <col style="width:26%;"/>
+                        <col style="width:24%;"/>
+                        <col style="width:26%;"/>
+                        <col style="width:24%;"/>
                     </colgroup>
                     <tbody>
                         <tr>
