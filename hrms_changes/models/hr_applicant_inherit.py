@@ -63,6 +63,7 @@ class HrApplicant(models.Model):
 
     @property
     def emp_name(self):
+        print("=================", self)
         return self.partner_name
 
     @property
@@ -126,8 +127,24 @@ class HrApplicant(models.Model):
         return self.company_id.display_name if self.company_id else None
 
     @property
+    def emp_hr_user(self):
+        return self.user_id
+
+    @property
     def emp_hr_name(self):
-        return self.company_id.hr_name if self.company_id and self.company_id.hr_name else "-"
+        return self.emp_hr_user.name if self.emp_hr_user else "-"
+
+    @property
+    def emp_hr_signature(self):
+        return self.emp_hr_user.sign_signature if self.emp_hr_user else False
+
+    def action_print_offer_full_report(self):
+        self.ensure_one()
+        return self.env.ref('hrms_changes.action_offer_letter_full').report_action(self)
+
+    def action_print_offer_basic_report(self):
+        self.ensure_one()
+        return self.env.ref('hrms_changes.action_offer_letter_basic').report_action(self)
 
     def generate_salary_html(self, data):
         if self.salary_proposed > 0:
@@ -248,6 +265,7 @@ class HrApplicant(models.Model):
             'job_id': self.job_id.id,
             'job_title': self.job_id.name,
             'department_id': self.department_id.id,
+            'hr_responsible_id': self.user_id.id if self.user_id else False,
             'work_email': self.department_id.company_id.email or self.email_from,
             # To have a valid email address by default
             'work_phone': self.department_id.company_id.phone,

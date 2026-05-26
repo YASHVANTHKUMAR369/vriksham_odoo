@@ -14,6 +14,16 @@
             </xpath>
             <xpath expr="//notebook" position="inside">
                 <page name="Salary Calculation">
+                    <div class="oe_button_box" name="offer_letter_button_box" style="margin-bottom: 8px;">
+                        <button name="action_print_offer_full_report"
+                                type="object"
+                                string="Offer Letter ( FULL )"
+                                class="btn-primary"/>
+                        <button name="action_print_offer_basic_report"
+                                type="object"
+                                string="Offer Letter ( BASIC )"
+                                class="btn-primary"/>
+                    </div>
                     <field name="salary_calculation_html"/>
                 </page>
             </xpath>

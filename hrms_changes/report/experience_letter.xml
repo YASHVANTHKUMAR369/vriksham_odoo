@@ -99,11 +99,11 @@
                         <div style="margin-top:100px">
                             <strong>Sincerely,</strong>
                         </div>
-                        <img t-if="o.company_id and o.company_id.hr_signature"
-                             t-att-src="image_data_uri(o.company_id.hr_signature)"
+                        <img t-if="o.emp_hr_signature"
+                             t-att-src="image_data_uri(o.emp_hr_signature)"
                              style="max-height:130px;"/>
                         <div>
-                            <strong>Vinodhini D</strong>
+                            <strong t-esc="o.emp_hr_name"/>
                             <br/>
                             <strong>HR Head</strong>
                         </div>

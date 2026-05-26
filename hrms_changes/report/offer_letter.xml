@@ -5,8 +5,8 @@
         <field name="name">Offer Letter ( Full )</field>
         <field name="model">hr.applicant</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">hrms_changes.report_offer_letter_full</field>
-        <field name="report_file">hrms_changes.report_offer_letter_full</field>
+        <field name="report_name">hrms_changes.report_offer_letter_full_applicant</field>
+        <field name="report_file">hrms_changes.report_offer_letter_full_applicant</field>
         <field name="print_report_name">'Offer Letter - %s' % (object.emp_name)</field>
         <field name="binding_model_id" ref="model_hr_applicant"/>
         <field name="binding_type">report</field>
@@ -15,8 +15,8 @@
         <field name="name">Offer Letter ( Basic )</field>
         <field name="model">hr.applicant</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">hrms_changes.report_offer_letter_basic</field>
-        <field name="report_file">hrms_changes.report_offer_letter_basic</field>
+        <field name="report_name">hrms_changes.report_offer_letter_basic_applicant</field>
+        <field name="report_file">hrms_changes.report_offer_letter_basic_applicant</field>
         <field name="print_report_name">'Offer Letter - %s' % (object.emp_name)</field>
         <field name="binding_model_id" ref="model_hr_applicant"/>
         <field name="binding_type">report</field>
@@ -25,8 +25,8 @@
         <field name="name">Employee Offer Letter ( Full )</field>
         <field name="model">hr.employee</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">hrms_changes.report_offer_letter_full</field>
-        <field name="report_file">hrms_changes.report_offer_letter_full</field>
+        <field name="report_name">hrms_changes.report_offer_letter_full_employee</field>
+        <field name="report_file">hrms_changes.report_offer_letter_full_employee</field>
         <field name="print_report_name">'Offer Letter - %s' % (object.emp_name)</field>
         <field name="binding_model_id" ref=""/>
         <field name="binding_type">report</field>
@@ -35,8 +35,8 @@
         <field name="name">Employee Offer Letter ( Basic )</field>
         <field name="model">hr.employee</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">hrms_changes.report_offer_letter_basic</field>
-        <field name="report_file">hrms_changes.report_offer_letter_basic</field>
+        <field name="report_name">hrms_changes.report_offer_letter_basic_employee</field>
+        <field name="report_file">hrms_changes.report_offer_letter_basic_employee</field>
         <field name="print_report_name">'Offer Letter - %s' % (object.emp_name)</field>
         <field name="binding_model_id" ref=""/>
         <field name="binding_type">report</field>
@@ -718,8 +718,8 @@
                                 <strong class="ms-1" t-esc="o.emp_company"/>,
                                 </strong>
                                 </p>
-                        <img t-if="o.company_id and o.company_id.hr_signature"
-                             t-att-src="image_data_uri(o.company_id.hr_signature)"
+                            <img t-if="o.emp_hr_signature"
+                                t-att-src="image_data_uri(o.emp_hr_signature)"
                              style="max-height:130px; margin-left:20px"/>
 
                         <p>
@@ -832,6 +832,14 @@
         </t>
     </template>
 
+    <template id="report_offer_letter_full_applicant">
+        <t t-call="hrms_changes.report_offer_letter_full"/>
+    </template>
+
+    <template id="report_offer_letter_full_employee">
+        <t t-call="hrms_changes.report_offer_letter_full"/>
+    </template>
+
 
     <template id="report_offer_letter_basic">
         <t t-call="web.html_container">
@@ -841,7 +849,7 @@
 
                         <!-- Title -->
                         <h3 class="text-center">
-                            <b>OFFER LETTER</b>
+                            <b>OFFER LETTER111</b>
                         </h3>
 
                         <br/>
@@ -942,8 +950,8 @@
                                 <strong class="ms-1" t-esc="o.emp_company"/>,
                                 </strong>
                                 </p>
-                        <img t-if="o.company_id and o.company_id.hr_signature"
-                             t-att-src="image_data_uri(o.company_id.hr_signature)"
+                            <img t-if="o.emp_hr_signature"
+                                t-att-src="image_data_uri(o.emp_hr_signature)"
                              style="max-height:130px; margin-left:20px"/>
 
                         <p>
@@ -1017,5 +1025,13 @@
                 </t>
             </t>
         </t>
+    </template>
+
+    <template id="report_offer_letter_basic_applicant">
+        <t t-call="hrms_changes.report_offer_letter_basic"/>
+    </template>
+
+    <template id="report_offer_letter_basic_employee">
+        <t t-call="hrms_changes.report_offer_letter_basic"/>
     </template>
 </odoo>

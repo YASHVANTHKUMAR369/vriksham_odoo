@@ -124,8 +124,6 @@ class HrEmployee(models.Model):
                 [('employee_id', '=', rec.employee_id.id)],
                 order='id asc'
             )
-            print("versions[:1]:", versions[:1])
-            print("versions[-1:]:", versions[-1:])
             rec.is_first_version = rec.version_id.id == versions[:1].id
             rec.is_last_version = rec.version_id.id == versions[-1:].id
     @property
@@ -221,9 +219,43 @@ class HrEmployee(models.Model):
     def emp_company(self):
         return self.company_id.display_name if self.company_id else None
 
+    def _get_linked_applicant_recruiter_user(self):
+        self.ensure_one()
+
+        # Prefer direct links when available from recruitment integration.
+        if 'applicant_id' in self._fields and self.applicant_id and self.applicant_id.user_id:
+            return self.applicant_id.user_id
+        if 'candidate_id' in self._fields and self.candidate_id:
+            applicant = self.env['hr.applicant'].search([
+                ('candidate_id', '=', self.candidate_id.id),
+                ('user_id', '!=', False),
+            ], order='id desc', limit=1)
+            if applicant:
+                return applicant.user_id
+
+        # Fallback heuristic for existing data without explicit links.
+        applicant_domain = [('user_id', '!=', False)]
+        if self.work_email:
+            applicant_domain = ['|'] + applicant_domain + [('email_from', '=', self.work_email)]
+        elif self.private_email:
+            applicant_domain = ['|'] + applicant_domain + [('email_from', '=', self.private_email)]
+        else:
+            applicant_domain.append(('partner_name', '=', self.name))
+
+        applicant = self.env['hr.applicant'].search(applicant_domain, order='id desc', limit=1)
+        return applicant.user_id if applicant else False
+
+    @property
+    def emp_hr_user(self):
+        return self._get_linked_applicant_recruiter_user() or self.hr_responsible_id or self.user_id
+
     @property
     def emp_hr_name(self):
-        return self.company_id.hr_name if self.company_id and self.company_id.hr_name else "Vinodhini D"
+        return self.emp_hr_user.name if self.emp_hr_user else "-"
+
+    @property
+    def emp_hr_signature(self):
+        return self.emp_hr_user.sign_signature if self.emp_hr_user else False
 
 
 

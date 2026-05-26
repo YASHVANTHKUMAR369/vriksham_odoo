@@ -105,8 +105,8 @@
                                 </strong>
                             </p>
 
-                            <img t-if="o.company_id and o.company_id.hr_signature"
-                                 t-att-src="image_data_uri(o.company_id.hr_signature)"
+                               <img t-if="o.emp_hr_signature"
+                                   t-att-src="image_data_uri(o.emp_hr_signature)"
                                  style="max-height:130px; margin-left:20px"/>
 
                             <p>

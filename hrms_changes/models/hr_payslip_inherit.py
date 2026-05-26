@@ -190,8 +190,17 @@ class HrPayslip(models.Model):
         return self.company_id.display_name if self.company_id else None
 
     @property
+    def emp_hr_user(self):
+        employee = self.employee_id
+        return employee.hr_responsible_id or employee.user_id or self.env.user
+
+    @property
     def emp_hr_name(self):
-        return self.company_id.hr_name if self.company_id and self.company_id.hr_name else "-"
+        return self.emp_hr_user.name if self.emp_hr_user else "-"
+
+    @property
+    def emp_hr_signature(self):
+        return self.emp_hr_user.sign_signature if self.emp_hr_user else False
 
     struct_id = fields.Many2one(comodel_name='hr.payroll.structure',
                                 string='Structure',
