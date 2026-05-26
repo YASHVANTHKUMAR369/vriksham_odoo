@@ -62,6 +62,9 @@ class HrPayslip(models.Model):
         domain="[('employee_id', '=', employee_id), ('state', '=', 'approve'), ('paid', '=', False)]"
     )
     variable_pay = fields.Float(string="Variable Pay")
+    employee_pf = fields.Float(string="Employee PF")
+    professional_tax = fields.Float(string="Professional Tax")
+    tds_amount = fields.Float(string="TDS Amount")
     net_salary = fields.Float(string="Net Salary", compute='compute_net_salary')
     gross_salary = fields.Float(string="Gross Salary", compute='compute_net_salary')
     journal_entry_id = fields.Many2one('account.move', string='Journal Entry', readonly=True, copy=False)
@@ -122,9 +125,9 @@ class HrPayslip(models.Model):
         lop_days = summary.get('lop_day', 0)
 
         contract = self.contract_id
-        employee_pf = contract.employee_pf or 0
-        professional_tax = contract.professional_tax or 0
-        tds_amount = contract.tds_amount or 0
+        employee_pf = self.employee_pf if self.employee_pf else (contract.employee_pf or 0.0)
+        professional_tax = self.professional_tax if self.professional_tax else (contract.professional_tax or 0.0)
+        tds_amount = self.tds_amount if self.tds_amount else (contract.tds_amount or 0.0)
         loan_amount = self._get_loan_deduction_total()
         salary_advance_amount = self._get_salary_advance_deduction_total()
         input_lines = [(line.name, line.amount) for line in self.input_line_ids if line.amount]
@@ -153,7 +156,7 @@ class HrPayslip(models.Model):
             'lop_days': lop_days,
         }
 
-    @api.depends('contract_id', 'date_from', 'date_to', 'input_line_ids')
+    @api.depends('contract_id', 'date_from', 'date_to', 'input_line_ids', 'employee_pf', 'professional_tax', 'tds_amount')
     def compute_net_salary(self):
         for payslip in self:
             payslip.gross_salary = 0
@@ -584,6 +587,18 @@ class HrPayslip(models.Model):
             ])
             rec.loan_ids = [(6, 0, loan_lines.ids)]
 
+    def _set_statutory_defaults_from_contract(self):
+        for rec in self:
+            contract = rec.contract_id
+            if not contract:
+                continue
+            if not rec.employee_pf:
+                rec.employee_pf = contract.employee_pf or 0.0
+            if not rec.professional_tax:
+                rec.professional_tax = contract.professional_tax or 0.0
+            if not rec.tds_amount:
+                rec.tds_amount = contract.tds_amount or 0.0
+
     @api.onchange('employee_id')
     def onchange_employee(self):
         if (not self.employee_id) or (not self.date_from):
@@ -598,6 +613,7 @@ class HrPayslip(models.Model):
             contract_ids = self.get_contract(employee, date_from, date_to)
             self.contract_id = self.env['hr.version'].browse(contract_ids[0]) if contract_ids else None
             self.struct_id = self.contract_id.struct_id or False
+        self._set_statutory_defaults_from_contract()
         self._update_loan_ids_by_date_range()
         self._compute_get_days_calculation_data()
 
@@ -802,6 +818,7 @@ class HrPayslip(models.Model):
         worked_days_lines = self.worked_days_line_ids.browse([])
         for r in worked_days_line_ids:
             worked_days_lines += worked_days_lines.new(r)
+        self._set_statutory_defaults_from_contract()
         self._update_loan_ids_by_date_range()
         self._compute_get_days_calculation_data()
         return

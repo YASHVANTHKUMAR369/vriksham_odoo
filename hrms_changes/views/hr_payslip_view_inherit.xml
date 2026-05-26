@@ -76,12 +76,21 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
 
-            <xpath expr="//field[@name='credit_note']" position="after">
-               <field name="loan_ids" widget="many2many_tags" readonly="state == 'done'" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
-                    <field name="salary_advance_ids" widget="many2many_tags" readonly="state == 'done'" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
-                <field name="gross_salary"/>
-                <field name="net_salary"/>
-                <field name="journal_entry_id" readonly="1" options="{'no_create': True}"/>
+            <xpath expr="//sheet/group[.//field[@name='credit_note']]" position="after">
+                <group col="4" colspan="4" name="payslip_custom_amounts_group">
+                    <group colspan="2" col="2">
+                        <field name="loan_ids" widget="many2many_tags" readonly="state == 'done'" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                        <field name="salary_advance_ids" widget="many2many_tags" readonly="state == 'done'" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                        <field name="journal_entry_id" readonly="1" options="{'no_create': True}"/>
+                    </group>
+                    <group colspan="2" col="2">
+                        <field name="employee_pf" readonly="state != 'draft'"/>
+                        <field name="professional_tax" readonly="state != 'draft'"/>
+                        <field name="tds_amount" readonly="state != 'draft' or ((contract_id.employee_pf or 0.0) == 0.0 and (contract_id.professional_tax or 0.0) == 0.0)"/>
+                        <field name="gross_salary"/>
+                        <field name="net_salary"/>
+                    </group>
+                </group>
             </xpath>
             <xpath expr="//field[@name='contract_id']" position="attributes">
                 <attribute name="readonly">1</attribute>
