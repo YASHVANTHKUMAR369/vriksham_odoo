@@ -1,5 +1,7 @@
 from datetime import datetime, time, timedelta
 
+import pytz
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
@@ -58,6 +60,44 @@ class HrAttendanceMassCreateWizard(models.TransientModel):
             minutes = 59
         return time(hour=hours, minute=minutes)
 
+    def _get_user_tz(self):
+        """Return the user's (or company's) pytz timezone, defaulting to UTC."""
+        tz_name = (
+            self.env.user.tz
+            or self.env.company.partner_id.tz
+            or "UTC"
+        )
+        try:
+            return pytz.timezone(tz_name)
+        except pytz.exceptions.UnknownTimeZoneError:
+            return pytz.UTC
+
+    def _local_dt_to_utc(self, naive_local_dt, tz):
+        """Localize a naive datetime in *tz* and return a naive UTC datetime."""
+        return tz.localize(naive_local_dt).astimezone(pytz.UTC).replace(tzinfo=None)
+
+    def _get_effective_times(self, employee, current_date, checkin_float, checkout_float, tz):
+        """
+        Return (checkin_float, checkout_float) if no approved leave exists on
+        *current_date* for *employee*, otherwise return None.
+        Any leave (full-day, half-day, or hourly) blocks attendance creation.
+        """
+        # Leave date_from/date_to are stored in UTC; convert local day boundaries to UTC
+        day_start_utc = self._local_dt_to_utc(datetime.combine(current_date, time.min), tz)
+        day_end_utc = self._local_dt_to_utc(datetime.combine(current_date, time.max), tz)
+
+        leave_exists = self.env["hr.leave"].search_count([
+            ("employee_id", "=", employee.id),
+            ("state", "in", ["validate", "validate1"]),
+            ("date_from", "<=", fields.Datetime.to_string(day_end_utc)),
+            ("date_to", ">=", fields.Datetime.to_string(day_start_utc)),
+        ])
+
+        if leave_exists:
+            return None
+
+        return (checkin_float, checkout_float)
+
     def _date_is_allowed(self, current_date):
         weekday = current_date.weekday()
         if weekday == 5 and not self.saturday:
@@ -77,36 +117,49 @@ class HrAttendanceMassCreateWizard(models.TransientModel):
         if not employees:
             return {"type": "ir.actions.act_window_close"}
 
-        checkin_t = self._float_to_time(self.checkin_time)
-        checkout_t = self._float_to_time(self.checkout_time)
-
+        tz = self._get_user_tz()
         attendance_values = []
         current_date = self.date_from
 
         while current_date <= self.date_to:
             if self._date_is_allowed(current_date):
-                day_start = datetime.combine(current_date, time.min)
-                day_end = datetime.combine(current_date, time.max)
-                checkin_dt = fields.Datetime.to_string(datetime.combine(current_date, checkin_t))
-                checkout_dt = fields.Datetime.to_string(datetime.combine(current_date, checkout_t))
+                # Attendance check_in is stored in UTC; convert day boundaries to UTC
+                day_start_utc = self._local_dt_to_utc(datetime.combine(current_date, time.min), tz)
+                day_end_utc = self._local_dt_to_utc(datetime.combine(current_date, time.max), tz)
 
                 existing = self.env["hr.attendance"].search([
                     ("employee_id", "in", employees.ids),
-                    ("check_in", ">=", fields.Datetime.to_string(day_start)),
-                    ("check_in", "<=", fields.Datetime.to_string(day_end)),
+                    ("check_in", ">=", fields.Datetime.to_string(day_start_utc)),
+                    ("check_in", "<=", fields.Datetime.to_string(day_end_utc)),
                 ])
                 existing_employee_ids = set(existing.mapped("employee_id").ids)
 
                 for employee in employees:
                     if employee.id in existing_employee_ids:
                         continue
-                    attendance_values.append(
-                        {
-                            "employee_id": employee.id,
-                            "check_in": checkin_dt,
-                            "check_out": checkout_dt,
-                        }
+
+                    # Compute effective times considering approved leaves
+                    times = self._get_effective_times(
+                        employee, current_date,
+                        self.checkin_time, self.checkout_time, tz,
                     )
+                    if times is None:
+                        # Full-day leave or leave covers entire work window → skip
+                        continue
+
+                    eff_checkin_float, eff_checkout_float = times
+                    # Convert local times to UTC before storing
+                    checkin_utc = self._local_dt_to_utc(
+                        datetime.combine(current_date, self._float_to_time(eff_checkin_float)), tz
+                    )
+                    checkout_utc = self._local_dt_to_utc(
+                        datetime.combine(current_date, self._float_to_time(eff_checkout_float)), tz
+                    )
+                    attendance_values.append({
+                        "employee_id": employee.id,
+                        "check_in": fields.Datetime.to_string(checkin_utc),
+                        "check_out": fields.Datetime.to_string(checkout_utc),
+                    })
 
             current_date += timedelta(days=1)
 

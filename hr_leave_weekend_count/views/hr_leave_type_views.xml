@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_leave_type_weekend_form" model="ir.ui.view">
+        <field name="name">hr.leave.type.count.weekend.form</field>
+        <field name="model">hr.leave.type</field>
+        <field name="inherit_id" ref="hr_holidays.edit_holiday_status_form"/>
+        <field name="arch" type="xml">
+            <!-- Add "Count Weekend Days" label right after "Ignore Public Holidays" label -->
+            <xpath expr="//label[@for='include_public_holidays_in_duration']" position="after">
+                <label for="count_weekend_days" class="me-4"/>
+            </xpath>
+            <!-- Add the corresponding field right after "Ignore Public Holidays" field -->
+            <xpath expr="//field[@name='include_public_holidays_in_duration']" position="after">
+                <field name="count_weekend_days" class="mb-2" nolabel="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
