@@ -616,14 +616,14 @@ class HrEmployee(models.Model):
 
     @api.model
     def get_latest_payslip_report_action(self):
-        """Download merged PDF of all payslips for current user's employee."""
+        """Download merged PDF of done payslips for current user's employee."""
         uid = request.session.uid
         employee = self.env['hr.employee'].sudo().search([('user_id', '=', uid)], limit=1)
         if not employee:
             return False
 
         payslips = self.env['hr.payslip'].sudo().search(
-            [('employee_id', '=', employee.id)],
+            [('employee_id', '=', employee.id), ('state', '=', 'done')],
             order='date_to desc, id desc',
         )
         if not payslips:
