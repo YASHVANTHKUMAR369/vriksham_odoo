@@ -321,7 +321,7 @@ class HrPayslip(models.Model):
 
         for leave in leave_ids:
             leave_cat = leave.holiday_status_id
-            if leave_cat.request_unit == 'day' and not leave_cat.count_weekend_days:
+            if leave_cat.request_unit == 'day':
                 days = leave.get_actual_leave(to_date=self.date_to, from_date=self.date_from)
             else:
                 days = leave.number_of_days
