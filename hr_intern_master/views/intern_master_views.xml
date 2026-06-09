@@ -239,16 +239,18 @@
         </field>
     </record>
 
-    <!-- Top-level App Menu -->
+    <!-- Top-level App Menu — only visible to users with group_intern_user or higher -->
     <menuitem id="menu_intern_master_root"
               name="Interns"
               sequence="80"
+              groups="hr_intern_master.group_intern_user"
               web_icon="hr_intern_master,static/description/icon.png"/>
 
     <menuitem id="menu_intern_master_list"
               name="Intern Records"
               parent="menu_intern_master_root"
               action="action_intern_master"
+              groups="hr_intern_master.group_intern_user"
               sequence="10"/>
 
 </odoo>

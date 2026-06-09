@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Privilege row — shows as "Intern Master" under HUMAN RESOURCES on the user form -->
+    <record model="res.groups.privilege" id="res_groups_privilege_intern_master">
+        <field name="name">Intern Master</field>
+        <field name="sequence">25</field>
+        <field name="category_id" ref="base.module_category_human_resources"/>
+    </record>
+
+    <!-- User: read / write / create (no delete) -->
+    <record id="group_intern_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_intern_master"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Manager: full access including delete -->
+    <record id="group_intern_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="res_groups_privilege_intern_master"/>
+        <field name="implied_ids" eval="[(4, ref('group_intern_user'))]"/>
+    </record>
+
+</odoo>

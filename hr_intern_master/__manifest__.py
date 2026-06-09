@@ -7,6 +7,7 @@
     "license": "LGPL-3",
     "depends": ["base", "hr", "mail", "web"],
     "data": [
+        "security/intern_groups.xml",
         "security/ir.model.access.csv",
         "report/intern_report.xml",
         "views/intern_master_views.xml",
