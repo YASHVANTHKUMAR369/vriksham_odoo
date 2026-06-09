@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="view_intern_master_form" model="ir.ui.view">
+        <field name="name">intern.master.form</field>
+        <field name="model">intern.master</field>
+        <field name="arch" type="xml">
+            <form string="Intern">
+                <header>
+                    <button name="action_print_offer_letter"
+                            string="Print Offer Letter"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state == 'draft'"/>
+                    <button name="action_print_completion_certificate"
+                            string="Print Completion Certificate"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'completed'"/>
+                    <button name="action_set_active" string="Set Active"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_set_completed" string="Mark Completed"
+                            type="object" class="btn-primary"
+                            invisible="state != 'active'"/>
+                    <button name="action_set_draft" string="Reset to Draft"
+                            type="object"
+                            invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,active,completed"/>
+                </header>
+                <sheet>
+                    <field name="image" widget="image"
+                           class="o_field_image"
+                           options="{'preview_image': 'image', 'size': [128, 128]}"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Intern Name"/>
+                        </h1>
+                        <h5>
+                            <field name="ref_number" placeholder="e.g. VST/25-26/009"/>
+                        </h5>
+                    </div>
+                    <group>
+                        <group string="Personal Details">
+                            <field name="company_id"/>
+                            <field name="gender"/>
+                            <field name="salutation" readonly="1"/>
+                            <field name="offer_date"/>
+                        </group>
+                        <group string="Academic Details">
+                            <field name="college_name"/>
+                            <field name="degree_department"/>
+                            <field name="year_of_study" placeholder="e.g. first-year"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="internship_details" string="Internship Details">
+                            <group>
+                                <group string="Duration">
+                                    <field name="internship_start_date"/>
+                                    <field name="internship_end_date"/>
+                                    <field name="duration_text" placeholder="e.g. two-week, one-month"/>
+                                </group>
+                                <group string="Assignment">
+                                    <field name="project_topic"/>
+                                    <field name="mentor_id"/>
+                                    <field name="team"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="report_settings" string="Report / Signature">
+                            <group>
+                                <group string="Signatory">
+                                    <field name="signed_by"/>
+                                </group>
+                            </group>
+                            <group string="Signature Preview (from user profile)">
+                                <field name="hr_signature" widget="image"
+                                       readonly="1"
+                                       options="{'size': [300, 120]}"
+                                       nolabel="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_intern_master_list" model="ir.ui.view">
+        <field name="name">intern.master.list</field>
+        <field name="model">intern.master</field>
+        <field name="arch" type="xml">
+            <list string="Interns"
+                  decoration-muted="state == 'draft'"
+                  decoration-success="state == 'completed'">
+                <field name="image" widget="image" optional="show"
+                       options="{'size': [32, 32]}"/>
+                <field name="ref_number"/>
+                <field name="name"/>
+                <field name="gender"/>
+                <field name="college_name"/>
+                <field name="degree_department"/>
+                <field name="year_of_study"/>
+                <field name="internship_start_date"/>
+                <field name="internship_end_date"/>
+                <field name="mentor_id"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'active'"
+                       decoration-success="state == 'completed'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Kanban View — Employee-style -->
+    <record id="view_intern_master_kanban" model="ir.ui.view">
+        <field name="name">intern.master.kanban</field>
+        <field name="model">intern.master</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_create="false">
+                <field name="name"/>
+                <field name="image"/>
+                <field name="ref_number"/>
+                <field name="college_name"/>
+                <field name="degree_department"/>
+                <field name="year_of_study"/>
+                <field name="internship_start_date"/>
+                <field name="internship_end_date"/>
+                <field name="mentor_id"/>
+                <field name="team"/>
+                <field name="state"/>
+                <field name="salutation"/>
+                <templates>
+                    <t t-name="card" class="flex-row">
+                        <aside class="o_kanban_aside_full">
+                            <t t-if="record.image.raw_value">
+                                <field name="image" widget="background_image"
+                                       options="{'zoom': true, 'zoom_delay': 1000}"
+                                       class="d-block position-relative"/>
+                            </t>
+                            <div t-else=""
+                                 class="d-flex align-items-center justify-content-center bg-100 bg-gradient">
+                                <svg class="w-75 h-75 opacity-50" viewBox="0 0 20 20"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <g fill="currentColor">
+                                        <path d="M 10 11 C 4.08 11 2 14 2 16 L 2 19 L 18 19 L 18 16 C 18 14 15.92 11 10 11 Z"/>
+                                        <circle cx="10" cy="5.5" r="4.5"/>
+                                    </g>
+                                </svg>
+                            </div>
+                        </aside>
+                        <main class="ms-2">
+                            <div>
+                                <field class="fw-bold fs-5" name="name" placeholder="Intern Name"/>
+                            </div>
+                            <div t-if="record.ref_number.raw_value" class="text-muted small">
+                                <i class="fa fa-fw me-1 fa-hashtag text-primary"/>
+                                <field name="ref_number"/>
+                            </div>
+                            <div t-if="record.college_name.raw_value" class="text-truncate">
+                                <i class="fa fa-fw me-1 fa-graduation-cap text-primary"/>
+                                <field name="college_name"/>
+                            </div>
+                            <div t-if="record.degree_department.raw_value" class="text-truncate text-muted small">
+                                <i class="fa fa-fw me-1 fa-book text-primary"/>
+                                <field name="degree_department"/>
+                            </div>
+                            <div t-if="record.internship_start_date.raw_value">
+                                <i class="fa fa-fw me-1 fa-calendar text-primary"/>
+                                <field name="internship_start_date"/>
+                                <t t-if="record.internship_end_date.raw_value">
+                                    <span class="mx-1">→</span>
+                                    <field name="internship_end_date"/>
+                                </t>
+                            </div>
+                            <div t-if="record.mentor_id.raw_value" class="text-truncate">
+                                <i class="fa fa-fw me-1 fa-user text-primary"/>
+                                <field name="mentor_id"/>
+                            </div>
+                            <footer class="py-0 mt-1">
+                                <field name="state" widget="badge"
+                                       decoration-info="state == 'draft'"
+                                       decoration-warning="state == 'active'"
+                                       decoration-success="state == 'completed'"/>
+                            </footer>
+                        </main>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_intern_master_search" model="ir.ui.view">
+        <field name="name">intern.master.search</field>
+        <field name="model">intern.master</field>
+        <field name="arch" type="xml">
+            <search string="Search Interns">
+                <field name="name" string="Intern Name"/>
+                <field name="ref_number" string="Reference Number"/>
+                <field name="college_name"/>
+                <field name="degree_department"/>
+                <field name="mentor_id"/>
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_active" string="Active" domain="[('state', '=', 'active')]"/>
+                <filter name="filter_completed" string="Completed" domain="[('state', '=', 'completed')]"/>
+                <separator/>
+                <filter name="filter_male" string="Male" domain="[('gender', '=', 'male')]"/>
+                <filter name="filter_female" string="Female" domain="[('gender', '=', 'female')]"/>
+                <group>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_gender" string="Gender" context="{'group_by': 'gender'}"/>
+                    <filter name="group_college" string="College" context="{'group_by': 'college_name'}"/>
+                    <filter name="group_mentor" string="Mentor" context="{'group_by': 'mentor_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window Action -->
+    <record id="action_intern_master" model="ir.actions.act_window">
+        <field name="name">Interns</field>
+        <field name="res_model">intern.master</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_intern_master_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add your first intern!
+            </p>
+            <p>
+                Manage intern records including offer letter and completion certificate.
+            </p>
+        </field>
+    </record>
+
+    <!-- Top-level App Menu -->
+    <menuitem id="menu_intern_master_root"
+              name="Interns"
+              sequence="80"
+              web_icon="hr_intern_master,static/description/icon.png"/>
+
+    <menuitem id="menu_intern_master_list"
+              name="Intern Records"
+              parent="menu_intern_master_root"
+              action="action_intern_master"
+              sequence="10"/>
+
+</odoo>

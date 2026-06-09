@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ─── Report Actions ─────────────────────────────────────────── -->
+
+    <record id="action_intern_offer_letter" model="ir.actions.report">
+        <field name="name">Internship Offer Letter</field>
+        <field name="model">intern.master</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_intern_master.report_intern_offer_letter</field>
+        <field name="report_file">hr_intern_master.report_intern_offer_letter</field>
+        <field name="print_report_name">'Internship Offer Letter - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_intern_master"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_intern_completion_certificate" model="ir.actions.report">
+        <field name="name">Internship Certificate of Completion</field>
+        <field name="model">intern.master</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hr_intern_master.report_intern_completion_certificate</field>
+        <field name="report_file">hr_intern_master.report_intern_completion_certificate</field>
+        <field name="print_report_name">'Internship Certificate - %s' % object.name</field>
+        <field name="binding_model_id" ref="model_intern_master"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- ─── Offer Letter Template ──────────────────────────────────── -->
+
+    <template id="report_intern_offer_letter">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-size: 13px; font-family: Arial, sans-serif;">
+
+                        <!-- Title -->
+                        <p class="text-center" style="font-size: 16px; font-weight: bold; margin-bottom: 24px;">
+                            Offer Letter for Internship
+                        </p>
+
+                        <!-- Name  |  Date -->
+                        <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <div class="col-6"><strong><t t-esc="o.name"/></strong></div>
+                            <div class="col-6" style="text-align: right;">Date: <strong>
+                                <t t-esc="o.offer_date.strftime('%B %d, %Y') if o.offer_date else ''"/>
+                            </strong></div>
+                        </div>
+
+                        <!-- Ref No -->
+                        <p style="margin: 2px 0;">
+                            Ref No.: <t t-esc="o.ref_number or ''"/>
+                        </p>
+
+                        <!-- RE -->
+                        <p style="margin: 2px 0 16px 0;">RE: Internship Letter</p>
+
+                        <!-- Body para 1 -->
+                        <p style="text-align: justify;">
+                            This is to confirm that
+                            <strong>
+                                <t t-esc="((o.salutation + ' ') if o.salutation else '') + o.name"/>
+                            </strong>, a
+                            <strong><t t-esc="o.year_of_study or ''"/></strong>
+                            student of the
+                            <strong><t t-esc="o.degree_department or ''"/></strong>
+                            from
+                            <strong><t t-esc="o.college_name or ''"/></strong>,
+                            is undergoing a
+                            <t t-esc="o.duration_text or 'two-week'"/>
+                            internship at
+                            <strong><t t-esc="o.company_id.name if o.company_id else ''"/></strong>.
+                        </p>
+
+                        <!-- Body para 2 -->
+                        <p style="text-align: justify;">
+                            During this period, the student will be working under the guidance of
+                            our team, gaining practical exposure and contributing to assigned
+                            projects as part of their academic curriculum.
+                        </p>
+
+                        <!-- Body para 3 -->
+                        <p>We wish the student a fruitful learning experience.</p>
+
+                        <br/><br/>
+
+                        <!-- Closing -->
+                        <p><strong>Sincerely,</strong></p>
+
+                        <br/>
+
+                        <!-- Signature image -->
+                        <img t-if="o.hr_signature"
+                             t-att-src="image_data_uri(o.hr_signature)"
+                             style="max-height: 80px; display: block;"/>
+
+                        <br t-if="not o.hr_signature"/>
+                        <br t-if="not o.hr_signature"/>
+
+                        <!-- Signatory -->
+                        <p style="margin: 0;">
+                            <strong><t t-esc="o.signed_by.name if o.signed_by else ''"/></strong>
+                        </p>
+                        <p style="margin: 0;"><strong>HR Head</strong></p>
+                        <p style="margin: 0;">
+                            <strong><t t-esc="o.company_id.name if o.company_id else ''"/></strong>
+                        </p>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ─── Certificate of Completion Template ─────────────────────── -->
+
+    <template id="report_intern_completion_certificate">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-size: 13px; font-family: Arial, sans-serif;">
+
+                        <!-- Title -->
+                        <p class="text-center" style="font-size: 16px; font-weight: bold; margin-bottom: 24px;">
+                            Certificate of Completion
+                        </p>
+
+                        <!-- Name  |  Date -->
+                        <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <div class="col-6"><strong><t t-esc="o.name"/></strong></div>
+                            <div class="col-6" style="text-align: right;">Date: <strong>
+                                <t t-esc="o.internship_end_date.strftime('%B %d, %Y') if o.internship_end_date else ''"/>
+                            </strong></div>
+                        </div>
+
+                        <!-- Ref No -->
+                        <p style="margin: 2px 0;">
+                            Ref No.: <t t-esc="o.ref_number or ''"/>
+                        </p>
+
+                        <!-- RE -->
+                        <p style="margin: 2px 0 16px 0;">RE: Internship Letter</p>
+
+                        <!-- Body para 1 -->
+                        <p style="text-align: justify;">
+                            This is to certify that
+                            <strong>
+                                <t t-esc="((o.salutation + ' ') if o.salutation else '') + o.name"/>
+                            </strong>
+                            has successfully completed an internship on
+                            "<strong><t t-esc="o.project_topic or ''"/></strong>"
+                            with <strong><t t-esc="o.company_id.name if o.company_id else ''"/></strong>.
+                            The internship was conducted under the guidance of
+                            <strong><t t-esc="o.mentor_id.name if o.mentor_id else ''"/></strong>
+                            from
+                            <strong>
+                                <t t-esc="o.internship_start_date.strftime('%B %d, %Y') if o.internship_start_date else ''"/>
+                            </strong>
+                            to
+                            <strong>
+                                <t t-esc="o.internship_end_date.strftime('%B %d, %Y') if o.internship_end_date else ''"/>
+                            </strong>
+                            as a member of the
+                            <t t-esc="o.team or ''"/>.
+                        </p>
+
+                        <!-- Body para 2 -->
+                        <p style="text-align: justify;">
+                            During this tenure,
+                            <strong>
+                                <t t-esc="((o.salutation + ' ') if o.salutation else '') + o.name"/>
+                            </strong>
+                            demonstrated sincerity, diligence, and a keen interest in
+                            <t t-esc="o.pronoun or 'their'"/> work.
+                            <t t-esc="o.pronoun_cap or 'Their'"/>
+                            dedication and hard work were evident throughout the internship program.
+                        </p>
+
+                        <!-- Body para 3 -->
+                        <p style="text-align: justify;">
+                            We appreciate
+                            <t t-esc="o.pronoun or 'their'"/>
+                            dedication and wish
+                            <t t-esc="o.pronoun_obj or 'them'"/>
+                            all the best in the future endeavors.
+                        </p>
+
+                        <br/><br/>
+
+                        <!-- Closing -->
+                        <p><strong>Sincerely,</strong></p>
+
+                        <br/>
+
+                        <!-- Signature image -->
+                        <img t-if="o.hr_signature"
+                             t-att-src="image_data_uri(o.hr_signature)"
+                             style="max-height: 80px; display: block;"/>
+
+                        <br t-if="not o.hr_signature"/>
+                        <br t-if="not o.hr_signature"/>
+
+                        <!-- Signatory -->
+                        <p style="margin: 0;">
+                            <strong><t t-esc="o.signed_by.name if o.signed_by else ''"/></strong>
+                        </p>
+                        <p style="margin: 0;"><strong>HR Head</strong></p>
+                        <p style="margin: 0;">
+                            <strong><t t-esc="o.company_id.name if o.company_id else ''"/></strong>
+                        </p>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>
