@@ -123,6 +123,7 @@
                             Certificate of Completion
                         </p>
 
+                        <br/>
                         <!-- Name  |  Date -->
                         <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                             <div class="col-6"><strong><t t-esc="o.name"/></strong></div>
@@ -131,6 +132,7 @@
                             </strong></div>
                         </div>
 
+                        <br/>
                         <!-- Ref No -->
                         <p style="margin: 2px 0;">
                             Ref No.: <t t-esc="o.ref_number or ''"/>
@@ -190,9 +192,7 @@
 
                         <!-- Closing -->
                         <p><strong>Sincerely,</strong></p>
-
-                        <br/>
-
+                        
                         <!-- Signature image -->
                         <img t-if="o.hr_signature"
                              t-att-src="image_data_uri(o.hr_signature)"
