@@ -120,9 +120,18 @@ class HrPayslip(models.Model):
         summary = self.compute_days_summary()
         earning_rows = self._get_monthly_payable_earning_rows()
 
-        gross_salary = sum(amount for _, amount in earning_rows)
         per_day_salary = summary.get('per_day_salary', 0)
         lop_days = summary.get('lop_day', 0)
+        total_days = summary.get('total_days', 1) or 1
+        effective_total_days = summary.get('effective_total_days', total_days) or total_days
+
+        # Pro-rate each component: (payable_days) / calendar_days_in_month
+        payable_days = max(effective_total_days - lop_days, 0)
+        if payable_days < total_days:
+            paid_ratio = payable_days / total_days
+            earning_rows = [(name, round(amount * paid_ratio, 2)) for name, amount in earning_rows]
+
+        gross_salary = sum(amount for _, amount in earning_rows)
 
         contract = self.contract_id
         employee_pf = self.employee_pf if self.employee_pf else (contract.employee_pf or 0.0)
@@ -224,8 +233,18 @@ class HrPayslip(models.Model):
         """
         total_days = (self.date_to - self.date_from).days + 1
 
+        # For mid-month joiners use contract start date as effective start.
+        contract_start = (
+            self.contract_id.date_start
+            if self.contract_id and self.contract_id.date_start
+            else self.date_from
+        )
+        effective_start = max(self.date_from, contract_start)
+        effective_total_days = (self.date_to - effective_start).days + 1
+
         # LOP base should be monthly payable earnings only, matching salary tab calculations.
         wage = round(sum(amount for _, amount in self._get_monthly_payable_earning_rows()), 2)
+        # Per-day rate always uses full calendar month so proration is correct.
         per_day_salary = round(wage / total_days, 2) if total_days else 0.0
 
         calendar = self.employee_id.resource_calendar_id or self.contract_id.resource_calendar_id
@@ -233,12 +252,12 @@ class HrPayslip(models.Model):
         # Attendances — compute day credit based on shift (calendar) hours.
         attendance_records = self.env['hr.attendance'].search([
             ('employee_id', '=', self.employee_id.id),
-            ('check_in', '>=', datetime.combine(self.date_from, time.min)),
+            ('check_in', '>=', datetime.combine(effective_start, time.min)),
             ('check_in', '<=', datetime.combine(self.date_to, time.max)),
         ])
         attendance_days = 0.0
+        attendance_hours_by_day = defaultdict(float)
         if attendance_records:
-            attendance_hours_by_day = defaultdict(float)
             for attendance in attendance_records:
                 if not attendance.check_in:
                     continue
@@ -261,13 +280,16 @@ class HrPayslip(models.Model):
 
         attendance_days = round(attendance_days, 2)
 
+        week_days = list(set(calendar.attendance_ids.mapped('dayofweek'))) if calendar else ['0', '1', '2', '3', '4', '5', '6']
+        week_day_set = set(week_days)
+
         public_holidays_days = 0
         if self.employee_id:
             tz_employee = self.employee_id.with_context(
                 tz=(self.employee_id.tz or (calendar.tz if calendar else False) or self.env.user.tz)
             )
             public_holiday_leaves = self.employee_id._get_public_holidays(
-                datetime.combine(self.date_from, time.min),
+                datetime.combine(effective_start, time.min),
                 datetime.combine(self.date_to, time.max),
             )
 
@@ -278,11 +300,14 @@ class HrPayslip(models.Model):
                 local_start_date = fields.Datetime.context_timestamp(tz_employee, start_dt).date()
                 local_end_date = fields.Datetime.context_timestamp(tz_employee, end_dt).date()
 
-                start_date = max(local_start_date, self.date_from)
+                start_date = max(local_start_date, effective_start)
                 end_date = min(local_end_date, self.date_to)
                 current_date = start_date
                 while current_date <= end_date:
-                    public_holiday_dates.add(current_date)
+                    # Only count as holiday if it's a working day AND employee has no attendance
+                    if (str(current_date.weekday()) in week_day_set
+                            and current_date not in attendance_hours_by_day):
+                        public_holiday_dates.add(current_date)
                     current_date += timedelta(days=1)
 
             override_leave_dates = set()
@@ -291,10 +316,10 @@ class HrPayslip(models.Model):
                 ('state', '=', 'validate'),
                 ('holiday_status_id.include_public_holidays_in_duration', '=', True),
                 ('request_date_from', '<=', self.date_to),
-                ('request_date_to', '>=', self.date_from),
+                ('request_date_to', '>=', effective_start),
             ])
             for leave in override_leaves:
-                start_date = max(leave.request_date_from, self.date_from)
+                start_date = max(leave.request_date_from, effective_start)
                 end_date = min(leave.request_date_to, self.date_to)
                 current_date = start_date
                 while current_date <= end_date:
@@ -308,9 +333,8 @@ class HrPayslip(models.Model):
             ('employee_id', '=', self.employee_id.id),
             ('state', '=', 'validate'),
         ])
-        week_days = list(set(calendar.attendance_ids.mapped('dayofweek'))) if calendar else ['0', '1', '2', '3', '4', '5', '6']
         week_off_count = 0
-        current_day = self.date_from
+        current_day = effective_start
         while current_day <= self.date_to:
             if str(current_day.weekday()) not in week_days:
                 week_off_count+=1
@@ -342,12 +366,13 @@ class HrPayslip(models.Model):
         paid_leaves_list = [{'name': k, 'days': v} for k, v in paid_leaves.items()]
         unpaid_leaves_list = [{'name': k, 'days': v} for k, v in unpaid_leaves.items()]
 
-        unapplied_leave_days = round(max(total_days - attendance_days - applied_leaves - public_holidays_days - week_off_count, 0), 2)
+        unapplied_leave_days = round(max(effective_total_days - attendance_days - applied_leaves - public_holidays_days - week_off_count, 0), 2)
         lop_day = unapplied_leave_days
         for i in unpaid_leaves_list:
             lop_day += i['days']
         return {
             'total_days': total_days,
+            'effective_total_days': effective_total_days,
             'attendance_days': attendance_days,
             'public_holidays_days': public_holidays_days,
             'week_off_count': week_off_count,
@@ -465,7 +490,7 @@ class HrPayslip(models.Model):
                     <tbody>
                         <tr>
                             <th>Total Days</th>
-                            <td class="text-end">{data['total_days']}</td>
+                            <td class="text-end">{data['effective_total_days']}</td>
                         </tr>
                         <tr>
                             <th>Public Holidays</th>

@@ -61,15 +61,15 @@
                             <strong>
                                 <t t-esc="((o.salutation + ' ') if o.salutation else '') + o.name"/>
                             </strong>, a
-                            <strong><t t-esc="o.year_of_study or ''"/></strong>
+                            <t t-esc="o.year_of_study or ''"/>
                             student of the
-                            <strong><t t-esc="o.degree_department or ''"/></strong>
+                            <t t-esc="o.degree_department or ''"/>  Department 
                             from
                             <strong><t t-esc="o.college_name or ''"/></strong>,
                             is undergoing a
                             <t t-esc="o.duration_text or 'two-week'"/>
                             internship at
-                            <strong><t t-esc="o.company_id.name if o.company_id else ''"/></strong>.
+                            <t t-esc="o.company_id.name if o.company_id else ''"/>.
                         </p>
 
                         <!-- Body para 2 -->
