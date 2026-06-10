@@ -17,6 +17,10 @@ class InternMaster(models.Model):
         ('other', 'Other'),
     ], string='Gender', tracking=True)
     salutation = fields.Char(string='Salutation', compute='_compute_gender_fields', store=True)
+    mentor_title = fields.Selection([
+        ('mr', 'Mr.'),
+        ('ms', 'Ms.'),
+    ], string='Mentor Title', tracking=True)
     pronoun = fields.Char(string='Pronoun (Possessive)', compute='_compute_gender_fields', store=True)
     pronoun_obj = fields.Char(string='Pronoun (Object)', compute='_compute_gender_fields', store=True)
     pronoun_cap = fields.Char(string='Pronoun (Capitalised)', compute='_compute_gender_fields', store=True)
@@ -42,10 +46,10 @@ class InternMaster(models.Model):
     internship_start_date = fields.Date(string='Internship Start Date', tracking=True)
     internship_end_date = fields.Date(string='Internship End Date', tracking=True)
     duration_text = fields.Char(string='Internship Duration', tracking=True,
-                                 help="e.g. two-week, one-month, six-week")
-    project_topic = fields.Char(string='Project / Topic', tracking=True)
+                                 help="e.g. two-week, one-month, six-week", default="Two-week")
+    project_topic = fields.Char(string='Project / Topic', tracking=True, default="SAP Software Development")
     mentor_id = fields.Many2one('res.users', string='Mentor', tracking=True)
-    team = fields.Char(string='Team', tracking=True)
+    team = fields.Char(string='Team', tracking=True, default="Development Team")
 
     # Report / Signature
     signed_by = fields.Many2one('res.users', string='Signed By', tracking=True)

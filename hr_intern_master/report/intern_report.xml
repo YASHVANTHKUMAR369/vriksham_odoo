@@ -32,12 +32,12 @@
             <t t-foreach="docs" t-as="o">
                 <t t-call="web.external_layout">
                     <div class="page" style="font-size: 13px; font-family: Arial, sans-serif;">
-
                         <!-- Title -->
                         <p class="text-center" style="font-size: 16px; font-weight: bold; margin-bottom: 24px;">
                             Offer Letter for Internship
                         </p>
 
+                        <br/>
                         <!-- Name  |  Date -->
                         <div class="row" style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                             <div class="col-6"><strong><t t-esc="o.name"/></strong></div>
@@ -54,6 +54,7 @@
                         <!-- RE -->
                         <p style="margin: 2px 0 16px 0;">RE: Internship Letter</p>
 
+                        <br/>
                         <!-- Body para 1 -->
                         <p style="text-align: justify;">
                             This is to confirm that
@@ -85,8 +86,6 @@
 
                         <!-- Closing -->
                         <p><strong>Sincerely,</strong></p>
-
-                        <br/>
 
                         <!-- Signature image -->
                         <img t-if="o.hr_signature"
@@ -150,7 +149,10 @@
                             "<strong><t t-esc="o.project_topic or ''"/></strong>"
                             with <strong><t t-esc="o.company_id.name if o.company_id else ''"/></strong>.
                             The internship was conducted under the guidance of
-                            <strong><t t-esc="o.mentor_id.name if o.mentor_id else ''"/></strong>
+                            <strong>
+                                <t t-esc="(('Mr.' if o.mentor_title == 'mr' else 'Ms.') + ' ') if o.mentor_title else ''"/>
+                                <t t-esc="o.mentor_id.name if o.mentor_id else ''"/>
+                            </strong>
                             from
                             <strong>
                                 <t t-esc="o.internship_start_date.strftime('%B %d, %Y') if o.internship_start_date else ''"/>

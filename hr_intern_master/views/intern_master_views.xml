@@ -62,12 +62,13 @@
                                 <group string="Duration">
                                     <field name="internship_start_date"/>
                                     <field name="internship_end_date"/>
-                                    <field name="duration_text" placeholder="e.g. two-week, one-month"/>
+                                    <field name="duration_text" placeholder="e.g. two-week, one-month" invisible="1"/>
                                 </group>
                                 <group string="Assignment">
-                                    <field name="project_topic"/>
+                                    <field name="project_topic" invisible="1"/>
+                                    <field name="mentor_title"/>
                                     <field name="mentor_id"/>
-                                    <field name="team"/>
+                                    <field name="team" invisible="1"/>
                                 </group>
                             </group>
                         </page>
