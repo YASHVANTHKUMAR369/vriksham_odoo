@@ -132,11 +132,11 @@
                             </strong></div>
                         </div>
 
-                        <br/>
                         <!-- Ref No -->
                         <p style="margin: 2px 0;">
                             Ref No.: <t t-esc="o.ref_number or ''"/>
                         </p>
+                        <br/>
 
                         <!-- RE -->
                         <p style="margin: 2px 0 16px 0;">RE: Internship Letter</p>
@@ -192,7 +192,7 @@
 
                         <!-- Closing -->
                         <p><strong>Sincerely,</strong></p>
-                        
+
                         <!-- Signature image -->
                         <img t-if="o.hr_signature"
                              t-att-src="image_data_uri(o.hr_signature)"
