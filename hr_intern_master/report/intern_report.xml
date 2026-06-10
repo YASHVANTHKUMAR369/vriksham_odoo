@@ -136,11 +136,10 @@
                         <p style="margin: 2px 0;">
                             Ref No.: <t t-esc="o.ref_number or ''"/>
                         </p>
-                        <br/>
 
                         <!-- RE -->
                         <p style="margin: 2px 0 16px 0;">RE: Internship Letter</p>
-
+                        <br/>
                         <!-- Body para 1 -->
                         <p style="text-align: justify;">
                             This is to certify that
