@@ -386,10 +386,12 @@ class HrPayslip(models.Model):
                     current_date += timedelta(days=1)
 
             public_holidays_days = len(public_holiday_dates - override_leave_dates)
-        # Valid leaves
+        # Valid leaves within the payslip period
         leave_ids = self.env['hr.leave'].search([
             ('employee_id', '=', self.employee_id.id),
             ('state', '=', 'validate'),
+            ('request_date_from', '<=', self.date_to),
+            ('request_date_to', '>=', self.date_from),
         ])
         week_off_count = 0
         current_day = effective_start
