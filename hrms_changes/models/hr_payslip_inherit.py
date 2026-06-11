@@ -69,6 +69,8 @@ class HrPayslip(models.Model):
     gross_salary = fields.Float(string="Gross Salary", compute='compute_net_salary')
     journal_entry_id = fields.Many2one('account.move', string='Journal Entry', readonly=True, copy=False)
     journal_entry_count = fields.Integer(string='Journal Entries', compute='_compute_journal_entry_count')
+    leave_count = fields.Integer(string='Leaves', compute='_compute_leave_count')
+    attendance_count = fields.Integer(string='Attendances', compute='_compute_attendance_count')
     journal_entry_status = fields.Selection(
         [
             ('not_paid', 'Not Paid'),
@@ -84,6 +86,62 @@ class HrPayslip(models.Model):
     def _compute_journal_entry_count(self):
         for rec in self:
             rec.journal_entry_count = 1 if rec.journal_entry_id else 0
+
+    @api.depends('employee_id', 'date_from', 'date_to')
+    def _compute_leave_count(self):
+        for rec in self:
+            if rec.employee_id and rec.date_from and rec.date_to:
+                rec.leave_count = self.env['hr.leave'].search_count([
+                    ('employee_id', '=', rec.employee_id.id),
+                    ('state', '=', 'validate'),
+                    ('request_date_from', '<=', rec.date_to),
+                    ('request_date_to', '>=', rec.date_from),
+                ])
+            else:
+                rec.leave_count = 0
+
+    @api.depends('employee_id', 'date_from', 'date_to')
+    def _compute_attendance_count(self):
+        for rec in self:
+            if rec.employee_id and rec.date_from and rec.date_to:
+                rec.attendance_count = self.env['hr.attendance'].search_count([
+                    ('employee_id', '=', rec.employee_id.id),
+                    ('check_in', '>=', datetime.combine(rec.date_from, time.min)),
+                    ('check_in', '<=', datetime.combine(rec.date_to, time.max)),
+                ])
+            else:
+                rec.attendance_count = 0
+
+    def action_view_leaves(self):
+        self.ensure_one()
+        return {
+            'name': _('Leaves'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'hr.leave',
+            'view_mode': 'list,form',
+            'domain': [
+                ('employee_id', '=', self.employee_id.id),
+                ('state', '=', 'validate'),
+                ('request_date_from', '<=', self.date_to),
+                ('request_date_to', '>=', self.date_from),
+            ],
+            'context': {'default_employee_id': self.employee_id.id},
+        }
+
+    def action_view_attendances(self):
+        self.ensure_one()
+        return {
+            'name': _('Attendances'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'hr.attendance',
+            'view_mode': 'list,form',
+            'domain': [
+                ('employee_id', '=', self.employee_id.id),
+                ('check_in', '>=', datetime.combine(self.date_from, time.min)),
+                ('check_in', '<=', datetime.combine(self.date_to, time.max)),
+            ],
+            'context': {'default_employee_id': self.employee_id.id},
+        }
 
     @api.depends('journal_entry_id', 'journal_entry_id.state', 'journal_entry_id.reversal_move_ids.state', 'journal_entry_id.reversed_entry_id.state')
     def _compute_journal_entry_status(self):

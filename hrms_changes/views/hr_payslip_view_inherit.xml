@@ -39,6 +39,18 @@
                         groups="account.group_account_manager,account.group_account_user">
                     <field name="journal_entry_count" widget="statinfo" string="Journal Entry"/>
                 </button>
+                <button name="action_view_leaves"
+                        class="oe_stat_button"
+                        icon="fa-calendar-times-o"
+                        type="object">
+                    <field name="leave_count" widget="statinfo" string="Leaves"/>
+                </button>
+                <button name="action_view_attendances"
+                        class="oe_stat_button"
+                        icon="fa-clock-o"
+                        type="object">
+                    <field name="attendance_count" widget="statinfo" string="Attendances"/>
+                </button>
             </xpath>
 
             <xpath expr="//button[@name='action_payslip_done']" position="after">
