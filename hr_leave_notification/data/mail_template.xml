@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- No mail templates needed: notification is sent via message_notify in the model -->
+</odoo>
