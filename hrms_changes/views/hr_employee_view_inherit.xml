@@ -84,7 +84,7 @@
                             <field name="departure_reason_id" invisible="active"/>
                             <field name="is_first_version" invisible="1"/>
                             <field name="is_last_version" invisible="1"/>
-                            <field name="departure_date" string="Regination Date" invisible="active"/>
+                            <field name="departure_date" string="Resignation Date" invisible="active"/>
                         </group>
                     </group>
                     <field name="salary_calculation_html" groups="hr.group_hr_manager"/>
