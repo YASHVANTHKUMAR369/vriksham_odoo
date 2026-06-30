@@ -21,7 +21,7 @@
 
                         <!-- Date -->
                         <p>
-                            <strong t-esc="o.hire_date.strftime('%B %d, %Y') if o.hire_date else '-'"/>
+                            <strong t-esc="o.last_working_date.strftime('%B %d, %Y') if o.last_working_date else '-'"/>
                         </p>
 
                         <br/>
@@ -67,7 +67,6 @@
                             <strong class="mt-1"
                                     t-esc="o.last_working_date.strftime('%d-%b-%Y') if o.last_working_date else 'Present'"/>
 
-                            <br/>
                             At the time of resignation,
                             <t t-esc="'she' if o.sex == 'female' else 'he'"/> was designated as
                             <strong>
