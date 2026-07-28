@@ -35,6 +35,9 @@
     'website': "https://www.cybrosys.com",
     'depends': ['base'],
     'data': [
+        'security/ir.model.access.csv',
+        'data/res_users_menu_role_data.xml',
+        'views/res_users_menu_role_views.xml',
         'views/res_users_views.xml',
         'views/ir_ui_menu_views.xml',
     ],

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_res_users_menu_role_list" model="ir.ui.view">
+        <field name="name">res.users.menu.role.list</field>
+        <field name="model">res.users.menu.role</field>
+        <field name="arch" type="xml">
+            <list string="Menu Access Roles" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="show_all_menus"/>
+                <field name="visible_menu_ids" widget="many2many_tags"
+                       invisible="show_all_menus"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_res_users_menu_role_form" model="ir.ui.view">
+        <field name="name">res.users.menu.role.form</field>
+        <field name="model">res.users.menu.role</field>
+        <field name="arch" type="xml">
+            <form string="Menu Access Role">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="show_all_menus"/>
+                        <field name="visible_menu_ids" widget="many2many_tags"
+                               invisible="show_all_menus"
+                               placeholder="Apps this role is allowed to see..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_res_users_menu_role" model="ir.actions.act_window">
+        <field name="name">Menu Access Roles</field>
+        <field name="res_model">res.users.menu.role</field>
+        <field name="view_mode">list,form</field>
+        <field name="help">Define which apps each role (Admin, HR, Employee, ...) is
+            allowed to see. Assign a role on a user's Access Rights tab to
+            automatically hide every other app for them.</field>
+    </record>
+
+    <menuitem id="menu_res_users_menu_role"
+              name="Menu Access Roles"
+              action="action_res_users_menu_role"
+              parent="base.menu_users"
+              groups="base.group_system"
+              sequence="20"/>
+</odoo>

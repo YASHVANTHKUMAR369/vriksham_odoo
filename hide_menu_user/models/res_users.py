@@ -35,6 +35,34 @@ class ResUsers(models.Model):
     is_show_specific_menu = fields.Boolean(string='Is Show Specific Menu',
                                            compute='_compute_is_show_specific_menu',
                                            help='Field determine to show the hide specific menu')
+    menu_role_id = fields.Many2one(
+        'res.users.menu.role', string='Menu Access',
+        default=lambda self: self.env.ref(
+            'hide_menu_user.menu_role_employee', raise_if_not_found=False),
+        help='Pick a role to automatically hide the apps that role should '
+             'not see. You can still add or remove individual menus in '
+             'the "Hide Specific Menu" tab afterwards.')
+
+    @api.onchange('menu_role_id')
+    def _onchange_menu_role_id(self):
+        if self.menu_role_id:
+            self.hide_menu_ids = [fields.Command.set(
+                self.menu_role_id._get_hidden_menu_ids().ids)]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('menu_role_id') and 'hide_menu_ids' not in vals:
+                role = self.env['res.users.menu.role'].browse(
+                    vals['menu_role_id'])
+                vals['hide_menu_ids'] = [fields.Command.set(
+                    role._get_hidden_menu_ids().ids)]
+        users = super().create(vals_list)
+        for user in users:
+            for menu in user.hide_menu_ids:
+                menu.sudo().write(
+                    {'restrict_user_ids': [fields.Command.link(user.id)]})
+        return users
 
     def write(self, vals):
         # Store old hide_menu_ids per record
