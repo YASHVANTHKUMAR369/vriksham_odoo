@@ -64,9 +64,15 @@ class ResUsers(models.Model):
         """ compute function of the field is show specific menu """
         group_id = self.env.ref('base.group_user')
         for rec in self:
-            if group_id and group_id.id in rec.group_ids.ids:
-                rec.is_show_specific_menu = False
-            else:
-                if rec.hide_menu_ids:
-                    rec.hide_menu_ids = [fields.Command.clear()]
-                rec.is_show_specific_menu = True
+            rec.is_show_specific_menu = not (group_id and group_id.id in rec.group_ids.ids)
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'group_ids' in vals:
+            group_id = self.env.ref('base.group_user')
+            if group_id:
+                demoted = self.filtered(
+                    lambda u: group_id.id not in u.group_ids.ids and u.hide_menu_ids)
+                if demoted:
+                    demoted.hide_menu_ids = [fields.Command.clear()]
+        return res
