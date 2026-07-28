@@ -57,28 +57,7 @@ class ResUsers(models.Model):
                     vals['menu_role_id'])
                 vals['hide_menu_ids'] = [fields.Command.set(
                     role._get_hidden_menu_ids().ids)]
-        users = super().create(vals_list)
-        for user in users:
-            for menu in user.hide_menu_ids:
-                menu.sudo().write(
-                    {'restrict_user_ids': [fields.Command.link(user.id)]})
-        return users
-
-    def write(self, vals):
-        # Store old hide_menu_ids per record
-        old_hide_menu_map = {record.id: record.hide_menu_ids for record in self}
-        res = super().write(vals)
-        for record in self:
-            old_hide_menu_ids = old_hide_menu_map.get(record.id,
-                                                      self.env['ir.ui.menu'])
-            # Add new restrictions
-            for menu in record.hide_menu_ids:
-                menu.sudo().write({'restrict_user_ids': [fields.Command.link(record.id)]})
-            # Remove old ones that are no longer selected
-            removed_menus = old_hide_menu_ids - record.hide_menu_ids
-            for menu in removed_menus:
-                menu.sudo().write({'restrict_user_ids': [fields.Command.unlink(record.id)]})
-        return res
+        return super().create(vals_list)
 
     @api.depends('group_ids')
     def _compute_is_show_specific_menu(self):
@@ -88,7 +67,6 @@ class ResUsers(models.Model):
             if group_id and group_id.id in rec.group_ids.ids:
                 rec.is_show_specific_menu = False
             else:
-                for menu in rec.hide_menu_ids:
-                    menu.restrict_user_ids = [fields.Command.unlink(rec.id)]
-                rec.hide_menu_ids = [fields.Command.clear()]
+                if rec.hide_menu_ids:
+                    rec.hide_menu_ids = [fields.Command.clear()]
                 rec.is_show_specific_menu = True
