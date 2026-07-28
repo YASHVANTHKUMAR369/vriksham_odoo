@@ -21,10 +21,8 @@
 
                         <!-- Date -->
                         <p>
-                            <strong t-esc="o.hire_date.strftime('%B %d, %Y') if o.hire_date else '-'"/>
+                            <strong t-esc="o.last_working_date.strftime('%B %d, %Y') if o.last_working_date else '-'"/>
                         </p>
-
-                        <br/>
 
                         <!-- Employee Details -->
                         <p>
@@ -35,23 +33,16 @@
                             <strong>EID:
                                 <t t-esc="o.identification_id"/>
                             </strong>
+                            <br/>
+                            <span>Re: Experience Letter</span>
                         </p>
 
-                        <br/>
-
-                        <p>
-                            Re: Experience Letter
-                        </p>
-
-                        <br/>
 
                         <!-- Body -->
                         <p>
                             Dear
                             <strong class="mt-2" t-esc="o.name"/>,
                         </p>
-
-                        <br/>
 
                         <p>
                             This is to confirm that
@@ -75,13 +66,11 @@
                             .
                         </p>
 
-                        <br/>
 
                         <p>
                             This letter is issued as proof of work experience.
                         </p>
 
-                        <br/>
 
                         <p>
                             We wish you success in your future endeavors and hope that your
