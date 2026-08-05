@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <template id="salary_dashboard_html_template" name="Salary Dashboard">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <title><t t-esc="run.name"/> - Salary Dashboard</title>
+                <style>
+                    body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 12px; margin: 16px; }
+                    .o_sd_toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+                    .o_sd_toolbar h2 { margin: 0; flex: 1; min-width: 220px; }
+                    .o_sd_export_btn {
+                        background-color: #714B67; color: #fff; padding: 8px 16px; border-radius: 4px;
+                        text-decoration: none; font-weight: bold; white-space: nowrap;
+                    }
+                    .o_sd_export_btn:hover { background-color: #5a3c53; color: #fff; }
+                    .o_sd_search {
+                        padding: 7px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;
+                        min-width: 220px;
+                    }
+                    .o_sd_clear_btn {
+                        background-color: #fff; color: #714B67; border: 1px solid #714B67; padding: 7px 14px;
+                        border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; white-space: nowrap;
+                    }
+                    .o_sd_clear_btn:hover { background-color: #f3ecf2; }
+                    .o_sd_count { font-size: 12px; color: #555; white-space: nowrap; }
+                    .o_sd_scroll { overflow: auto; width: 100%; border: 1px solid #ddd; max-height: calc(100vh - 170px); }
+                    table { border-collapse: collapse; width: max-content; white-space: nowrap; }
+                    th, td { border: 1px solid #ccc; padding: 4px 8px; }
+                    th { background-color: #f1f1f1; text-align: center; position: sticky; top: 0; z-index: 2; }
+                    td.text-end { text-align: right; }
+                    tfoot td { font-weight: bold; background-color: #f8f8f8; }
+                    th:nth-child(-n+3), td:nth-child(-n+3) {
+                        position: sticky; background-color: #fff; z-index: 1;
+                    }
+                    th:nth-child(1), td:nth-child(1) { left: 0; }
+                    th:nth-child(2), td:nth-child(2) { left: 40px; }
+                    th:nth-child(3), td:nth-child(3) { left: 150px; }
+                    th:nth-child(-n+3) { z-index: 3; }
+
+                    tbody tr:hover td { background-color: #eaf3fc; }
+                    tbody tr:hover td:nth-child(-n+3) { background-color: #eaf3fc; }
+                    tbody tr.o_sd_row_selected td { background-color: #eaf3fc; }
+                    tbody tr.o_sd_row_selected td:nth-child(-n+3) { background-color: #eaf3fc; }
+
+                    th.o_sd_sortable { user-select: none; }
+                    .o_sd_sort_arrow { display: inline-block; width: 10px; opacity: 0.5; }
+                    th.o_sd_sort_asc .o_sd_sort_arrow, th.o_sd_sort_desc .o_sd_sort_arrow { opacity: 1; }
+
+                    tr.o_sd_row_hidden { display: none; }
+
+                    .o_sd_filter_btn {
+                        display: inline-block; margin-left: 4px; cursor: pointer; font-size: 10px;
+                        color: #666; user-select: none; padding: 0 2px;
+                    }
+                    .o_sd_filter_btn:hover { color: #000; }
+                    .o_sd_filter_btn.o_sd_filter_active { color: #714B67; font-weight: bold; }
+
+                    .o_sd_filter_panel {
+                        position: fixed; z-index: 1000; background: #fff; border: 1px solid #bbb;
+                        border-radius: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.22); width: 260px;
+                        font-size: 12px; font-weight: normal; text-align: left; padding: 8px;
+                    }
+                    .o_sd_filter_panel .o_sd_fp_sort {
+                        display: block; width: 100%; text-align: left; background: none; border: none;
+                        padding: 6px 4px; cursor: pointer; font-size: 12px; border-radius: 3px;
+                    }
+                    .o_sd_filter_panel .o_sd_fp_sort:hover { background-color: #f1f1f1; }
+                    .o_sd_fp_sep { border: none; border-top: 1px solid #eee; margin: 6px 0; }
+                    .o_sd_fp_search {
+                        width: 100%; box-sizing: border-box; padding: 5px 8px; border: 1px solid #ccc;
+                        border-radius: 3px; font-size: 12px; margin-bottom: 6px;
+                    }
+                    .o_sd_fp_actions { display: flex; gap: 10px; margin-bottom: 6px; }
+                    .o_sd_fp_actions a { font-size: 11px; color: #1a73e8; cursor: pointer; text-decoration: none; }
+                    .o_sd_fp_actions a:hover { text-decoration: underline; }
+                    .o_sd_fp_list { max-height: 220px; overflow-y: auto; border-top: 1px solid #eee; padding-top: 4px; }
+                    .o_sd_fp_item {
+                        display: flex; align-items: center; gap: 6px; padding: 3px 2px; font-size: 12px;
+                        cursor: pointer; border-radius: 3px;
+                    }
+                    .o_sd_fp_item:hover { background-color: #f1f1f1; }
+                    .o_sd_fp_item input { margin: 0; cursor: pointer; }
+                    .o_sd_fp_item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                    .o_sd_fp_footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+                    .o_sd_fp_footer button {
+                        padding: 6px 14px; border-radius: 4px; font-size: 12px; cursor: pointer; border: 1px solid #ccc;
+                        background: #fff;
+                    }
+                    .o_sd_fp_footer button.o_sd_fp_ok { background: #714B67; color: #fff; border-color: #714B67; }
+                    .o_sd_fp_footer button.o_sd_fp_ok:hover { background-color: #5a3c53; }
+
+                    .o_sd_slip_link { color: #1a73e8; text-decoration: none; }
+                    .o_sd_slip_link:hover { text-decoration: underline; }
+
+                    .o_sd_columns_btn {
+                        background-color: #fff; color: #714B67; border: 1px solid #714B67; padding: 7px 14px;
+                        border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; white-space: nowrap;
+                    }
+                    .o_sd_columns_btn:hover { background-color: #f3ecf2; }
+                    .o_sd_fp_hide_col {
+                        display: block; width: 100%; text-align: left; background: none; border: none;
+                        padding: 6px 4px; cursor: pointer; font-size: 12px; border-radius: 3px; color: #b00020;
+                    }
+                    .o_sd_fp_hide_col:hover { background-color: #fdeaea; }
+                    .o_sd_fp_item.o_sd_fp_item_disabled { color: #999; cursor: default; }
+                    .o_sd_fp_item.o_sd_fp_item_disabled input { cursor: default; }
+                </style>
+            </head>
+            <body>
+                <div class="o_sd_toolbar">
+                    <h2><t t-esc="run.name"/> — Salary Dashboard</h2>
+                    <input type="text" id="o_sd_global_search" class="o_sd_search" placeholder="Search all columns…"/>
+                    <button type="button" id="o_sd_clear_filters" class="o_sd_clear_btn">Clear Filters</button>
+                    <button type="button" id="o_sd_columns_btn" class="o_sd_columns_btn">Columns ▾</button>
+                    <span id="o_sd_row_count" class="o_sd_count"></span>
+                    <a class="o_sd_export_btn" t-attf-href="/hr_payroll_salary_dashboard/salary_dashboard_xlsx/#{run.id}">
+                        Export to Excel
+                    </a>
+                </div>
+                <p><t t-esc="run.date_start"/> to <t t-esc="run.date_end"/></p>
+                <div class="o_sd_scroll">
+                    <table id="o_sd_table">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Emp Code</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Location</th>
+                                <th>DOJ</th>
+                                <th>DOE</th>
+                                <th>Type</th>
+                                <th>Bank Name</th>
+                                <th>Account Number</th>
+                                <t t-foreach="earning_columns" t-as="ecol">
+                                    <th t-esc="ecol"/>
+                                </t>
+                                <th>Gross</th>
+                                <th t-if="show_hol">HOL</th>
+                                <t t-foreach="paid_leave_columns" t-as="plcol">
+                                    <th t-esc="plcol"/>
+                                </t>
+                                <t t-foreach="unpaid_leave_columns" t-as="ulcol">
+                                    <th t-esc="'%s (Unpaid)' % ulcol"/>
+                                </t>
+                                <th t-if="show_lop">LOP</th>
+                                <th>Worked Days</th>
+                                <t t-foreach="deduction_columns" t-as="dcol">
+                                    <th t-esc="dcol"/>
+                                </t>
+                                <th>Total Deductions</th>
+                                <th>Net Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="rows" t-as="row">
+                                <tr>
+                                    <td><t t-esc="row['sno']"/></td>
+                                    <td>
+                                        <a t-attf-href="/web#id=#{row['slip_id']}&amp;model=hr.payslip&amp;view_type=form"
+                                           target="_blank" class="o_sd_slip_link">
+                                            <t t-esc="row['employee_code']"/>
+                                        </a>
+                                    </td>
+                                    <td><t t-esc="row['employee_name']"/></td>
+                                    <td><t t-esc="row['department']"/></td>
+                                    <td><t t-esc="row['location']"/></td>
+                                    <td><t t-esc="row['doj']"/></td>
+                                    <td><t t-esc="row['doe']"/></td>
+                                    <td><t t-esc="row['employee_type']"/></td>
+                                    <td><t t-esc="row['bank_name']"/></td>
+                                    <td><t t-esc="row['account_number']"/></td>
+                                    <t t-foreach="earning_columns" t-as="ecol">
+                                        <td class="text-end"><t t-esc="'%.2f' % row['earnings'].get(ecol, 0.0)"/></td>
+                                    </t>
+                                    <td class="text-end"><t t-esc="'%.2f' % row['gross']"/></td>
+                                    <td t-if="show_hol" class="text-end"><t t-esc="'%.1f' % row['hol']"/></td>
+                                    <t t-foreach="paid_leave_columns" t-as="plcol">
+                                        <td class="text-end"><t t-esc="'%.1f' % row['paid_leaves'].get(plcol, 0.0)"/></td>
+                                    </t>
+                                    <t t-foreach="unpaid_leave_columns" t-as="ulcol">
+                                        <td class="text-end"><t t-esc="'%.1f' % row['unpaid_leaves'].get(ulcol, 0.0)"/></td>
+                                    </t>
+                                    <td t-if="show_lop" class="text-end"><t t-esc="'%.1f' % row['lop']"/></td>
+                                    <td class="text-end"><t t-esc="'%.1f' % row['worked_days']"/></td>
+                                    <t t-foreach="deduction_columns" t-as="dcol">
+                                        <td class="text-end"><t t-esc="'%.2f' % row['deductions'].get(dcol, 0.0)"/></td>
+                                    </t>
+                                    <td class="text-end"><t t-esc="'%.2f' % row['total_deductions']"/></td>
+                                    <td class="text-end"><t t-esc="'%.2f' % row['net']"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr id="o_sd_totals_row">
+                                <td colspan="10">Total</td>
+                                <t t-foreach="earning_columns" t-as="ecol">
+                                    <td class="text-end" t-attf-data-sum-field="earn_#{ecol}">
+                                        <t t-esc="'%.2f' % sum(r['earnings'].get(ecol, 0.0) for r in rows)"/>
+                                    </td>
+                                </t>
+                                <td class="text-end" t-att-data-sum-field="'gross'"><t t-esc="'%.2f' % sum(r['gross'] for r in rows)"/></td>
+                                <td t-if="show_hol" class="text-end" t-att-data-sum-field="'hol'"><t t-esc="'%.1f' % sum(r['hol'] for r in rows)"/></td>
+                                <t t-foreach="paid_leave_columns" t-as="plcol">
+                                    <td class="text-end" t-attf-data-sum-field="paid_#{plcol}">
+                                        <t t-esc="'%.1f' % sum(r['paid_leaves'].get(plcol, 0.0) for r in rows)"/>
+                                    </td>
+                                </t>
+                                <t t-foreach="unpaid_leave_columns" t-as="ulcol">
+                                    <td class="text-end" t-attf-data-sum-field="unpaid_#{ulcol}">
+                                        <t t-esc="'%.1f' % sum(r['unpaid_leaves'].get(ulcol, 0.0) for r in rows)"/>
+                                    </td>
+                                </t>
+                                <td t-if="show_lop" class="text-end" t-att-data-sum-field="'lop'"><t t-esc="'%.1f' % sum(r['lop'] for r in rows)"/></td>
+                                <td class="text-end" t-att-data-sum-field="'worked_days'"><t t-esc="'%.1f' % sum(r['worked_days'] for r in rows)"/></td>
+                                <t t-foreach="deduction_columns" t-as="dcol">
+                                    <td class="text-end" t-attf-data-sum-field="ded_#{dcol}">
+                                        <t t-esc="'%.2f' % sum(r['deductions'].get(dcol, 0.0) for r in rows)"/>
+                                    </td>
+                                </t>
+                                <td class="text-end" t-att-data-sum-field="'total_deductions'"><t t-esc="'%.2f' % sum(r['total_deductions'] for r in rows)"/></td>
+                                <td class="text-end" t-att-data-sum-field="'net'"><t t-esc="'%.2f' % sum(r['net'] for r in rows)"/></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <script type="text/javascript">//<![CDATA[
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var table = document.getElementById('o_sd_table');
+                        var thead = table.tHead;
+                        var headerRow = thead.rows[0];
+                        var tbody = table.tBodies[0];
+                        var totalsRow = document.getElementById('o_sd_totals_row');
+                        var scrollEl = document.querySelector('.o_sd_scroll');
+                        var rows = Array.prototype.slice.call(tbody.rows);
+                        var colCount = headerRow.cells.length;
+
+                        // One <col> per column lets a whole column (header, every
+                        // body cell, totals cell) be hidden in one shot via
+                        // visibility:collapse, instead of touching every <td>.
+                        var colgroup = document.createElement('colgroup');
+                        for (var gi = 0; gi < colCount; gi++) {
+                            colgroup.appendChild(document.createElement('col'));
+                        }
+                        table.insertBefore(colgroup, table.firstChild);
+                        var cols = colgroup.children;
+                        var hiddenCols = {};
+                        // S.No / Emp Code / Name are the pinned identity columns - hiding
+                        // one would leave a gap since the others' sticky "left" offsets
+                        // are fixed pixel values, not recalculated around visible
+                        // siblings. Simplest safe rule: keep them always visible.
+                        var PINNED_COL_COUNT = 3;
+
+                        function setColumnVisibility(colIdx, visible) {
+                            if (colIdx < PINNED_COL_COUNT) { return; }
+                            cols[colIdx].style.visibility = visible ? '' : 'collapse';
+                            if (visible) { delete hiddenCols[colIdx]; } else { hiddenCols[colIdx] = true; }
+                        }
+
+                        // columnFilters[colIdx] = Set of currently-selected (checked)
+                        // values for that column. No entry = no filter = show all,
+                        // exactly like Excel/Sheets treats "everything checked".
+                        var columnFilters = {};
+                        var globalFilter = '';
+                        var uniqueValuesCache = {};
+
+                        function decimalsOf(text) {
+                            var i = text.indexOf('.');
+                            return i === -1 ? 0 : (text.length - i - 1);
+                        }
+
+                        function compareValues(a, b) {
+                            var an = parseFloat(a), bn = parseFloat(b);
+                            if (a !== '' && b !== '' && !isNaN(an) && !isNaN(bn)) { return an - bn; }
+                            return a.localeCompare(b);
+                        }
+
+                        function getUniqueValues(colIdx) {
+                            if (uniqueValuesCache[colIdx]) { return uniqueValuesCache[colIdx]; }
+                            var seen = {};
+                            rows.forEach(function (row) {
+                                var text = row.cells[colIdx] ? row.cells[colIdx].textContent.trim() : '';
+                                seen[text] = true;
+                            });
+                            var values = Object.keys(seen).sort(compareValues);
+                            uniqueValuesCache[colIdx] = values;
+                            return values;
+                        }
+
+                        function updateFilterButtonState() {
+                            for (var i = 0; i < colCount; i++) {
+                                var btn = headerRow.cells[i].querySelector('.o_sd_filter_btn');
+                                if (btn) { btn.classList.toggle('o_sd_filter_active', !!columnFilters[i]); }
+                            }
+                        }
+
+                        function applyFilters() {
+                            var visibleCount = 0;
+                            rows.forEach(function (row) {
+                                var visible = true;
+                                for (var i = 0; i < colCount; i++) {
+                                    var filterSet = columnFilters[i];
+                                    if (!filterSet) { continue; }
+                                    var cellText = row.cells[i] ? row.cells[i].textContent.trim() : '';
+                                    if (!filterSet.has(cellText)) { visible = false; break; }
+                                }
+                                if (visible && globalFilter) {
+                                    visible = row.textContent.toLowerCase().indexOf(globalFilter) !== -1;
+                                }
+                                row.classList.toggle('o_sd_row_hidden', !visible);
+                                if (visible) { visibleCount++; }
+                            });
+                            document.getElementById('o_sd_row_count').textContent =
+                                'Showing ' + visibleCount + ' of ' + rows.length + ' rows';
+                            recomputeTotals();
+                        }
+
+                        function recomputeTotals() {
+                            // The totals row's leading "Total" cell has colspan=10,
+                            // collapsing 10 columns into one DOM cell - totalsRow.cells'
+                            // own indices don't line up with body rows' cells (which
+                            // have no colspan). Track the running visual column instead
+                            // by accumulating each cell's own span.
+                            var visualCol = 0;
+                            Array.prototype.forEach.call(totalsRow.cells, function (td) {
+                                var span = td.colSpan || 1;
+                                var field = td.getAttribute('data-sum-field');
+                                if (field) {
+                                    var idx = visualCol;
+                                    var decimals = decimalsOf(td.textContent.trim());
+                                    var sum = 0;
+                                    rows.forEach(function (row) {
+                                        if (row.classList.contains('o_sd_row_hidden')) { return; }
+                                        var raw = row.cells[idx] ? row.cells[idx].textContent : '0';
+                                        var n = parseFloat(raw.replace(/,/g, ''));
+                                        if (!isNaN(n)) { sum += n; }
+                                    });
+                                    td.textContent = sum.toFixed(decimals);
+                                }
+                                visualCol += span;
+                            });
+                        }
+
+                        function sortByColumn(idx, dir) {
+                            rows = rows.slice().sort(function (a, b) {
+                                var av = (a.cells[idx] ? a.cells[idx].textContent : '').trim();
+                                var bv = (b.cells[idx] ? b.cells[idx].textContent : '').trim();
+                                return compareValues(av, bv) * dir;
+                            });
+                            rows.forEach(function (row) { tbody.appendChild(row); });
+                        }
+
+                        // ── Excel/Sheets-style per-column filter dropdown ────────────
+                        var activePanel = null;
+                        var activeColIdx = null;
+
+                        function closePanel() {
+                            if (activePanel) {
+                                activePanel.remove();
+                                activePanel = null;
+                                activeColIdx = null;
+                            }
+                        }
+
+                        function positionPanel(panel, anchorEl) {
+                            var rect = anchorEl.getBoundingClientRect();
+                            var panelWidth = 260;
+                            var left = Math.min(rect.left, window.innerWidth - panelWidth - 8);
+                            panel.style.top = (rect.bottom + 4) + 'px';
+                            panel.style.left = Math.max(8, left) + 'px';
+                        }
+
+                        function buildFilterPanel(colIdx) {
+                            var panel = document.createElement('div');
+                            panel.className = 'o_sd_filter_panel';
+
+                            var sortAsc = document.createElement('button');
+                            sortAsc.type = 'button';
+                            sortAsc.className = 'o_sd_fp_sort';
+                            sortAsc.textContent = '↑ Sort A to Z';
+                            sortAsc.addEventListener('click', function () { sortByColumn(colIdx, 1); closePanel(); });
+                            panel.appendChild(sortAsc);
+
+                            var sortDesc = document.createElement('button');
+                            sortDesc.type = 'button';
+                            sortDesc.className = 'o_sd_fp_sort';
+                            sortDesc.textContent = '↓ Sort Z to A';
+                            sortDesc.addEventListener('click', function () { sortByColumn(colIdx, -1); closePanel(); });
+                            panel.appendChild(sortDesc);
+
+                            if (colIdx >= PINNED_COL_COUNT) {
+                                var hideColBtn = document.createElement('button');
+                                hideColBtn.type = 'button';
+                                hideColBtn.className = 'o_sd_fp_hide_col';
+                                hideColBtn.textContent = '🚫 Hide column';
+                                hideColBtn.addEventListener('click', function () {
+                                    setColumnVisibility(colIdx, false);
+                                    closePanel();
+                                });
+                                panel.appendChild(hideColBtn);
+                            }
+
+                            panel.appendChild(document.createElement('hr')).className = 'o_sd_fp_sep';
+
+                            var searchBox = document.createElement('input');
+                            searchBox.type = 'text';
+                            searchBox.className = 'o_sd_fp_search';
+                            searchBox.placeholder = 'Search values';
+                            panel.appendChild(searchBox);
+
+                            var actions = document.createElement('div');
+                            actions.className = 'o_sd_fp_actions';
+                            var selectAllLink = document.createElement('a');
+                            selectAllLink.textContent = 'Select all';
+                            var clearLink = document.createElement('a');
+                            clearLink.textContent = 'Clear';
+                            actions.appendChild(selectAllLink);
+                            actions.appendChild(document.createTextNode('·'));
+                            actions.appendChild(clearLink);
+                            panel.appendChild(actions);
+
+                            var list = document.createElement('div');
+                            list.className = 'o_sd_fp_list';
+                            panel.appendChild(list);
+
+                            var allValues = getUniqueValues(colIdx);
+                            var existingFilter = columnFilters[colIdx];
+                            var pendingSelection = existingFilter ? new Set(existingFilter) : new Set(allValues);
+
+                            function renderList(filterText) {
+                                list.innerHTML = '';
+                                var lower = (filterText || '').toLowerCase();
+                                allValues.forEach(function (val) {
+                                    var label = val === '' ? '(Blanks)' : val;
+                                    if (lower && label.toLowerCase().indexOf(lower) === -1) { return; }
+                                    var item = document.createElement('label');
+                                    item.className = 'o_sd_fp_item';
+                                    var cb = document.createElement('input');
+                                    cb.type = 'checkbox';
+                                    cb.checked = pendingSelection.has(val);
+                                    cb.addEventListener('change', function () {
+                                        if (cb.checked) { pendingSelection.add(val); } else { pendingSelection.delete(val); }
+                                    });
+                                    var span = document.createElement('span');
+                                    span.textContent = label;
+                                    item.appendChild(cb);
+                                    item.appendChild(span);
+                                    list.appendChild(item);
+                                });
+                            }
+                            renderList('');
+
+                            searchBox.addEventListener('input', function () { renderList(searchBox.value); });
+                            searchBox.addEventListener('click', function (ev) { ev.stopPropagation(); });
+
+                            selectAllLink.addEventListener('click', function (ev) {
+                                ev.preventDefault();
+                                allValues.forEach(function (v) { pendingSelection.add(v); });
+                                renderList(searchBox.value);
+                            });
+                            clearLink.addEventListener('click', function (ev) {
+                                ev.preventDefault();
+                                pendingSelection.clear();
+                                renderList(searchBox.value);
+                            });
+
+                            var footer = document.createElement('div');
+                            footer.className = 'o_sd_fp_footer';
+                            var cancelBtn = document.createElement('button');
+                            cancelBtn.type = 'button';
+                            cancelBtn.textContent = 'Cancel';
+                            cancelBtn.addEventListener('click', function () { closePanel(); });
+                            var okBtn = document.createElement('button');
+                            okBtn.type = 'button';
+                            okBtn.className = 'o_sd_fp_ok';
+                            okBtn.textContent = 'OK';
+                            okBtn.addEventListener('click', function () {
+                                if (pendingSelection.size >= allValues.length) {
+                                    delete columnFilters[colIdx];
+                                } else {
+                                    columnFilters[colIdx] = pendingSelection;
+                                }
+                                applyFilters();
+                                updateFilterButtonState();
+                                closePanel();
+                            });
+                            footer.appendChild(cancelBtn);
+                            footer.appendChild(okBtn);
+                            panel.appendChild(footer);
+
+                            panel.addEventListener('click', function (ev) { ev.stopPropagation(); });
+                            return panel;
+                        }
+
+                        function toggleFilterPanel(colIdx, anchorEl) {
+                            if (activePanel && activeColIdx === colIdx) {
+                                closePanel();
+                                return;
+                            }
+                            closePanel();
+                            activeColIdx = colIdx;
+                            var panel = buildFilterPanel(colIdx);
+                            document.body.appendChild(panel);
+                            positionPanel(panel, anchorEl);
+                            activePanel = panel;
+                            var searchInput = panel.querySelector('.o_sd_fp_search');
+                            if (searchInput) { searchInput.focus(); }
+                        }
+
+                        // ── Master "Columns" panel: show/hide any column, and bring
+                        // back ones hidden via the per-column "Hide column" action ──
+                        function buildColumnsPanel() {
+                            var panel = document.createElement('div');
+                            panel.className = 'o_sd_filter_panel';
+
+                            var searchBox = document.createElement('input');
+                            searchBox.type = 'text';
+                            searchBox.className = 'o_sd_fp_search';
+                            searchBox.placeholder = 'Search columns';
+                            panel.appendChild(searchBox);
+
+                            var actions = document.createElement('div');
+                            actions.className = 'o_sd_fp_actions';
+                            var showAllLink = document.createElement('a');
+                            showAllLink.textContent = 'Show all';
+                            var hideAllLink = document.createElement('a');
+                            hideAllLink.textContent = 'Hide all';
+                            actions.appendChild(showAllLink);
+                            actions.appendChild(document.createTextNode('·'));
+                            actions.appendChild(hideAllLink);
+                            panel.appendChild(actions);
+
+                            var list = document.createElement('div');
+                            list.className = 'o_sd_fp_list';
+                            panel.appendChild(list);
+
+                            function renderList(filterText) {
+                                list.innerHTML = '';
+                                var lower = (filterText || '').toLowerCase();
+                                for (var i = 0; i < colCount; i++) {
+                                    (function (idx) {
+                                        var label = columnLabels[idx] || ('Column ' + (idx + 1));
+                                        if (lower && label.toLowerCase().indexOf(lower) === -1) { return; }
+                                        var pinned = idx < PINNED_COL_COUNT;
+                                        var item = document.createElement('label');
+                                        item.className = 'o_sd_fp_item' + (pinned ? ' o_sd_fp_item_disabled' : '');
+                                        var cb = document.createElement('input');
+                                        cb.type = 'checkbox';
+                                        cb.checked = !hiddenCols[idx];
+                                        cb.disabled = pinned;
+                                        cb.addEventListener('change', function () {
+                                            setColumnVisibility(idx, cb.checked);
+                                        });
+                                        var span = document.createElement('span');
+                                        span.textContent = label + (pinned ? ' (always shown)' : '');
+                                        item.appendChild(cb);
+                                        item.appendChild(span);
+                                        list.appendChild(item);
+                                    })(i);
+                                }
+                            }
+                            renderList('');
+
+                            searchBox.addEventListener('input', function () { renderList(searchBox.value); });
+                            searchBox.addEventListener('click', function (ev) { ev.stopPropagation(); });
+
+                            showAllLink.addEventListener('click', function (ev) {
+                                ev.preventDefault();
+                                for (var i = PINNED_COL_COUNT; i < colCount; i++) { setColumnVisibility(i, true); }
+                                renderList(searchBox.value);
+                            });
+                            hideAllLink.addEventListener('click', function (ev) {
+                                ev.preventDefault();
+                                for (var i = PINNED_COL_COUNT; i < colCount; i++) { setColumnVisibility(i, false); }
+                                renderList(searchBox.value);
+                            });
+
+                            panel.addEventListener('click', function (ev) { ev.stopPropagation(); });
+                            return panel;
+                        }
+
+                        function toggleColumnsPanel(anchorEl) {
+                            if (activePanel && activeColIdx === 'columns') {
+                                closePanel();
+                                return;
+                            }
+                            closePanel();
+                            activeColIdx = 'columns';
+                            var panel = buildColumnsPanel();
+                            document.body.appendChild(panel);
+                            positionPanel(panel, anchorEl);
+                            activePanel = panel;
+                            var searchInput = panel.querySelector('.o_sd_fp_search');
+                            if (searchInput) { searchInput.focus(); }
+                        }
+
+                        document.addEventListener('click', function (ev) {
+                            if (activePanel && !activePanel.contains(ev.target)) { closePanel(); }
+                        });
+                        document.addEventListener('keydown', function (ev) {
+                            if (ev.key === 'Escape') { closePanel(); }
+                        });
+                        scrollEl.addEventListener('scroll', closePanel);
+                        window.addEventListener('scroll', closePanel);
+                        window.addEventListener('resize', closePanel);
+
+                        var columnLabels = [];
+                        for (var c = 0; c < colCount; c++) {
+                            (function (idx) {
+                                var th = headerRow.cells[idx];
+                                columnLabels[idx] = th.textContent.trim();
+                                th.classList.add('o_sd_sortable');
+                                var btn = document.createElement('span');
+                                btn.className = 'o_sd_filter_btn';
+                                btn.textContent = '▾';
+                                btn.title = 'Filter / Sort';
+                                btn.addEventListener('click', function (ev) {
+                                    ev.stopPropagation();
+                                    toggleFilterPanel(idx, btn);
+                                });
+                                th.appendChild(btn);
+                            })(c);
+                        }
+
+                        // ── Toolbar: global search + clear-all ───────────────────────
+                        var globalSearchEl = document.getElementById('o_sd_global_search');
+                        globalSearchEl.addEventListener('input', function () {
+                            globalFilter = this.value.trim().toLowerCase();
+                            applyFilters();
+                        });
+
+                        document.getElementById('o_sd_clear_filters').addEventListener('click', function () {
+                            columnFilters = {};
+                            globalFilter = '';
+                            globalSearchEl.value = '';
+                            updateFilterButtonState();
+                            applyFilters();
+                        });
+
+                        var columnsBtn = document.getElementById('o_sd_columns_btn');
+                        columnsBtn.addEventListener('click', function (ev) {
+                            ev.stopPropagation();
+                            toggleColumnsPanel(columnsBtn);
+                        });
+
+                        // Click a row to keep it highlighted (same light-blue as
+                        // hover) until another row is clicked, or the same row
+                        // is clicked again to deselect it.
+                        tbody.addEventListener('click', function (ev) {
+                            var row = ev.target.closest('tr');
+                            if (!row || row.parentNode !== tbody) { return; }
+                            var alreadySelected = row.classList.contains('o_sd_row_selected');
+                            rows.forEach(function (r) { r.classList.remove('o_sd_row_selected'); });
+                            if (!alreadySelected) { row.classList.add('o_sd_row_selected'); }
+                        });
+
+                        applyFilters();
+                    });
+                //]]>                </script>
+            </body>
+        </html>
+    </template>
+
+</odoo>

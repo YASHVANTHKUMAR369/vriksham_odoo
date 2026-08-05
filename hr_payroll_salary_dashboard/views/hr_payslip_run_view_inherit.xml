@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="hr_payslip_run_view_form_inherit_salary_dashboard" model="ir.ui.view">
+        <field name="name">hr.payslip.run.view.form.inherit.salary.dashboard</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="hr_payroll_community.hr_payslip_run_view_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//label[@for='name']" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_open_salary_dashboard"
+                            type="object" class="oe_stat_button" icon="fa-table">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Salary Dashboard</span>
+                        </div>
+                    </button>
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>
