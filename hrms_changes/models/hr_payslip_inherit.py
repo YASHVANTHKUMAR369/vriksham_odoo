@@ -51,6 +51,10 @@ class HrPayslip(models.Model):
     _inherit = 'hr.payslip'
 
     days_calculation = fields.Html(string='Days Calculation')
+    manual_attendance = fields.Boolean(string='Manual Attendance')
+    manual_attendance_days = fields.Float(string='Manual Attendance Days')
+    manual_weekoff = fields.Boolean(string='Manual Weekoff')
+    manual_weekoff_days = fields.Float(string='Manual Weekoff Days')
     loan_ids = fields.Many2many(
         comodel_name="hr.loan.line",
         string="Loan Records",
@@ -223,7 +227,9 @@ class HrPayslip(models.Model):
             'lop_days': lop_days,
         }
 
-    @api.depends('contract_id', 'date_from', 'date_to', 'input_line_ids', 'employee_pf', 'professional_tax', 'tds_amount')
+    @api.depends('contract_id', 'date_from', 'date_to', 'input_line_ids', 'employee_pf', 'professional_tax',
+                 'tds_amount', 'manual_attendance', 'manual_attendance_days', 'manual_weekoff', 'manual_weekoff_days',
+                 'loan_ids', 'salary_advance_ids')
     def compute_net_salary(self):
         for payslip in self:
             payslip.gross_salary = 0
@@ -337,6 +343,8 @@ class HrPayslip(models.Model):
                 attendance_days = float(sum(1 for work_date in attendance_hours_by_day if str(work_date.weekday()) in week_days))
 
         attendance_days = round(attendance_days, 2)
+        if self.manual_attendance:
+            attendance_days = round(self.manual_attendance_days, 2)
 
         week_days = list(set(calendar.attendance_ids.mapped('dayofweek'))) if calendar else ['0', '1', '2', '3', '4', '5', '6']
         week_day_set = set(week_days)
@@ -399,6 +407,8 @@ class HrPayslip(models.Model):
             if str(current_day.weekday()) not in week_days:
                 week_off_count+=1
             current_day += timedelta(days=1)
+        if self.manual_weekoff:
+            week_off_count = round(self.manual_weekoff_days, 2)
         paid_leaves = {}
         unpaid_leaves = {}
         applied_leaves = 0
@@ -717,6 +727,17 @@ class HrPayslip(models.Model):
             rec._compute_get_days_calculation_data()
         return super().action_compute_sheet()
 
+    def action_compute_worked_days(self):
+        for rec in self:
+            if not rec.date_from or not rec.date_to:
+                continue
+            worked_days_vals = rec.get_worked_day_lines(rec.contract_id, rec.date_from, rec.date_to)
+            rec.worked_days_line_ids = [(5, 0, 0)] + [(0, 0, vals) for vals in worked_days_vals]
+            rec._set_statutory_defaults_from_contract()
+            rec._update_loan_ids_by_date_range()
+            rec._compute_get_days_calculation_data()
+        return True
+
     def action_create_journal_entry(self):
         if not self.env.user.has_group('account.group_account_user') and not self.env.user.has_group('account.group_account_manager'):
             raise UserError(_('Only Accounting users can create journal entries.'))
@@ -912,6 +933,7 @@ class HrPayslip(models.Model):
         worked_days_lines = self.worked_days_line_ids.browse([])
         for r in worked_days_line_ids:
             worked_days_lines += worked_days_lines.new(r)
+        self.worked_days_line_ids = worked_days_lines
         self._set_statutory_defaults_from_contract()
         self._update_loan_ids_by_date_range()
         self._compute_get_days_calculation_data()
@@ -920,6 +942,15 @@ class HrPayslip(models.Model):
     @api.onchange('date_to')
     def onchange_date_to(self):
         self._update_loan_ids_by_date_range()
+        self._compute_get_days_calculation_data()
+        return
+
+    @api.onchange('manual_attendance', 'manual_attendance_days', 'manual_weekoff', 'manual_weekoff_days')
+    def onchange_manual_attendance(self):
+        if not self.manual_attendance:
+            self.manual_attendance_days = 0
+        if not self.manual_weekoff:
+            self.manual_weekoff_days = 0
         self._compute_get_days_calculation_data()
         return
 

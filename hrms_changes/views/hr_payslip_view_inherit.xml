@@ -67,8 +67,12 @@
                     class="btn-secondary"/>
             </xpath>
 
-            <xpath expr="//button[@name='action_compute_sheet']" position="attributes">
-                <attribute name="invisible">1</attribute>
+            <xpath expr="//button[@name='action_compute_sheet']" position="replace">
+                <button string="Compute"
+                        name="action_compute_worked_days"
+                        type="object"
+                        invisible="state != 'draft'"
+                        class="btn-secondary"/>
             </xpath>
 
             <xpath expr="//button[@name='action_refund_sheet']" position="attributes">
@@ -136,6 +140,12 @@
                                     </form>
                                 </field>
                         <separator string="Worked Days"/>
+                        <group name="manual_attendance_group" col="2">
+                            <field name="manual_attendance" widget="boolean_toggle" readonly="state == 'done'"/>
+                            <field name="manual_attendance_days" readonly="state == 'done'" invisible="not manual_attendance" required="manual_attendance"/>
+                            <field name="manual_weekoff" widget="boolean_toggle" readonly="state == 'done'"/>
+                            <field name="manual_weekoff_days" readonly="state == 'done'" invisible="not manual_weekoff" required="manual_weekoff"/>
+                        </group>
                         <group>
                             <field name="days_calculation" readonly="1" force_save="1"/>
                         </group>
