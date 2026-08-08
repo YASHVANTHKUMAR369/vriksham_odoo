@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_menu_configurator_user,menu.configurator.user,model_menu_configurator,base.group_user,1,0,0,0
+access_menu_configurator_manager,menu.configurator.manager,model_menu_configurator,base.group_system,1,1,1,1

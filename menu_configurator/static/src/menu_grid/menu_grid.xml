@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="menu_configurator.MenuGrid" owl="1">
+        <div class="o_action_manager">
+            <div class="o_home_menu h-100 overflow-auto">
+                <div class="container">
+                    <div t-if="state.stack.length" class="d-flex align-items-center mt-3">
+                        <button class="btn btn-link px-0" t-on-click="goToRoot">
+                            <i class="fa fa-th-large me-1"/> All
+                        </button>
+                        <t t-foreach="state.stack" t-as="crumb" t-key="crumb.id">
+                            <span class="mx-1">/</span>
+                            <span t-esc="crumb.name"/>
+                        </t>
+                        <button class="btn btn-link ms-2" t-on-click="goBack">
+                            <i class="fa fa-arrow-left me-1"/> Back
+                        </button>
+                    </div>
+                    <div t-if="!visibleTiles.length" class="text-center text-muted mt-5">
+                        No menu tiles configured yet. Go to
+                        <b>Menu Configurator &gt; Configuration</b> to add some.
+                    </div>
+                    <div t-else="" role="listbox" class="o_apps row user-select-none mt-3 mx-0">
+                        <div t-foreach="visibleTiles" t-as="tile" t-key="tile.id"
+                             class="col-3 col-md-2 o_draggable mb-3 px-0">
+                            <a role="option"
+                               class="o_app o_menuitem d-flex flex-column rounded-3 justify-content-start align-items-center w-100 p-1 p-md-2"
+                               aria-selected="false" t-on-click="() => this.openTile(tile)">
+                                <img class="o_app_icon rounded-3"
+                                     t-attf-src="/web/image/menu.configurator/{{tile.id}}/icon"/>
+                                <div class="o_caption w-100 text-center text-truncate mt-2" t-esc="tile.name"/>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
