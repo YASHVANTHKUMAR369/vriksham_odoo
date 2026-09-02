@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_invoice_xmlrpc_dashboard_form" model="ir.ui.view">
+            <field name="name">invoice.xmlrpc.dashboard.form</field>
+            <field name="model">invoice.xmlrpc.dashboard</field>
+            <field name="arch" type="xml">
+                <form string="Invoice XML-RPC Dashboard">
+                    <header>
+                        <button name="action_fetch_data" type="object"
+                                string="Fetch Data" class="btn-primary"/>
+                        <button name="action_print_pdf" type="object"
+                                string="Print PDF" class="btn-secondary"
+                                invisible="state != 'fetched'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,fetched"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" placeholder="e.g. INV/25-26/146"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <field name="raw_data" readonly="1" nolabel="1"
+                                   placeholder="Click 'Fetch Data' to load the invoice from the remote Odoo server..."
+                                   style="white-space: pre-wrap; font-family: monospace;"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_invoice_xmlrpc_dashboard_list" model="ir.ui.view">
+            <field name="name">invoice.xmlrpc.dashboard.list</field>
+            <field name="model">invoice.xmlrpc.dashboard</field>
+            <field name="arch" type="xml">
+                <list string="Invoice XML-RPC Dashboard">
+                    <field name="name"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_invoice_xmlrpc_dashboard" model="ir.actions.act_window">
+            <field name="name">Invoice Dashboard</field>
+            <field name="res_model">invoice.xmlrpc.dashboard</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Fetch an invoice from a remote Odoo server
+                </p>
+                <p>
+                    Enter an invoice number and click "Fetch Data" to pull it from the
+                    remote Odoo server configured in Settings.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

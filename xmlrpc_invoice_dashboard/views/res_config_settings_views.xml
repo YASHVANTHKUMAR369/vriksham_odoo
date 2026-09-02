@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.xmlrpc.invoice.dashboard</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="60"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <div class="app_settings_block" data-string="Invoice XML-RPC"
+                         string="Invoice XML-RPC" data-key="xmlrpc_invoice_dashboard">
+                        <h2>Remote Odoo Connection</h2>
+                        <div class="row mt16 o_settings_container" id="xmlrpc_invoice_dashboard_connection">
+                            <div class="col-lg-6 col-12 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <label for="xmlrpc_odoo_url"/>
+                                    <div class="text-muted">
+                                        Base URL of the Odoo server to fetch invoices from
+                                    </div>
+                                    <field name="xmlrpc_odoo_url" placeholder="https://mycompany.odoo.com"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-12 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <label for="xmlrpc_odoo_db"/>
+                                    <div class="text-muted">
+                                        Database name on that server
+                                    </div>
+                                    <field name="xmlrpc_odoo_db" placeholder="mycompany-main"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-12 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <label for="xmlrpc_odoo_username"/>
+                                    <div class="text-muted">
+                                        Login used to authenticate on that server
+                                    </div>
+                                    <field name="xmlrpc_odoo_username" placeholder="user@example.com"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-12 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <label for="xmlrpc_odoo_password"/>
+                                    <div class="text-muted">
+                                        Password or API key for that login
+                                    </div>
+                                    <field name="xmlrpc_odoo_password" password="True"/>
+                                </div>
+                            </div>
+                        </div>
+                        <h2>Print</h2>
+                        <div class="row mt16 o_settings_container" id="xmlrpc_invoice_dashboard_signature">
+                            <div class="col-lg-6 col-12 o_setting_box">
+                                <div class="o_setting_right_pane">
+                                    <label for="xmlrpc_invoice_signature"/>
+                                    <div class="text-muted">
+                                        Printed above "Authorized signatory" on the GST invoice PDF
+                                    </div>
+                                    <field name="xmlrpc_invoice_signature" widget="image"
+                                           class="oe_avatar" options="{'size': [0, 100]}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="res_config_settings_action" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="context">{'module': 'xmlrpc_invoice_dashboard'}</field>
+        </record>
+
+    </data>
+</odoo>

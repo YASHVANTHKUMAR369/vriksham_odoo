@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="action_report_invoice_xmlrpc" model="ir.actions.report">
+            <field name="name">GST Invoice (XML-RPC)</field>
+            <field name="model">invoice.xmlrpc.dashboard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">xmlrpc_invoice_dashboard.report_invoice_xmlrpc_document</field>
+            <field name="report_file">xmlrpc_invoice_dashboard.report_invoice_xmlrpc_document</field>
+            <field name="print_report_name">'GST Invoice - %s' % (object.name or '')</field>
+            <field name="paperformat_id" ref="paperformat_invoice_xmlrpc"/>
+        </record>
+
+    </data>
+</odoo>

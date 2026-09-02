@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <menuitem id="menu_invoice_xmlrpc_dashboard_root"
+                  name="Invoice XML-RPC"
+                  sequence="60"/>
+
+        <menuitem id="menu_invoice_xmlrpc_dashboard_main"
+                  name="Dashboard"
+                  parent="menu_invoice_xmlrpc_dashboard_root"
+                  action="action_invoice_xmlrpc_dashboard"
+                  sequence="10"/>
+
+        <menuitem id="menu_invoice_xmlrpc_dashboard_config"
+                  name="Configuration"
+                  parent="menu_invoice_xmlrpc_dashboard_root"
+                  sequence="90"
+                  groups="base.group_system"/>
+
+        <menuitem id="menu_invoice_xmlrpc_dashboard_settings"
+                  name="Settings"
+                  parent="menu_invoice_xmlrpc_dashboard_config"
+                  action="res_config_settings_action"
+                  sequence="10"
+                  groups="base.group_system"/>
+
+    </data>
+</odoo>

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ================= HEADER ================= -->
+        <template id="report_invoice_xmlrpc_header">
+            <div class="header">
+                <table class="table table-sm table-borderless">
+                    <tr>
+                        <td style="width:50%;">
+                            <img t-if="o.company_logo"
+                                 t-att-src="image_data_uri(o.company_logo)"
+                                 style="max-height:55px;max-width:100%;" alt="Logo"/>
+                        </td>
+                        <td class="text-end" style="width:50%;">
+                            <strong style="font-size:13px;" t-out="o._company().get('name')"/>
+                            <t t-foreach="o._company_address_lines()" t-as="line">
+                                <div style="font-size:13px;" t-out="line"/>
+                            </t>
+                            <div style="font-size:13px;" t-out="o._company().get('phone')"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </template>
+
+        <!-- ================= FOOTER ================= -->
+        <template id="report_invoice_xmlrpc_footer">
+            <div class="footer">
+                <div class="text-center" style="font-size:10px;">
+                    <span t-out="o._company().get('name')"/>
+                    <t t-if="o._company().get('phone')">
+                        | <span t-out="o._company().get('phone')"/>
+                    </t>
+                    <t t-if="o._company().get('email')">
+                        | <span t-out="o._company().get('email')"/>
+                    </t>
+                </div>
+                <div class="text-center text-muted" style="font-size:9px;">
+                    Page <span class="page"/> / <span class="topage"/>
+                </div>
+            </div>
+        </template>
+
+        <!-- ================= BODY ================= -->
+        <template id="report_invoice_xmlrpc_body">
+            <center class="mt-2">
+                <h5>
+                    <strong>GST INVOICE</strong>
+                </h5>
+            </center>
+            <table style="font-size:13px;" class="table table-sm p-2 mt-2 table-bordered">
+                <tr>
+                    <td rowspan="6" width="50%">
+                        <strong t-out="o._partner().get('name')"/>
+                        <t t-foreach="o._partner_address_lines()" t-as="line">
+                            <div t-out="line"/>
+                        </t>
+                        <div t-out="o._partner().get('phone')"/>
+                        <div class="mt-3" style="font-size:12px;white-space: nowrap;">
+                            GSTIN :
+                            <span class="px-1" t-out="o._partner().get('vat')"/>
+                            PAN NO :
+                            <span class="px-1" t-out="o._partner().get('l10n_in_pan')"/>
+                        </div>
+                    </td>
+                    <td width="25%">Invoice No</td>
+                    <td width="25%">
+                        <span t-out="o._invoice().get('name')"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Invoice Date</td>
+                    <td>
+                        <span t-out="o._formatted_date('invoice_date')"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Billing Month</td>
+                    <td>
+                        <span t-out="o._billing_month()"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>PO/ Ref No</td>
+                    <td>
+                        <span t-out="o._invoice().get('ref')"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>GSTIN</td>
+                    <td>
+                        <span t-out="o._company().get('vat')"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>PAN No</td>
+                    <td>
+                        <span class="px-1" t-out="o._company().get('l10n_in_pan')"/>
+                    </td>
+                </tr>
+            </table>
+
+            <table style="font-size:13px;" class="table p-2 mt-3 table-bordered">
+                <thead>
+                    <tr>
+                        <th style="text-align: center;" width="55%">
+                            <strong>Description</strong>
+                        </th>
+                        <th style="text-align: center;" width="15%">
+                            <strong>SAC Code</strong>
+                        </th>
+                        <th style="text-align: center;" width="15%">
+                            <strong>Qty / Days</strong>
+                        </th>
+                        <th style="text-align: center;" width="15%">
+                            <strong>Price</strong>
+                        </th>
+                        <th style="text-align: center;" width="15%">
+                            <strong>Amount (in INR)</strong>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="o._lines()" t-as="line">
+                        <tr>
+                            <td>
+                                <span t-out="line.get('name')"/>
+                            </td>
+                            <td style="text-align: center;">
+                                <span t-out="line.get('l10n_in_hsn_code')"/>
+                            </td>
+                            <td style="text-align: right;">
+                                <span t-out="line.get('quantity')"/>
+                            </td>
+                            <td style="text-align: right;">
+                                <span t-out="line.get('price_unit')"/>
+                            </td>
+                            <td style="text-align: right;">
+                                <span t-out="o._fmt_amount(line.get('price_subtotal'))"/>
+                            </td>
+                        </tr>
+                    </t>
+                    <tr>
+                        <td t-att-rowspan="2 + len(o._tax_groups())"/>
+                        <td colspan="3">
+                            <strong>Sub Total</strong>
+                        </td>
+                        <td style="text-align: right;">
+                            <span t-out="o._fmt_amount(o._tax_totals().get('base_amount'))"/>
+                        </td>
+                    </tr>
+                    <t t-foreach="o._tax_groups()" t-as="tax">
+                        <tr>
+                            <td colspan="3">
+                                <strong t-out="tax.get('group_name')"/>
+                            </td>
+                            <td style="text-align: right;">
+                                <span t-out="o._fmt_amount(tax.get('tax_amount'))"/>
+                            </td>
+                        </tr>
+                    </t>
+                    <tr>
+                        <td colspan="3">
+                            <strong>Grand Total</strong>
+                        </td>
+                        <td style="text-align: right;">
+                            <span t-out="o._fmt_amount(o._tax_totals().get('total_amount'))"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="font-size:13px;">
+                <strong>Amount in words :</strong>
+                <strong t-out="o._invoice().get('amount_total_words')"/>
+            </div>
+
+            <div style="font-size:13px;page-break-inside: avoid;" class="mt-3">
+                <strong>Bank Details :</strong>
+                <table style="font-size:13px;" class="table p-2 table-sm table-bordered">
+                    <tr>
+                        <td width="25%">
+                            <span>Beneficiary Name</span>
+                        </td>
+                        <td width="25%">
+                            <span t-out="o._bank().get('beneficiary_name')"/>
+                        </td>
+                        <td width="25%">
+                            <span>Bank A/C No.</span>
+                        </td>
+                        <td width="25%">
+                            <span t-out="o._bank().get('acc_number')"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span>Bank Name</span>
+                        </td>
+                        <td>
+                            <span t-out="(o._bank().get('bank') or {}).get('name')"/>
+                        </td>
+                        <td>
+                            <span>Branch Name</span>
+                        </td>
+                        <td>
+                            <span t-out="(o._bank().get('bank') or {}).get('city')"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span>IFSC Code</span>
+                        </td>
+                        <td>
+                            <span t-out="(o._bank().get('bank') or {}).get('bic')"/>
+                        </td>
+                        <td>
+                            <span>A/C Type</span>
+                        </td>
+                        <td>
+                            <span>CURRENT ACCOUNT</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="font-size:13px;page-break-inside: avoid">
+                <div t-out="o._narration_html()"/>
+                <div class="mt-2 text-end">
+                    <span>
+                        For
+                        <strong t-out="o._company().get('name')"/>
+                    </span>
+                </div>
+                <div class="col-12 text-end" style="margin-left:50px">
+                    <t t-if="o.env.company.xmlrpc_invoice_signature">
+                        <img t-att-src="image_data_uri(o.env.company.xmlrpc_invoice_signature)"
+                             style="max-height: 52pt;max-width: 100%;" alt="Signature"/>
+                    </t>
+                    <t t-else="">
+                        <div class="col-12" style="min-height: 10rem"/>
+                    </t>
+                </div>
+                <div class="col-12 text-end">
+                    <span>Authorized signatory</span>
+                </div>
+            </div>
+        </template>
+
+        <!-- ================= DOCUMENT ================= -->
+        <template id="report_invoice_xmlrpc_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.basic_layout">
+                        <t t-call="xmlrpc_invoice_dashboard.report_invoice_xmlrpc_header"/>
+                        <t t-call="xmlrpc_invoice_dashboard.report_invoice_xmlrpc_body"/>
+                        <t t-call="xmlrpc_invoice_dashboard.report_invoice_xmlrpc_footer"/>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>
