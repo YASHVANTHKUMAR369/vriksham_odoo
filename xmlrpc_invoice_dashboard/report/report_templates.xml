@@ -61,7 +61,7 @@
                             GSTIN :
                             <span class="px-1" t-out="o._partner().get('vat')"/>
                             PAN NO :
-                            <span class="px-1" t-out="o._partner().get('l10n_in_pan')"/>
+                            <span class="px-1" t-out="o._m2o_name(o._partner().get('l10n_in_pan_entity_id'))"/>
                         </div>
                     </td>
                     <td width="25%">Invoice No</td>
@@ -96,7 +96,7 @@
                 <tr>
                     <td>PAN No</td>
                     <td>
-                        <span class="px-1" t-out="o._company().get('l10n_in_pan')"/>
+                        <span class="px-1" t-out="o._m2o_name(o._company().get('l10n_in_pan_entity_id'))"/>
                     </td>
                 </tr>
             </table>

@@ -98,7 +98,7 @@ class InvoiceXmlrpcDashboard(models.Model):
         if move.get('partner_id'):
             partner_fields = self._existing_fields(models_proxy, db, uid, password, 'res.partner', [
                 'name', 'street', 'street2', 'city', 'zip', 'state_id', 'country_id',
-                'vat', 'phone', 'email', 'l10n_in_pan',
+                'vat', 'phone', 'email', 'l10n_in_pan_entity_id',
             ])
             partners = execute('res.partner', 'read', [move['partner_id'][0]], fields=partner_fields)
             if partners:
@@ -109,7 +109,7 @@ class InvoiceXmlrpcDashboard(models.Model):
         if move.get('company_id'):
             company_fields = self._existing_fields(models_proxy, db, uid, password, 'res.company', [
                 'name', 'street', 'street2', 'city', 'zip', 'state_id', 'country_id',
-                'vat', 'phone', 'email', 'l10n_in_pan', 'logo',
+                'vat', 'phone', 'email', 'l10n_in_pan_entity_id', 'logo',
             ])
             companies = execute('res.company', 'read', [move['company_id'][0]], fields=company_fields)
             if companies:
